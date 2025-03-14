@@ -4,7 +4,17 @@ chrome.runtime.onInstalled.addListener(details => {
   updateExtensionState(false);
 });
 
-// Load extension state
+// Load extension state on tab update (when a tab is opened or refreshed)
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete') {
+    const data = await getData(tabId);
+    const isEnabled = data[`isEnabled_${tabId}`] || false;
+    updateExtensionState(isEnabled);
+    injectBorderScript(tabId);
+  }
+});
+
+// Load extension state on tab switch (when a tab is clicked)
 chrome.tabs.onActivated.addListener(async activeInfo => {
   const tabId = activeInfo.tabId;
   const data = await getData(tabId);
@@ -28,12 +38,7 @@ chrome.action.onClicked.addListener(async tab => {
   updateExtensionState(newState);
 
   // Execute script
-  await chrome.scripting
-    .executeScript({
-      target: { tabId: tab.id },
-      files: ['scripts/border.js'],
-    })
-    .catch(error => console.error('Error executing script:', error));
+  injectBorderScript(tabId);
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -41,6 +46,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ tabId: sender.tab?.id });
   }
 });
+
+function injectBorderScript(tabId) {
+  console.log('Injecting border script for tab:', tabId);
+  chrome.scripting
+    .executeScript({
+      target: { tabId: tabId },
+      files: ['scripts/border.js'],
+    })
+    .catch(error => console.error('Error executing script:', error));
+}
 
 function updateExtensionState(isEnabled) {
   chrome.action.setBadgeText({ text: isEnabled ? 'ON' : 'OFF' });
@@ -65,6 +80,8 @@ async function getData(tabId) {
     const tab = await getCurrentTab();
     tabId = tab.id;
   }
+
   const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
+  console.log('Data for tab', tabId, ':', data);
   return data;
 }
