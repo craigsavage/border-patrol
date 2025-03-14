@@ -25,32 +25,40 @@ chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
 function applyOutline(isEnabled, size = 1) {
   const defaultColor = 'red'; // Fallback color if tag not found
 
-  // Define element groups and their corresponding tags
+  // Define element groups with their tags and colors
   const elementGroups = {
-    containers: ['div', 'section', 'article', 'header', 'footer', 'main'],
-    tables: ['table', 'tr', 'td', 'th'],
-    text: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'],
-    media: ['img', 'picture', 'audio', 'video'],
-    interactive: ['a', 'form', 'input', 'textarea', 'select', 'button'],
+    containers: {
+      tags: ['div', 'section', 'article', 'header', 'footer', 'main'],
+      color: 'blue',
+    },
+    tables: {
+      tags: ['table', 'tr', 'td', 'th'],
+      color: 'skyblue',
+    },
+    text: {
+      tags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'],
+      color: 'green',
+    },
+    media: {
+      tags: ['img', 'picture', 'audio', 'video'],
+      color: 'purple',
+    },
+    interactive: {
+      tags: ['a', 'form', 'input', 'textarea', 'select', 'button'],
+      color: 'orange',
+    },
   };
 
-  // Define colors for each element group
-  const colors = {
-    containers: 'blue',
-    tables: 'skyblue',
-    text: 'green',
-    media: 'purple',
-    interactive: 'orange',
-  };
-
+  // Apply outline to all elements
   document.querySelectorAll('*').forEach(element => {
     const tag = element.tagName.toLowerCase();
     let color = defaultColor;
 
-    for (const [group, tags] of Object.entries(elementGroups)) {
+    // Determine element's group and apply corresponding color
+    for (const { tags, color: groupColor } of Object.values(elementGroups)) {
       if (tags.includes(tag)) {
-        color = colors[group];
-        break;
+        color = groupColor;
+        break; // Stop searching once a match is found
       }
     }
 
