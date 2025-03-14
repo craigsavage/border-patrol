@@ -23,6 +23,8 @@ chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
  * @param {number} size - The width of the outline in pixels.
  */
 function applyOutline(isEnabled, size = 1) {
+  const defaultColor = 'red'; // Fallback color if tag not found
+
   // Define element groups and their corresponding tags
   const elementGroups = {
     containers: ['div', 'section', 'article', 'header', 'footer', 'main'],
@@ -32,18 +34,18 @@ function applyOutline(isEnabled, size = 1) {
     interactive: ['a', 'form', 'input', 'textarea', 'select', 'button'],
   };
 
+  // Define colors for each element group
   const colors = {
     containers: 'blue',
-    tables: 'cyan',
+    tables: 'skyblue',
     text: 'green',
     media: 'purple',
     interactive: 'orange',
-    default: 'red', // Fallback color
   };
 
   document.querySelectorAll('*').forEach(element => {
     const tag = element.tagName.toLowerCase();
-    let color = colors.default; // Default color if tag not found
+    let color = defaultColor;
 
     for (const [group, tags] of Object.entries(elementGroups)) {
       if (tags.includes(tag)) {
