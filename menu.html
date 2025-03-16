@@ -9,6 +9,21 @@
 
   <!-- Menu is currently removed from manifest in favour of enable/disable on click -->
   <body>
-    <h1>Border Patrol Menu</h1>
+    <h1 id="title" class="title">Border Patrol</h1>
+
+    <div>
+      <label for="borderThickness" class="label">Border Thickness:</label>
+      <input type="range" id="borderThickness" min="1" max="5" value="1" />
+    </div>
+
+    <div>
+      <label for="borderStyle" class="label">Border Style:</label>
+      <select id="borderStyle">
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+        <option value="dotted">Dotted</option>
+        <option value="double">Double</option>
+      </select>
+    </div>
   </body>
 </html>
