@@ -6,7 +6,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
@@ -20,6 +20,7 @@ div {
 
 .title {
   text-align: center;
+  font-family: 'Inter Tight', sans-serif;
   font-size: 1.5rem;
   margin-bottom: 1rem;
   color: firebrick;
@@ -38,4 +39,22 @@ input[type='range'] {
 
 select {
   width: 100%;
+}
+
+a {
+  text-decoration: none;
+  color: gray;
+}
+
+hr {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+footer {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: gray;
 }
