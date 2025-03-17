@@ -6,7 +6,8 @@
   "permissions": ["scripting", "storage", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "action": {
-    "default_title": "Border Patrol"
+    "default_title": "Border Patrol",
+    "default_popup": "menu.html"
   },
   "background": {
     "service_worker": "background.js"

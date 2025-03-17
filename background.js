@@ -1,4 +1,18 @@
 /**
+ * Updates the extension state based on the current state.
+ * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
+ */
+function updateExtensionState(isEnabled) {
+  chrome.action.setBadgeText({ text: isEnabled ? 'ON' : 'OFF' });
+  chrome.action.setIcon({
+    path: isEnabled ? 'icons/bp-icon-16.png' : 'icons/bp-icon-disabled-16.png',
+  });
+  chrome.action.setTitle({
+    title: isEnabled ? 'Disable Border Patrol' : 'Enable Border Patrol',
+  });
+}
+
+/**
  * Runs when the extension is installed or updated.
  * Clears any previous state and updates the extension state.
  * @param {Object} details - Details about the installation or update.
@@ -40,13 +54,14 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
  * @param {Object} tab - The tab object.
  */
 chrome.action.onClicked.addListener(async tab => {
+  console.log('Extension icon clicked');
   const tabId = tab.id;
   const data = await getData(tabId);
   const isEnabled = data[`isEnabled_${tabId}`] || false;
   const newState = !isEnabled;
 
   // Store the new state using tab ID as the key
-  chrome.storage.local.set({ [`isEnabled_${tab.id}`]: newState });
+  await chrome.storage.local.set({ [`isEnabled_${tab.id}`]: newState });
 
   updateExtensionState(newState);
   injectBorderScript(tabId);
@@ -63,20 +78,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ tabId: sender.tab?.id });
   }
 });
-
-/**
- * Updates the extension state based on the current state.
- * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
- */
-function updateExtensionState(isEnabled) {
-  chrome.action.setBadgeText({ text: isEnabled ? 'ON' : 'OFF' });
-  chrome.action.setIcon({
-    path: isEnabled ? 'icons/bp-icon-16.png' : 'icons/bp-icon-disabled-16.png',
-  });
-  chrome.action.setTitle({
-    title: isEnabled ? 'Disable Border Patrol' : 'Enable Border Patrol',
-  });
-}
 
 /**
  * Injects the border script into the specified tab.

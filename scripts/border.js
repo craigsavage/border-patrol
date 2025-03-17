@@ -1,29 +1,25 @@
-// Get the tab ID first
-chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
-  if (chrome.runtime.lastError) {
-    console.error('Error getting tab ID:', chrome.runtime.lastError);
-    return;
-  }
-
-  const tabId = response.tabId;
-  console.log('Tab ID:', tabId);
-
-  // Get the extension state
-  const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
-  const isEnabled = data[`isEnabled_${tabId}`];
-
-  applyOutline(isEnabled);
-});
-
 /**
  * Applies an outline to all elements on the page.
  *
  * @param {boolean} isEnabled - Determines whether the outline should be applied.
  * If true, an outline is applied to each element; otherwise, no outline is applied.
- * @param {number} size - The width of the outline in pixels.
  */
-function applyOutline(isEnabled, size = 1) {
+async function applyOutline(isEnabled) {
+  // Remove outline if extension is disabled
+  if (!isEnabled) {
+    document.querySelectorAll('*').forEach(element => {
+      element.style.outline = 'none';
+    });
+    return;
+  }
+
   const defaultColor = 'red'; // Fallback color if tag not found
+  const data = await chrome.storage.local.get([
+    'borderThickness',
+    'borderStyle',
+  ]);
+  const size = data.borderThickness || 1;
+  const style = data.borderStyle || 'solid';
 
   // Define element groups with their tags and colors
   const elementGroups = {
@@ -62,6 +58,42 @@ function applyOutline(isEnabled, size = 1) {
       }
     }
 
-    element.style.outline = isEnabled ? `${size}px solid ${color}` : 'none';
+    element.style.outline = `${size}px ${style} ${color}`;
   });
 }
+
+/**
+ * Retrieves the tab ID and applies an outline to all elements on the page
+ * if the extension is enabled, otherwise removes the outline.
+ */
+chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
+  if (chrome.runtime.lastError) {
+    console.error('Error getting tab ID:', chrome.runtime.lastError);
+    return;
+  }
+
+  const tabId = response.tabId;
+  console.log('Tab ID:', tabId);
+
+  // Get the extension state
+  const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
+  const isEnabled = data[`isEnabled_${tabId}`];
+
+  console.log('Extension running:', isEnabled);
+  applyOutline(isEnabled);
+});
+
+chrome.runtime.onMessage.addListener(request => {
+  if (request.action === 'updateOutline') {
+    chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
+      if (chrome.runtime.lastError) {
+        console.error('Error getting tab ID:', chrome.runtime.lastError);
+        return;
+      }
+
+      const tabId = response.tabId;
+      const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
+      applyOutline(data[`isEnabled_${tabId}`]);
+    });
+  }
+});
