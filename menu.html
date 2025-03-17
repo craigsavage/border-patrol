@@ -3,12 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="menu.css" />
+    <script src="scripts/menu.js" defer></script>
     <title>Border Patrol</title>
   </head>
 
-  <!-- Menu is currently removed from manifest in favour of enable/disable on click -->
   <body>
-    <h1>Border Patrol Menu</h1>
+    <h1 id="title" class="title">Border Patrol</h1>
+
+    <hr />
+
+    <!-- Toggle (Enable/Disable) Borders -->
+    <div class="toggleBordersContainer">
+      <label for="toggleBorders" class="label">Toggle Borders:</label>
+      <input type="checkbox" id="toggleBorders" />
+    </div>
+
+    <!-- Border Thickness -->
+    <div>
+      <label for="borderThickness" class="label">Border Thickness:</label>
+      <input
+        type="range"
+        id="borderThickness"
+        min="1"
+        max="3"
+        step="0.5"
+        value="1"
+      />
+    </div>
+
+    <!-- Border Style -->
+    <div>
+      <label for="borderStyle" class="label">Border Style:</label>
+      <select id="borderStyle">
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+        <option value="dotted">Dotted</option>
+        <option value="double">Double</option>
+      </select>
+    </div>
+
+    <hr />
+
+    <footer>
+      <a href="https://github.com/craigsavage/border-patrol" target="_blank">
+        GitHub
+      </a>
+    </footer>
   </body>
 </html>
