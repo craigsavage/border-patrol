@@ -1,5 +1,5 @@
 /**
- * Applies an outline to all elements on the page.
+ * Applies (or removes) an outline to all elements on the page.
  *
  * @param {boolean} isEnabled - Determines whether the outline should be applied.
  * If true, an outline is applied to each element; otherwise, no outline is applied.
@@ -73,18 +73,13 @@ chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
   }
 
   const tabId = response.tabId;
-  console.log('Tab ID:', tabId);
-
-  // Get the extension state
   const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
   const isEnabled = data[`isEnabled_${tabId}`];
-
-  console.log('Extension running:', isEnabled);
   applyOutline(isEnabled);
 });
 
 // Receive message to apply outline to all elements
-chrome.runtime.onMessage.addListener(request => {
+chrome.runtime.onMessage.addListener(async request => {
   if (request.action === 'APPLY_OUTLINE') {
     chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
       if (chrome.runtime.lastError) {
@@ -94,7 +89,8 @@ chrome.runtime.onMessage.addListener(request => {
 
       const tabId = response.tabId;
       const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
-      applyOutline(data[`isEnabled_${tabId}`]);
+      const isEnabled = data[`isEnabled_${tabId}`];
+      applyOutline(isEnabled);
     });
   }
 });
