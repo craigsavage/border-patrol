@@ -4,7 +4,7 @@
  * @param {boolean} isEnabled - Determines whether the outline should be applied.
  * If true, an outline is applied to each element; otherwise, no outline is applied.
  */
-async function applyOutline(isEnabled) {
+async function applyOutline(isEnabled, size, style) {
   // Remove outline if extension is disabled
   if (!isEnabled) {
     document.querySelectorAll('*').forEach(element => {
@@ -13,13 +13,16 @@ async function applyOutline(isEnabled) {
     return;
   }
 
+  // Get border size and style from storage if not provided
+  if (!size || !style) {
+    const data = await chrome.storage.local.get([
+      'borderThickness',
+      'borderStyle',
+    ]);
+    size = data.borderThickness || 1;
+    style = data.borderStyle || style;
+  }
   const defaultColor = 'red'; // Fallback color if tag not found
-  const data = await chrome.storage.local.get([
-    'borderThickness',
-    'borderStyle',
-  ]);
-  const size = data.borderThickness || 1;
-  const style = data.borderStyle || 'solid';
 
   // Define element groups with their tags and colors
   const elementGroups = {
@@ -73,24 +76,25 @@ chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
   }
 
   const tabId = response.tabId;
-  const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
+  const data = await chrome.storage.local.get([
+    `isEnabled_${tabId}`,
+    'borderThickness',
+    'borderStyle',
+  ]);
+  const { borderThickness, borderStyle } = data;
   const isEnabled = data[`isEnabled_${tabId}`];
-  applyOutline(isEnabled);
+
+  applyOutline(isEnabled, borderThickness, borderStyle);
 });
 
 // Receive message to apply outline to all elements
 chrome.runtime.onMessage.addListener(async request => {
-  if (request.action === 'APPLY_OUTLINE') {
-    chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
-      if (chrome.runtime.lastError) {
-        console.error('Error getting tab ID:', chrome.runtime.lastError);
-        return;
-      }
+  console.log('Received message:', request);
+  if (request.action === 'UPDATE_SETTINGS') {
+    let { borderThickness, borderStyle, tabId } = request;
+    const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
+    const isEnabled = data[`isEnabled_${tabId}`];
 
-      const tabId = response.tabId;
-      const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
-      const isEnabled = data[`isEnabled_${tabId}`];
-      applyOutline(isEnabled);
-    });
+    applyOutline(isEnabled, borderThickness, borderStyle);
   }
 });

@@ -51,12 +51,21 @@ async function toggleExtension() {
 
 /** Updates the border settings in storage. */
 async function updateSettings() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab) return;
+
+  const tabId = tab.id;
   await chrome.storage.local.set({
     borderThickness: borderThickness.value,
     borderStyle: borderStyle.value,
   });
 
-  chrome.runtime.sendMessage({ action: 'APPLY_OUTLINE' });
+  chrome.tabs.sendMessage(tab.id, {
+    action: 'UPDATE_SETTINGS',
+    tabId: tabId,
+    borderThickness: borderThickness.value,
+    borderStyle: borderStyle.value,
+  });
 }
 
 // Run initialization function when the popup loads
