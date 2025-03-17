@@ -3,6 +3,8 @@
  *
  * @param {boolean} isEnabled - Determines whether the outline should be applied.
  * If true, an outline is applied to each element; otherwise, no outline is applied.
+ * @param {number} size - The thickness of the outline in pixels.
+ * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
  */
 async function applyOutline(isEnabled, size, style) {
   // Remove outline if extension is disabled
