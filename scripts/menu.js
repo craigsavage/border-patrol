@@ -14,11 +14,17 @@ async function toggleExtension() {
   if (!tab) return;
 
   const tabId = tab.id;
-  chrome.storage.local.get(`isEnabled_${tabId}`, data => {
+  chrome.storage.local.get(`isEnabled_${tabId}`, async data => {
     const isEnabled = data[`isEnabled_${tabId}`] || false;
     const newState = !isEnabled;
 
-    chrome.storage.local.set({ [`isEnabled_${tabId}`]: newState });
+    // Set the new enable state and send a message to update the icon state
+    await chrome.storage.local.set({ [`isEnabled_${tabId}`]: newState }, () => {
+      chrome.runtime.sendMessage({
+        action: 'UPDATE_ICON',
+        isEnabled: newState,
+      });
+    });
 
     // Update UI
     toggleBorders.checked = newState;
@@ -39,7 +45,7 @@ function updateSettings() {
       borderStyle: borderStyle.value,
     },
     () => {
-      chrome.runtime.sendMessage({ action: 'updateOutline' });
+      chrome.runtime.sendMessage({ action: 'APPLY_OUTLINE' });
     }
   );
 }

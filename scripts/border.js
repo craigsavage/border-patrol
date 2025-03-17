@@ -66,7 +66,7 @@ async function applyOutline(isEnabled) {
  * Retrieves the tab ID and applies an outline to all elements on the page
  * if the extension is enabled, otherwise removes the outline.
  */
-chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
+chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
   if (chrome.runtime.lastError) {
     console.error('Error getting tab ID:', chrome.runtime.lastError);
     return;
@@ -83,9 +83,10 @@ chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
   applyOutline(isEnabled);
 });
 
+// Receive message to apply outline to all elements
 chrome.runtime.onMessage.addListener(request => {
-  if (request.action === 'updateOutline') {
-    chrome.runtime.sendMessage({ action: 'getTabId' }, async response => {
+  if (request.action === 'APPLY_OUTLINE') {
+    chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
       if (chrome.runtime.lastError) {
         console.error('Error getting tab ID:', chrome.runtime.lastError);
         return;

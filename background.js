@@ -67,15 +67,15 @@ chrome.action.onClicked.addListener(async tab => {
   injectBorderScript(tabId);
 });
 
-/**
- * Handles messages from content scripts.
- * @param {Object} request - The message sent from the content script.
- * @param {Object} sender - Information about the sender of the message.
- * @param {Function} sendResponse - Function to send a response back to the content script.
- */
+// Handles recieving messages
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'getTabId') {
+  // Receive message to retrieve tab ID
+  if (request.action === 'GET_TAB_ID') {
     sendResponse({ tabId: sender.tab?.id });
+  }
+  // Receive message to update extension state
+  if (request.action === 'UPDATE_ICON') {
+    updateExtensionState(request.isEnabled);
   }
 });
 
