@@ -5,10 +5,12 @@
 function updateExtensionState(isEnabled) {
   chrome.action.setBadgeText({ text: isEnabled ? 'ON' : 'OFF' });
   chrome.action.setIcon({
-    path: isEnabled ? 'icons/bp-icon-16.png' : 'icons/bp-icon-disabled-16.png',
+    path: isEnabled
+      ? 'icons/border-patrol-icon-16.png'
+      : 'icons/border-patrol-icon-16-disabled.png',
   });
   chrome.action.setTitle({
-    title: isEnabled ? 'Disable Border Patrol' : 'Enable Border Patrol',
+    title: isEnabled ? 'Border Patrol - Enabled' : 'Border Patrol - Disabled',
   });
 }
 
