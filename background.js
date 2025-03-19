@@ -56,7 +56,6 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
  * @param {Object} tab - The tab object.
  */
 chrome.action.onClicked.addListener(async tab => {
-  console.log('Extension icon clicked');
   const tabId = tab.id;
   const data = await getData(tabId);
   const isEnabled = data[`isEnabled_${tabId}`] || false;
@@ -85,14 +84,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * Injects the border script into the specified tab.
  * @param {number} tabId - The ID of the tab to inject the script into.
  */
-function injectBorderScript(tabId) {
-  console.log('Injecting border script for tab:', tabId);
-  chrome.scripting
-    .executeScript({
-      target: { tabId: tabId },
+async function injectBorderScript(tabId) {
+  try {
+    // Inject border.js into the active tab
+    await chrome.scripting.executeScript({
+      target: { tabId },
       files: ['scripts/border.js'],
-    })
-    .catch(error => console.error('Error executing script:', error));
+    });
+
+    // Inject overlay.js into the active tab
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['scripts/overlay.js'],
+    });
+
+    // Inject overlay.css into the active tab
+    await chrome.scripting.insertCSS({
+      target: { tabId },
+      files: ['css/overlay.css'],
+    });
+  } catch (error) {
+    console.error('Error injecting scripts or CSS:', error);
+  }
 }
 
 /**
