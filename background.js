@@ -129,6 +129,10 @@ async function getData(tabId) {
     const tab = await getCurrentTab();
     tabId = tab.id;
   }
+  if (!tabId) {
+    console.error('No tab ID found');
+    return {};
+  }
 
   const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
   console.log('Data for tab', tabId, ':', data);

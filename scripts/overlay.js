@@ -25,7 +25,6 @@ function getOverlayPosition(event, overlay) {
     posY = event.clientY - overlayRect.height - 10;
   }
 
-  console.log('posX:', posX, 'posY:', posY);
   return {
     top: `${posY}px`,
     left: `${posX}px`,
