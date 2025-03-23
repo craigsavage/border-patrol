@@ -56,16 +56,15 @@ async function toggleInspectorMode() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
-  const tabId = tab.id;
-  const data = await chrome.storage.local.get('isInspectorModeEnabled');
-  const isEnabled = data.isInspectorModeEnabled || false;
-  const newState = !isEnabled;
-
   // Update storage with new state for the active tab
-  await chrome.storage.local.set({ isInspectorModeEnabled: newState });
+  await chrome.storage.local.set({
+    isInspectorModeEnabled: toggleInspector.checked,
+  });
 
-  // Update UI toggle
-  toggleInspector.checked = newState;
+  chrome.tabs.sendMessage(tab.id, {
+    action: 'UPDATE_INSPECTOR_MODE',
+    isEnabled: toggleInspector.checked,
+  });
 }
 
 /** Updates the border settings in storage. */
@@ -74,11 +73,13 @@ async function updateSettings() {
   if (!tab) return;
 
   const tabId = tab.id;
+
   await chrome.storage.local.set({
     borderThickness: borderThickness.value,
     borderStyle: borderStyle.value,
   });
 
+  // Send message to update border settings
   chrome.tabs.sendMessage(tab.id, {
     action: 'UPDATE_SETTINGS',
     tabId: tabId,
@@ -92,6 +93,6 @@ document.addEventListener('DOMContentLoaded', initializeStates);
 
 // Event listeners for border settings changes
 toggleBorders.addEventListener('click', toggleExtension);
-toggleInspector.addEventListener('click', toggleInspectorMode);
+toggleInspector.addEventListener('change', toggleInspectorMode);
 borderThickness.addEventListener('input', updateSettings);
 borderStyle.addEventListener('change', updateSettings);

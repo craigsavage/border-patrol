@@ -1,4 +1,4 @@
-console.log('Injecting overlay script');
+let isInspectorModeEnabled = false;
 
 /**
  * Calculates the position of the overlay
@@ -33,6 +33,8 @@ function getOverlayPosition(event, overlay) {
 
 // Show overlay on mouseover
 document.addEventListener('mouseover', event => {
+  if (!isInspectorModeEnabled) return;
+
   const element = event.target;
   if (!element || element.id === 'inspector-overlay') return;
 
@@ -69,4 +71,11 @@ document.addEventListener('mouseover', event => {
 document.addEventListener('mouseout', () => {
   const overlay = document.getElementById('inspector-overlay');
   if (overlay) overlay.style.display = 'none';
+});
+
+// Recieve message to update inspector mode
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'UPDATE_INSPECTOR_MODE') {
+    isInspectorModeEnabled = request.isEnabled;
+  }
 });

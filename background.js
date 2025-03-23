@@ -114,7 +114,6 @@ async function injectBorderScript(tabId) {
  */
 async function getCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true };
-  // `tab` will either be a `tabs.Tab` instance or `undefined`.
   let [tab] = await chrome.tabs.query(queryOptions);
   return tab;
 }
@@ -129,12 +128,8 @@ async function getData(tabId) {
     const tab = await getCurrentTab();
     tabId = tab.id;
   }
-  if (!tabId) {
-    console.error('No tab ID found');
-    return {};
-  }
+  if (!tabId) return {};
 
   const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
-  console.log('Data for tab', tabId, ':', data);
   return data;
 }
