@@ -33,6 +33,8 @@ chrome.runtime.onInstalled.addListener(details => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
     const data = await getData(tabId);
+    if (!data) return;
+
     const isEnabled = data[`isEnabled_${tabId}`] || false;
     updateExtensionState(isEnabled);
     injectBorderScript(tabId);
@@ -46,6 +48,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 chrome.tabs.onActivated.addListener(async activeInfo => {
   const tabId = activeInfo.tabId;
   const data = await getData(tabId);
+  if (!data) return;
+
   const isEnabled = data[`isEnabled_${tabId}`] || false;
   updateExtensionState(isEnabled);
   injectBorderScript(tabId);
@@ -58,6 +62,8 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
 chrome.action.onClicked.addListener(async tab => {
   const tabId = tab.id;
   const data = await getData(tabId);
+  if (!data) return;
+
   const isEnabled = data[`isEnabled_${tabId}`] || false;
   const newState = !isEnabled;
 
@@ -86,16 +92,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  */
 async function injectBorderScript(tabId) {
   try {
+    // Check if the tab is a valid webpage
+    const tab = await chrome.tabs.get(tabId);
+    if (
+      !tab.url ||
+      tab.url.startsWith('chrome://') ||
+      tab.url.startsWith('chrome-extension://')
+    ) {
+      console.warn(`Skipping injection on restricted URL: ${tab.url}`);
+      return;
+    }
+
     // Inject border.js into the active tab
     await chrome.scripting.executeScript({
       target: { tabId },
       files: ['scripts/border.js'],
-    });
-
-    // Inject overlay.js into the active tab
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['scripts/overlay.js'],
     });
 
     // Inject overlay.css into the active tab
@@ -103,19 +114,15 @@ async function injectBorderScript(tabId) {
       target: { tabId },
       files: ['css/overlay.css'],
     });
+
+    // Inject overlay.js into the active tab
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['scripts/overlay.js'],
+    });
   } catch (error) {
     console.error('Error injecting scripts or CSS:', error);
   }
-}
-
-/**
- * Retrieves the currently active tab.
- * @returns {Promise<Object>} A promise that resolves to the active tab object.
- */
-async function getCurrentTab() {
-  let queryOptions = { active: true, lastFocusedWindow: true };
-  let [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
 }
 
 /**
@@ -125,9 +132,11 @@ async function getCurrentTab() {
  */
 async function getData(tabId) {
   if (!tabId) {
-    const tab = await getCurrentTab();
+    const queryOptions = { active: true, lastFocusedWindow: true };
+    const [tab] = await chrome.tabs.query(queryOptions);
     tabId = tab.id;
   }
+
   if (!tabId) return {};
 
   const data = await chrome.storage.local.get(`isEnabled_${tabId}`);

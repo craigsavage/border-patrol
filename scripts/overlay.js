@@ -1,6 +1,28 @@
 let isInspectorModeEnabled = false;
 
 /**
+ * Retrieves the inspector mode state from storage
+ * @returns {boolean} - The inspector mode state
+ */
+async function getInspectorModeState() {
+  try {
+    if (!chrome || !chrome.storage) {
+      console.error(
+        'Chrome storage API is unavailable. Extension context may be invalid.'
+      );
+      return false;
+    }
+
+    const data = await chrome.storage.local.get('isInspectorModeEnabled');
+    isInspectorModeEnabled = data.isInspectorModeEnabled || false;
+    // return isInspectorModeEnabled;
+  } catch (error) {
+    console.error('Error getting inspector mode state:', error);
+    return false;
+  }
+}
+
+/**
  * Calculates the position of the overlay
  * @param {*} event - The triggered event
  * @param {*} overlay - The overlay dom element
@@ -32,8 +54,10 @@ function getOverlayPosition(event, overlay) {
 }
 
 // Show overlay on mouseover
-document.addEventListener('mouseover', event => {
+document.addEventListener('mouseover', async event => {
+  await getInspectorModeState();
   if (!isInspectorModeEnabled) return;
+  console.log('Inspector mode enabled:', isInspectorModeEnabled);
 
   const element = event.target;
   if (!element || element.id === 'inspector-overlay') return;
@@ -42,9 +66,9 @@ document.addEventListener('mouseover', event => {
   const computedStyle = window.getComputedStyle(element);
 
   if (!rect || !computedStyle) return;
-  console.log('element:', element);
-  console.log('rect:', rect);
-  console.log('computedStyle:', computedStyle);
+  // console.log('element:', element);
+  // console.log('rect:', rect);
+  // console.log('computedStyle:', computedStyle);
 
   let overlay = document.getElementById('inspector-overlay');
   if (!overlay) {
@@ -70,11 +94,13 @@ document.addEventListener('mouseover', event => {
 // Hide overlay on mouseout
 document.addEventListener('mouseout', () => {
   const overlay = document.getElementById('inspector-overlay');
+  console.log('Mouseout event triggered. Removing overlay');
   if (overlay) overlay.style.display = 'none';
 });
 
 // Recieve message to update inspector mode
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('Received message (overlay):', request);
   if (request.action === 'UPDATE_INSPECTOR_MODE') {
     isInspectorModeEnabled = request.isEnabled;
   }
