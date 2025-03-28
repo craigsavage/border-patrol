@@ -1,11 +1,12 @@
 // let isInspectorModeEnabled = false;
 
 /**
- * Retrieves the inspector mode state from storage
- * @returns {boolean} - The inspector mode state
+ * Retrieves the inspector mode state from chrome storage.
+ * @returns {boolean} - The current state of the inspector mode.
  */
 async function getInspectorModeState() {
   try {
+    // Check if the chrome storage API is available
     if (!chrome || !chrome.storage) {
       console.error(
         'Chrome storage API is unavailable. Extension context may be invalid.'
@@ -13,6 +14,7 @@ async function getInspectorModeState() {
       return false;
     }
 
+    // Retrieve the inspector mode state
     const data = await chrome.storage.local.get('isInspectorModeEnabled');
     isInspectorModeEnabled = data.isInspectorModeEnabled || false;
     return isInspectorModeEnabled;
@@ -26,7 +28,7 @@ async function getInspectorModeState() {
  * Calculates the position of the overlay
  * @param {*} event - The triggered event
  * @param {*} overlay - The overlay dom element
- * @returns {Object} - The position of the overlay
+ * @returns {Object} The position of the overlay
  */
 function getOverlayPosition(event, overlay) {
   // const overlay = document.getElementById('inspector-overlay');
@@ -48,8 +50,8 @@ function getOverlayPosition(event, overlay) {
   }
 
   return {
-    top: `${posY}px`,
-    left: `${posX}px`,
+    top: posY,
+    left: posX,
   };
 }
 
@@ -86,15 +88,18 @@ document.addEventListener('mouseover', async event => {
   // Calculate position of the overlay
   const { top, left } = getOverlayPosition(event, overlay);
 
-  overlay.style.top = `${top}px`;
-  overlay.style.left = `${left}px`;
-  overlay.style.display = 'block';
+  // Display the overlay
+  requestAnimationFrame(() => {
+    overlay.style.top = `${top}px`;
+    overlay.style.left = `${left}px`;
+    overlay.style.display = 'block';
+  });
 });
 
 // Hide overlay on mouseout
 document.addEventListener('mouseout', () => {
   const overlay = document.getElementById('inspector-overlay');
-  console.log('Mouseout event triggered. Removing overlay');
+  // console.log('Mouseout event triggered. Removing overlay');
   if (overlay) overlay.style.display = 'none';
 });
 
