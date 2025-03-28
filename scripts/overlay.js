@@ -1,4 +1,4 @@
-let isInspectorModeEnabled = false;
+// let isInspectorModeEnabled = false;
 
 /**
  * Retrieves the inspector mode state from storage
@@ -15,7 +15,7 @@ async function getInspectorModeState() {
 
     const data = await chrome.storage.local.get('isInspectorModeEnabled');
     isInspectorModeEnabled = data.isInspectorModeEnabled || false;
-    // return isInspectorModeEnabled;
+    return isInspectorModeEnabled;
   } catch (error) {
     console.error('Error getting inspector mode state:', error);
     return false;
@@ -55,7 +55,7 @@ function getOverlayPosition(event, overlay) {
 
 // Show overlay on mouseover
 document.addEventListener('mouseover', async event => {
-  await getInspectorModeState();
+  const isInspectorModeEnabled = await getInspectorModeState();
   if (!isInspectorModeEnabled) return;
   console.log('Inspector mode enabled:', isInspectorModeEnabled);
 

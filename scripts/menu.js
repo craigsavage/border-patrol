@@ -23,6 +23,12 @@ async function initializeStates() {
   // Set the border settings
   borderThickness.value = data.borderThickness || 1;
   borderStyle.value = data.borderStyle || 'solid';
+
+  // Apply changes to the active tab
+  chrome.scripting.executeScript({
+    target: { tabId: tabId },
+    files: ['scripts/border.js', 'scripts/overlay.js'],
+  });
 }
 
 /** Toggles the extension state and applies changes to the active tab. */
@@ -61,6 +67,7 @@ async function toggleInspectorMode() {
     isInspectorModeEnabled: toggleInspector.checked,
   });
 
+  // Send message to update inspector mode
   chrome.tabs.sendMessage(tab.id, {
     action: 'UPDATE_INSPECTOR_MODE',
     isEnabled: toggleInspector.checked,

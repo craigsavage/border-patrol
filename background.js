@@ -103,22 +103,16 @@ async function injectBorderScript(tabId) {
       return;
     }
 
-    // Inject border.js into the active tab
+    // Inject border.js and overlay.js into the active tab
     await chrome.scripting.executeScript({
       target: { tabId },
-      files: ['scripts/border.js'],
+      files: ['scripts/border.js', 'scripts/overlay.js'],
     });
 
     // Inject overlay.css into the active tab
     await chrome.scripting.insertCSS({
       target: { tabId },
       files: ['css/overlay.css'],
-    });
-
-    // Inject overlay.js into the active tab
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['scripts/overlay.js'],
     });
   } catch (error) {
     console.error('Error injecting scripts or CSS:', error);
