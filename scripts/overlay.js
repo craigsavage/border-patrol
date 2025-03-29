@@ -1,4 +1,4 @@
-// let isInspectorModeEnabled = false;
+let isInspectorModeEnabled = false; // Cache the inspector mode state
 
 /**
  * Retrieves the inspector mode state from chrome storage.
@@ -16,8 +16,7 @@ async function getInspectorModeState() {
 
     // Retrieve the inspector mode state
     const data = await chrome.storage.local.get('isInspectorModeEnabled');
-    isInspectorModeEnabled = data.isInspectorModeEnabled || false;
-    return isInspectorModeEnabled;
+    return data.isInspectorModeEnabled || false;
   } catch (error) {
     console.error('Error getting inspector mode state:', error);
     return false;
@@ -32,7 +31,7 @@ async function getInspectorModeState() {
  */
 function getOverlayPosition(event, overlay) {
   // const overlay = document.getElementById('inspector-overlay');
-  if (!overlay) return;
+  if (!overlay) return { top: 0, left: 0 }; // Return default values
 
   // Calculate position of the overlay
   let posX = event.clientX + 10;
@@ -57,9 +56,17 @@ function getOverlayPosition(event, overlay) {
 
 // Show overlay on mouseover
 document.addEventListener('mouseover', async event => {
-  const isInspectorModeEnabled = await getInspectorModeState();
-  if (!isInspectorModeEnabled) return;
-  console.log('Inspector mode enabled:', isInspectorModeEnabled);
+  // Check if chrome.storage is available. If not, re-fetch the state.
+  if (!chrome || !chrome.storage) {
+    isInspectorModeEnabled = await getInspectorModeState();
+  }
+
+  // Check if inspector mode is enabled
+  if (!isInspectorModeEnabled) {
+    isInspectorModeEnabled = await getInspectorModeState(); // Update cache with latest value
+    if (!isInspectorModeEnabled) return;
+  }
+  // console.log('Inspector mode enabled:', isInspectorModeEnabled);
 
   const element = event.target;
   if (!element || element.id === 'inspector-overlay') return;
@@ -82,7 +89,9 @@ document.addEventListener('mouseover', async event => {
   overlay.innerHTML = `
     <strong>${element.tagName.toLowerCase()}</strong><br>
     ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
-    ${computedStyle.border ? `Border: ${computedStyle.border}` : ''}
+    ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
+    ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
+    ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
   `;
 
   // Calculate position of the overlay
@@ -99,13 +108,12 @@ document.addEventListener('mouseover', async event => {
 // Hide overlay on mouseout
 document.addEventListener('mouseout', () => {
   const overlay = document.getElementById('inspector-overlay');
-  // console.log('Mouseout event triggered. Removing overlay');
   if (overlay) overlay.style.display = 'none';
 });
 
 // Recieve message to update inspector mode
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('Received message (overlay):', request);
+  // console.log('Received message (overlay):', request);
   if (request.action === 'UPDATE_INSPECTOR_MODE') {
     isInspectorModeEnabled = request.isEnabled;
   }
