@@ -30,7 +30,6 @@ async function getInspectorModeState() {
  * @returns {Object} The position of the overlay
  */
 function getOverlayPosition(event, overlay) {
-  // const overlay = document.getElementById('inspector-overlay');
   if (!overlay) return { top: 0, left: 0 }; // Return default values
 
   // Calculate position of the overlay
@@ -54,16 +53,19 @@ function getOverlayPosition(event, overlay) {
   };
 }
 
-// Show overlay on mouseover
-document.addEventListener('mouseover', async event => {
+/**
+ * Displays the overlay on mouseover
+ * @param {*} event - The triggered event
+ */
+async function mouseOverHandler(event) {
   // Check if chrome.storage is available. If not, re-fetch the state.
   if (!chrome || !chrome.storage) {
-    isInspectorModeEnabled = await getInspectorModeState();
+    return; // Extension context may be invalid
   }
 
   // Check if inspector mode is enabled
   if (!isInspectorModeEnabled) {
-    isInspectorModeEnabled = await getInspectorModeState(); // Update cache with latest value
+    isInspectorModeEnabled = getInspectorModeState(); // Update cache with latest value
     if (!isInspectorModeEnabled) return;
   }
   // console.log('Inspector mode enabled:', isInspectorModeEnabled);
@@ -103,13 +105,23 @@ document.addEventListener('mouseover', async event => {
     overlay.style.left = `${left}px`;
     overlay.style.display = 'block';
   });
-});
+}
 
-// Hide overlay on mouseout
-document.addEventListener('mouseout', () => {
+/** Hides the overlay on mouseout */
+function mouseOutHandler() {
   const overlay = document.getElementById('inspector-overlay');
   if (overlay) overlay.style.display = 'none';
-});
+}
+
+/** Removes event listeners */
+function removeEventListeners() {
+  document.removeEventListener('mouseover', mouseOverHandler);
+  document.removeEventListener('mouseout', mouseOutHandler);
+}
+
+// Add event listeners
+document.addEventListener('mouseover', mouseOverHandler);
+document.addEventListener('mouseout', mouseOutHandler);
 
 // Recieve message to update inspector mode
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -117,4 +129,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'UPDATE_INSPECTOR_MODE') {
     isInspectorModeEnabled = request.isEnabled;
   }
+});
+
+chrome.runtime.onConnect.addListener(connectionPort => {
+  port = connectionPort;
+  console.log('Content script connected:', port);
+  port.onDisconnect.addListener(() => {
+    console.log(
+      'Content script context invalidated. Removing event listeners.'
+    );
+    removeEventListeners();
+  });
 });
