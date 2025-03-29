@@ -26,7 +26,7 @@ div {
   color: var(--brand-color);
 }
 
-.toggleBordersContainer {
+.form-group {
   display: flex;
   justify-content: space-between;
 }

@@ -1,0 +1,12 @@
+#inspector-overlay {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 250px;
+}
