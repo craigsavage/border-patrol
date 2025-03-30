@@ -5,8 +5,12 @@
 
   /** Initializes the inspector mode state */
   async function init() {
+    await updateInspectorModeState();
+  }
+
+  /** Checks if the inspector mode is enabled */
+  async function updateInspectorModeState() {
     isInspectorModeEnabled = await getInspectorModeState();
-    // console.log('Inspector mode enabled:', isInspectorModeEnabled);
   }
 
   /**
@@ -33,32 +37,35 @@
   }
 
   /**
-   * Calculates the position of the overlay
+   * Calculates the position of the overlay relative to the cursor
+   * and prevents it from going off-screen
    * @param {*} event - The triggered event
    * @param {*} overlay - The overlay dom element
    * @returns {Object} The position of the overlay
    */
   function getOverlayPosition(event, overlay) {
-    if (!overlay) return { top: 0, left: 0 }; // Return default values
+    if (!overlay) return { top: 0, left: 0 }; // Default values
 
-    // Calculate position of the overlay
-    let posX = event.clientX + 10;
-    let posY = event.clientY + 10;
-
-    // Prevent tooltip from going off-screen
+    const overlayMargin = 10; // Margin from cursor
     const overlayRect = overlay.getBoundingClientRect();
-    // Flips the overlay to the left if it exceeds the right edge
+
+    // Calculate position of the overlay relative to the cursor
+    let posX = event.clientX + overlayMargin;
+    let posY = event.clientY + overlayMargin;
+
+    // Flip left if overlay goes beyond right edge
     if (posX + overlayRect.width > window.innerWidth) {
-      posX = event.clientX - overlayRect.width - 10;
+      posX = event.clientX - overlayRect.width - overlayMargin;
     }
-    // Flips the overlay upward if it exceeds the bottom edge
+
+    // Flip up if overlay goes beyond bottom edge
     if (posY + overlayRect.height > window.innerHeight) {
-      posY = event.clientY - overlayRect.height - 10;
+      posY = event.clientY - overlayRect.height - overlayMargin;
     }
 
     return {
-      top: posY,
-      left: posX,
+      top: posY + window.scrollY,
+      left: posX + window.scrollX,
     };
   }
 
@@ -68,17 +75,12 @@
    */
   async function mouseOverHandler(event) {
     // Check if the chrome storage API is available
-    if (!chrome || !chrome.storage) return; // Extension context may be invalid
+    if (!chrome?.storage) return;
 
     // Retrieve the inspector mode state
-    try {
-      if (!isInspectorModeEnabled) {
-        isInspectorModeEnabled = await getInspectorModeState(); // Update cache with latest value
-      }
-    } catch (error) {
-      console.error('Error getting inspector mode state:', error);
+    if (!isInspectorModeEnabled) {
+      await updateInspectorModeState();
     }
-
     if (!isInspectorModeEnabled) return;
 
     const element = event.target;
@@ -88,15 +90,29 @@
     const computedStyle = window.getComputedStyle(element);
 
     if (!rect || !computedStyle) return;
-    // console.log('element:', element);
-    // console.log('rect:', rect);
-    // console.log('computedStyle:', computedStyle);
+
+    let overlayContainer = document.getElementById(
+      'inspector-overlay-container'
+    );
+    if (!overlayContainer) {
+      overlayContainer = document.createElement('div');
+      overlayContainer.id = 'inspector-overlay-container';
+      document.body.appendChild(overlayContainer);
+    }
+
+    const bodyRect = document.body.getBoundingClientRect();
+
+    // Set position and size of the overlay container relative to the body
+    overlayContainer.style.top = `${bodyRect.top}px`;
+    overlayContainer.style.left = `${bodyRect.left}px`;
+    overlayContainer.style.width = `${bodyRect.width}px`;
+    overlayContainer.style.height = `${bodyRect.height}px`;
 
     let overlay = document.getElementById('inspector-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'inspector-overlay';
-      document.body.appendChild(overlay);
+      overlayContainer.appendChild(overlay);
     }
 
     overlay.innerHTML = `
@@ -107,6 +123,9 @@
     ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
   `;
 
+    // Set display to block before getOverlayPosition
+    overlay.style.display = 'block';
+
     // Calculate position of the overlay
     const { top, left } = getOverlayPosition(event, overlay);
 
@@ -114,7 +133,6 @@
     requestAnimationFrame(() => {
       overlay.style.top = `${top}px`;
       overlay.style.left = `${left}px`;
-      overlay.style.display = 'block';
     });
   }
 
@@ -141,6 +159,7 @@
     }
   });
 
+  // Remove event listeners when the connection is closed
   chrome.runtime.onConnect.addListener(connectionPort => {
     connectionPort.onDisconnect.addListener(() => {
       removeEventListeners();
