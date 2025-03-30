@@ -116,24 +116,37 @@
     }
 
     overlay.innerHTML = `
-    <strong>${element.tagName.toLowerCase()}</strong><br>
-    ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
-    ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
-    ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
-    ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
-  `;
+      <strong>${element.tagName.toLowerCase()}</strong><br>
+      ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
+      ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
+      ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
+      ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
+    `;
+
+    console.log('test');
 
     // Set display to block before getOverlayPosition
     overlay.style.display = 'block';
 
-    // Calculate position of the overlay
-    const { top, left } = getOverlayPosition(event, overlay);
+    updateOverlayPosition(event);
+  }
 
-    // Display the overlay
-    requestAnimationFrame(() => {
-      overlay.style.top = `${top}px`;
-      overlay.style.left = `${left}px`;
-    });
+  /**
+   * Updates the position of the overlay
+   * @param {*} event - The triggered event
+   */
+  function updateOverlayPosition(event) {
+    const overlay = document.getElementById('inspector-overlay');
+    if (overlay) {
+      // Calculate position of the overlay
+      const { top, left } = getOverlayPosition(event, overlay);
+
+      // Display the overlay
+      requestAnimationFrame(() => {
+        overlay.style.top = `${top}px`;
+        overlay.style.left = `${left}px`;
+      });
+    }
   }
 
   /** Hides the overlay on mouseout */
@@ -145,11 +158,13 @@
   /** Removes event listeners */
   function removeEventListeners() {
     document.removeEventListener('mouseover', mouseOverHandler);
+    document.removeEventListener('mousemove', mouseOverHandler);
     document.removeEventListener('mouseout', mouseOutHandler);
   }
 
   // Add event listeners
   document.addEventListener('mouseover', mouseOverHandler);
+  document.addEventListener('mousemove', mouseOverHandler);
   document.addEventListener('mouseout', mouseOutHandler);
 
   // Recieve message to update inspector mode
