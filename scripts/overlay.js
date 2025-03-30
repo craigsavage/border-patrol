@@ -33,33 +33,51 @@
   }
 
   /**
-   * Calculates the position of the overlay
+   * Calculates the position of the overlay relative to the cursor
+   * and prevents it from going off-screen
    * @param {*} event - The triggered event
    * @param {*} overlay - The overlay dom element
    * @returns {Object} The position of the overlay
    */
   function getOverlayPosition(event, overlay) {
     if (!overlay) return { top: 0, left: 0 }; // Default values
+
     const overlayMargin = 10; // Margin from cursor
+    const overlayRect = overlay.getBoundingClientRect();
 
     // Calculate position of the overlay relative to the cursor
-    let posX = event.clientX + window.scrollX + overlayMargin;
-    let posY = event.clientY + window.scrollY + overlayMargin;
-
-    // Prevent overlay from going off-screen
-    const overlayRect = overlay.getBoundingClientRect();
+    let posX = event.clientX + overlayMargin;
+    let posY = event.clientY + overlayMargin;
 
     // Flip left if overlay goes beyond right edge
     if (posX + overlayRect.width > window.innerWidth) {
-      posX = event.clientX + window.scrollX - overlayRect.width - overlayMargin;
-    }
-    // Flip up if overlay goes beyond bottom edge
-    if (posY + overlayRect.height > window.innerHeight) {
-      posY =
-        event.clientY + window.scrollY - overlayRect.height - overlayMargin;
+      posX = event.clientX - overlayRect.width - overlayMargin;
+      // console.log('Flipped left');
     }
 
-    return { top: posY, left: posX };
+    // Flip up if overlay goes beyond bottom edge
+    if (posY + overlayRect.height > window.innerHeight) {
+      posY = event.clientY - overlayRect.height - overlayMargin;
+      // console.log('Flipped up');
+    }
+
+    // console.log({
+    //   eventX: event.clientX,
+    //   eventY: event.clientY,
+    //   overlayWidth: overlayRect.width,
+    //   overlayHeight: overlayRect.height,
+    //   windowWidth: window.innerWidth,
+    //   windowHeight: window.innerHeight,
+    //   scrollX: window.scrollX,
+    //   scrollY: window.scrollY,
+    //   finalPosX: posX + window.scrollX,
+    //   finalPosY: posY + window.scrollY,
+    // });
+
+    return {
+      top: posY + window.scrollY,
+      left: posX + window.scrollX,
+    };
   }
 
   /**
@@ -123,6 +141,9 @@
     ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
   `;
 
+    // Set display to block before getOverlayPosition
+    overlay.style.display = 'block';
+
     // Calculate position of the overlay
     const { top, left } = getOverlayPosition(event, overlay);
 
@@ -130,7 +151,7 @@
     requestAnimationFrame(() => {
       overlay.style.top = `${top}px`;
       overlay.style.left = `${left}px`;
-      overlay.style.display = 'block';
+      // overlay.style.display = 'block';
     });
   }
 
