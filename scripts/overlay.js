@@ -42,8 +42,8 @@
     if (!overlay) return { top: 0, left: 0 }; // Return default values
 
     // Calculate position of the overlay
-    let posX = event.clientX + 10;
-    let posY = event.clientY + 10;
+    let posX = event.clientX + window.scrollX + 10;
+    let posY = event.clientY + window.scrollY + 10;
 
     // Prevent tooltip from going off-screen
     const overlayRect = overlay.getBoundingClientRect();
