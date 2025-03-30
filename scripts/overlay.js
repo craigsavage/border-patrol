@@ -40,26 +40,25 @@
    */
   function getOverlayPosition(event, overlay) {
     if (!overlay) return { top: 0, left: 0 }; // Return default values
+    const overlayMargin = 10; // Overlay margin
 
-    // Calculate position of the overlay
-    let posX = event.clientX + window.scrollX + 10;
-    let posY = event.clientY + window.scrollY + 10;
+    // Calculate position of the overlay relative to the cursor
+    let posX = event.clientX + window.scrollX + overlayMargin;
+    let posY = event.clientY + window.scrollY + overlayMargin;
 
     // Prevent tooltip from going off-screen
     const overlayRect = overlay.getBoundingClientRect();
+
     // Flips the overlay to the left if it exceeds the right edge
     if (posX + overlayRect.width > window.innerWidth) {
-      posX = event.clientX - overlayRect.width - 10;
+      posX = event.clientX - overlayRect.width - overlayMargin;
     }
     // Flips the overlay upward if it exceeds the bottom edge
     if (posY + overlayRect.height > window.innerHeight) {
-      posY = event.clientY - overlayRect.height - 10;
+      posY = event.clientY - overlayRect.height - overlayMargin;
     }
 
-    return {
-      top: posY,
-      left: posX,
-    };
+    return { top: posY, left: posX };
   }
 
   /**
