@@ -39,23 +39,24 @@
    * @returns {Object} The position of the overlay
    */
   function getOverlayPosition(event, overlay) {
-    if (!overlay) return { top: 0, left: 0 }; // Return default values
-    const overlayMargin = 10; // Overlay margin
+    if (!overlay) return { top: 0, left: 0 }; // Default values
+    const overlayMargin = 10; // Margin from cursor
 
     // Calculate position of the overlay relative to the cursor
     let posX = event.clientX + window.scrollX + overlayMargin;
     let posY = event.clientY + window.scrollY + overlayMargin;
 
-    // Prevent tooltip from going off-screen
+    // Prevent overlay from going off-screen
     const overlayRect = overlay.getBoundingClientRect();
 
-    // Flips the overlay to the left if it exceeds the right edge
+    // Flip left if overlay goes beyond right edge
     if (posX + overlayRect.width > window.innerWidth) {
-      posX = event.clientX - overlayRect.width - overlayMargin;
+      posX = event.clientX + window.scrollX - overlayRect.width - overlayMargin;
     }
-    // Flips the overlay upward if it exceeds the bottom edge
+    // Flip up if overlay goes beyond bottom edge
     if (posY + overlayRect.height > window.innerHeight) {
-      posY = event.clientY - overlayRect.height - overlayMargin;
+      posY =
+        event.clientY + window.scrollY - overlayRect.height - overlayMargin;
     }
 
     return { top: posY, left: posX };
@@ -91,11 +92,27 @@
     // console.log('rect:', rect);
     // console.log('computedStyle:', computedStyle);
 
+    let overlayContainer = document.getElementById(
+      'inspector-overlay-container'
+    );
+    if (!overlayContainer) {
+      overlayContainer = document.createElement('div');
+      overlayContainer.id = 'inspector-overlay-container';
+      document.body.appendChild(overlayContainer);
+    }
+
+    const bodyRect = document.body.getBoundingClientRect();
+    // Set position and size of the overlay container relative to the body
+    overlayContainer.style.top = `${bodyRect.top}px`;
+    overlayContainer.style.left = `${bodyRect.left}px`;
+    overlayContainer.style.width = `${bodyRect.width}px`;
+    overlayContainer.style.height = `${bodyRect.height}px`;
+
     let overlay = document.getElementById('inspector-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'inspector-overlay';
-      document.body.appendChild(overlay);
+      overlayContainer.appendChild(overlay);
     }
 
     overlay.innerHTML = `

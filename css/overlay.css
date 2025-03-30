@@ -9,4 +9,15 @@
   pointer-events: none;
   z-index: 9999;
   max-width: 250px;
+  min-width: 150px;
+}
+
+#inspector-overlay-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10000;
 }
