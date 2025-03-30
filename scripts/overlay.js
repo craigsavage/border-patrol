@@ -5,8 +5,12 @@
 
   /** Initializes the inspector mode state */
   async function init() {
+    await updateInspectorModeState();
+  }
+
+  /** Checks if the inspector mode is enabled */
+  async function updateInspectorModeState() {
     isInspectorModeEnabled = await getInspectorModeState();
-    // console.log('Inspector mode enabled:', isInspectorModeEnabled);
   }
 
   /**
@@ -52,27 +56,12 @@
     // Flip left if overlay goes beyond right edge
     if (posX + overlayRect.width > window.innerWidth) {
       posX = event.clientX - overlayRect.width - overlayMargin;
-      // console.log('Flipped left');
     }
 
     // Flip up if overlay goes beyond bottom edge
     if (posY + overlayRect.height > window.innerHeight) {
       posY = event.clientY - overlayRect.height - overlayMargin;
-      // console.log('Flipped up');
     }
-
-    // console.log({
-    //   eventX: event.clientX,
-    //   eventY: event.clientY,
-    //   overlayWidth: overlayRect.width,
-    //   overlayHeight: overlayRect.height,
-    //   windowWidth: window.innerWidth,
-    //   windowHeight: window.innerHeight,
-    //   scrollX: window.scrollX,
-    //   scrollY: window.scrollY,
-    //   finalPosX: posX + window.scrollX,
-    //   finalPosY: posY + window.scrollY,
-    // });
 
     return {
       top: posY + window.scrollY,
@@ -86,17 +75,12 @@
    */
   async function mouseOverHandler(event) {
     // Check if the chrome storage API is available
-    if (!chrome || !chrome.storage) return; // Extension context may be invalid
+    if (!chrome?.storage) return;
 
     // Retrieve the inspector mode state
-    try {
-      if (!isInspectorModeEnabled) {
-        isInspectorModeEnabled = await getInspectorModeState(); // Update cache with latest value
-      }
-    } catch (error) {
-      console.error('Error getting inspector mode state:', error);
+    if (!isInspectorModeEnabled) {
+      await updateInspectorModeState();
     }
-
     if (!isInspectorModeEnabled) return;
 
     const element = event.target;
@@ -106,9 +90,6 @@
     const computedStyle = window.getComputedStyle(element);
 
     if (!rect || !computedStyle) return;
-    // console.log('element:', element);
-    // console.log('rect:', rect);
-    // console.log('computedStyle:', computedStyle);
 
     let overlayContainer = document.getElementById(
       'inspector-overlay-container'
@@ -120,6 +101,7 @@
     }
 
     const bodyRect = document.body.getBoundingClientRect();
+
     // Set position and size of the overlay container relative to the body
     overlayContainer.style.top = `${bodyRect.top}px`;
     overlayContainer.style.left = `${bodyRect.left}px`;
@@ -151,7 +133,6 @@
     requestAnimationFrame(() => {
       overlay.style.top = `${top}px`;
       overlay.style.left = `${left}px`;
-      // overlay.style.display = 'block';
     });
   }
 
@@ -178,6 +159,7 @@
     }
   });
 
+  // Remove event listeners when the connection is closed
   chrome.runtime.onConnect.addListener(connectionPort => {
     connectionPort.onDisconnect.addListener(() => {
       removeEventListeners();
