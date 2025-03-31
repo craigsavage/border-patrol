@@ -1,5 +1,8 @@
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
+  let throttleTimeout = null;
+
+  const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
 
   init();
 
@@ -116,15 +119,26 @@
     }
 
     overlay.innerHTML = `
-    <strong>${element.tagName.toLowerCase()}</strong><br>
-    ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
-    ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
-    ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
-    ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
-  `;
+      <strong>${element.tagName.toLowerCase()}</strong><br>
+      ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
+      ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
+      ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
+      ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
+    `;
 
     // Set display to block before getOverlayPosition
     overlay.style.display = 'block';
+
+    updateOverlayPosition(event);
+  }
+
+  /**
+   * Updates the position of the overlay
+   * @param {*} event - The triggered event
+   */
+  function updateOverlayPosition(event) {
+    const overlay = document.getElementById('inspector-overlay');
+    if (!overlay) return;
 
     // Calculate position of the overlay
     const { top, left } = getOverlayPosition(event, overlay);
@@ -136,8 +150,25 @@
     });
   }
 
+  /**
+   * Updates the position of the overlay on mousemove
+   * @param {*} event - The triggered event
+   */
+  function mouseMoveHandler(event) {
+    if (!isInspectorModeEnabled) return;
+
+    // Throttle the overlay position update
+    if (throttleTimeout === null) {
+      throttleTimeout = setTimeout(() => {
+        updateOverlayPosition(event);
+        throttleTimeout = null;
+      }, THROTTLE_DELAY);
+    }
+  }
+
   /** Hides the overlay on mouseout */
   function mouseOutHandler() {
+    if (!isInspectorModeEnabled) return;
     const overlay = document.getElementById('inspector-overlay');
     if (overlay) overlay.style.display = 'none';
   }
@@ -145,11 +176,13 @@
   /** Removes event listeners */
   function removeEventListeners() {
     document.removeEventListener('mouseover', mouseOverHandler);
+    document.removeEventListener('mousemove', mouseMoveHandler);
     document.removeEventListener('mouseout', mouseOutHandler);
   }
 
   // Add event listeners
   document.addEventListener('mouseover', mouseOverHandler);
+  document.addEventListener('mousemove', mouseMoveHandler);
   document.addEventListener('mouseout', mouseOutHandler);
 
   // Recieve message to update inspector mode
