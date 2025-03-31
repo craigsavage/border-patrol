@@ -137,16 +137,24 @@
    */
   function updateOverlayPosition(event) {
     const overlay = document.getElementById('inspector-overlay');
-    if (overlay) {
-      // Calculate position of the overlay
-      const { top, left } = getOverlayPosition(event, overlay);
+    if (!overlay) return;
 
-      // Display the overlay
-      requestAnimationFrame(() => {
-        overlay.style.top = `${top}px`;
-        overlay.style.left = `${left}px`;
-      });
-    }
+    // Calculate position of the overlay
+    const { top, left } = getOverlayPosition(event, overlay);
+
+    // Display the overlay
+    requestAnimationFrame(() => {
+      overlay.style.top = `${top}px`;
+      overlay.style.left = `${left}px`;
+    });
+  }
+
+  /**
+   * Updates the position of the overlay on mousemove
+   * @param {*} event - The triggered event
+   */
+  function mouseMoveHandler(event) {
+    updateOverlayPosition(event);
   }
 
   /** Hides the overlay on mouseout */
@@ -158,13 +166,13 @@
   /** Removes event listeners */
   function removeEventListeners() {
     document.removeEventListener('mouseover', mouseOverHandler);
-    document.removeEventListener('mousemove', mouseOverHandler);
+    document.removeEventListener('mousemove', mouseMoveHandler);
     document.removeEventListener('mouseout', mouseOutHandler);
   }
 
   // Add event listeners
   document.addEventListener('mouseover', mouseOverHandler);
-  document.addEventListener('mousemove', mouseOverHandler);
+  document.addEventListener('mousemove', mouseMoveHandler);
   document.addEventListener('mouseout', mouseOutHandler);
 
   // Recieve message to update inspector mode
