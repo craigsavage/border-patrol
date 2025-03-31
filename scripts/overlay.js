@@ -159,7 +159,7 @@
 
     // Throttle the overlay position update
     if (throttleTimeout === null) {
-      let throttleTimeout = setTimeout(() => {
+      throttleTimeout = setTimeout(() => {
         updateOverlayPosition(event);
         throttleTimeout = null;
       }, THROTTLE_DELAY);
