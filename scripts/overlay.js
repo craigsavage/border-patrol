@@ -1,5 +1,8 @@
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
+  let throttleTimeout = null;
+
+  const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
 
   init();
 
@@ -123,8 +126,6 @@
       ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
     `;
 
-    console.log('test');
-
     // Set display to block before getOverlayPosition
     overlay.style.display = 'block';
 
@@ -154,11 +155,20 @@
    * @param {*} event - The triggered event
    */
   function mouseMoveHandler(event) {
-    updateOverlayPosition(event);
+    if (!isInspectorModeEnabled) return;
+
+    // Throttle the overlay position update
+    if (throttleTimeout === null) {
+      let throttleTimeout = setTimeout(() => {
+        updateOverlayPosition(event);
+        throttleTimeout = null;
+      }, THROTTLE_DELAY);
+    }
   }
 
   /** Hides the overlay on mouseout */
   function mouseOutHandler() {
+    if (!isInspectorModeEnabled) return;
     const overlay = document.getElementById('inspector-overlay');
     if (overlay) overlay.style.display = 'none';
   }
