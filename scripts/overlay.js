@@ -87,19 +87,17 @@
     if (!isInspectorModeEnabled) return;
 
     const element = event.target;
-    if (!element || element.id === 'inspector-overlay') return;
+    if (!element || element.id === 'bp-inspector-overlay') return;
 
     const rect = element.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(element);
 
     if (!rect || !computedStyle) return;
 
-    let overlayContainer = document.getElementById(
-      'inspector-overlay-container'
-    );
+    let overlayContainer = document.getElementById('bp-inspector-container');
     if (!overlayContainer) {
       overlayContainer = document.createElement('div');
-      overlayContainer.id = 'inspector-overlay-container';
+      overlayContainer.id = 'bp-inspector-container';
       document.body.appendChild(overlayContainer);
     }
 
@@ -111,10 +109,10 @@
     overlayContainer.style.width = `${bodyRect.width}px`;
     overlayContainer.style.height = `${bodyRect.height}px`;
 
-    let overlay = document.getElementById('inspector-overlay');
+    let overlay = document.getElementById('bp-inspector-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
-      overlay.id = 'inspector-overlay';
+      overlay.id = 'bp-inspector-overlay';
       overlayContainer.appendChild(overlay);
     }
 
@@ -153,7 +151,7 @@
    * @param {*} event - The triggered event
    */
   function updateOverlayPosition(event) {
-    const overlay = document.getElementById('inspector-overlay');
+    const overlay = document.getElementById('bp-inspector-overlay');
     if (!overlay) return;
 
     // Calculate position of the overlay
@@ -185,7 +183,7 @@
   /** Hides the overlay and highlighton mouseout */
   function mouseOutHandler() {
     if (!isInspectorModeEnabled) return;
-    const overlay = document.getElementById('inspector-overlay');
+    const overlay = document.getElementById('bp-inspector-overlay');
     const highlight = document.getElementById('bp-element-highlight');
     if (overlay) overlay.style.display = 'none';
     if (highlight) highlight.style.display = 'none';
