@@ -21,3 +21,11 @@
   pointer-events: none;
   z-index: 10000;
 }
+
+#bp-element-highlight {
+  position: absolute;
+  background-color: firebrick;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 9998;
+}

@@ -130,6 +130,22 @@
     overlay.style.display = 'block';
 
     updateOverlayPosition(event);
+
+    // Display the highlight
+    let highlight = document.getElementById('bp-element-highlight');
+    if (!highlight) {
+      highlight = document.createElement('div');
+      highlight.id = 'bp-element-highlight';
+      overlayContainer.appendChild(highlight);
+    }
+
+    // Set position and size of the highlight
+    highlight.style.top = `${rect.top + window.scrollY}px`;
+    highlight.style.left = `${rect.left + window.scrollX}px`;
+    highlight.style.width = `${rect.width}px`;
+    highlight.style.height = `${rect.height}px`;
+
+    highlight.style.display = 'block';
   }
 
   /**
@@ -166,11 +182,13 @@
     }
   }
 
-  /** Hides the overlay on mouseout */
+  /** Hides the overlay and highlighton mouseout */
   function mouseOutHandler() {
     if (!isInspectorModeEnabled) return;
     const overlay = document.getElementById('inspector-overlay');
+    const highlight = document.getElementById('bp-element-highlight');
     if (overlay) overlay.style.display = 'none';
+    if (highlight) highlight.style.display = 'none';
   }
 
   /** Removes event listeners */
