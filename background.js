@@ -3,7 +3,6 @@
  * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
  */
 function updateExtensionState(isEnabled) {
-  chrome.action.setBadgeText({ text: isEnabled ? 'ON' : 'OFF' });
   chrome.action.setIcon({
     path: isEnabled
       ? 'icons/border-patrol-icon-16.png'
