@@ -2,18 +2,40 @@
   let isInspectorModeEnabled = false; // Cache the inspector mode state
   let throttleTimeout = null;
 
+  // DOM elements
+  let overlayContainer = null;
+  let overlay = null;
+  let highlight = null;
+
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
 
   init();
 
-  /** Initializes the inspector mode state */
+  /** Initializes the inspector mode state and DOM elements */
   async function init() {
-    await updateInspectorModeState();
+    isInspectorModeEnabled = await getInspectorModeState();
+    overlayContainer =
+      document.getElementById('bp-inspector-container') ||
+      createAndAppend('bp-inspector-container', document.body);
+    overlay =
+      document.getElementById('bp-inspector-overlay') ||
+      createAndAppend('bp-inspector-overlay', overlayContainer);
+    highlight =
+      document.getElementById('bp-element-highlight') ||
+      createAndAppend('bp-element-highlight', document.body);
   }
 
-  /** Checks if the inspector mode is enabled */
-  async function updateInspectorModeState() {
-    isInspectorModeEnabled = await getInspectorModeState();
+  /**
+   * Creates and appends an element to a parent element
+   * @param {string} id - The id of the element
+   * @param {Object} parent - The parent element
+   * @returns {Object} The created element
+   */
+  function createAndAppend(id, parent) {
+    const element = document.createElement('div');
+    element.id = id;
+    parent.appendChild(element);
+    return element;
   }
 
   /**
@@ -77,31 +99,16 @@
    * @param {*} event - The triggered event
    */
   async function mouseOverHandler(event) {
-    // Check if the chrome storage API is available
-    if (!chrome?.storage) return;
-
-    // Retrieve the inspector mode state
-    if (!isInspectorModeEnabled) {
-      await updateInspectorModeState();
-    }
-    if (!isInspectorModeEnabled) return;
+    // Check if the storage API is available and inspector mode is enabled
+    if (!chrome?.storage || !isInspectorModeEnabled) return;
 
     const element = event.target;
-    if (!element || element.id === 'inspector-overlay') return;
+    if (!element || element.id === 'bp-inspector-overlay') return;
 
     const rect = element.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(element);
 
     if (!rect || !computedStyle) return;
-
-    let overlayContainer = document.getElementById(
-      'inspector-overlay-container'
-    );
-    if (!overlayContainer) {
-      overlayContainer = document.createElement('div');
-      overlayContainer.id = 'inspector-overlay-container';
-      document.body.appendChild(overlayContainer);
-    }
 
     const bodyRect = document.body.getBoundingClientRect();
 
@@ -111,13 +118,7 @@
     overlayContainer.style.width = `${bodyRect.width}px`;
     overlayContainer.style.height = `${bodyRect.height}px`;
 
-    let overlay = document.getElementById('inspector-overlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'inspector-overlay';
-      overlayContainer.appendChild(overlay);
-    }
-
+    // Update the overlay content with the element details
     overlay.innerHTML = `
       <strong>${element.tagName.toLowerCase()}</strong><br>
       ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
@@ -130,6 +131,17 @@
     overlay.style.display = 'block';
 
     updateOverlayPosition(event);
+
+    // Display the highlight
+    requestAnimationFrame(() => {
+      // Set position and size of the highlight
+      highlight.style.top = `${rect.top + window.scrollY}px`;
+      highlight.style.left = `${rect.left + window.scrollX}px`;
+      highlight.style.width = `${rect.width}px`;
+      highlight.style.height = `${rect.height}px`;
+
+      highlight.style.display = 'block';
+    });
   }
 
   /**
@@ -137,7 +149,6 @@
    * @param {*} event - The triggered event
    */
   function updateOverlayPosition(event) {
-    const overlay = document.getElementById('inspector-overlay');
     if (!overlay) return;
 
     // Calculate position of the overlay
@@ -166,11 +177,10 @@
     }
   }
 
-  /** Hides the overlay on mouseout */
+  /** Hides the overlay and highlight on mouseout */
   function mouseOutHandler() {
-    if (!isInspectorModeEnabled) return;
-    const overlay = document.getElementById('inspector-overlay');
     if (overlay) overlay.style.display = 'none';
+    if (highlight) highlight.style.display = 'none';
   }
 
   /** Removes event listeners */
