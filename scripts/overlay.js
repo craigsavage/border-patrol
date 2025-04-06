@@ -44,17 +44,11 @@
 
   /**
    * Retrieves the inspector mode state from chrome storage.
-   * @returns {boolean} The inspector mode state from chrome storage
+   * @returns {Promise<boolean>} The inspector mode state from chrome storage
    */
   async function getInspectorModeState() {
     try {
-      // Check if the chrome storage API is available
-      if (!chrome || !chrome.storage) {
-        console.error(
-          'Chrome storage API is unavailable. Extension context may be invalid.'
-        );
-        return false;
-      }
+      if (!chrome || !chrome.storage) return false;
 
       // Retrieve the inspector mode state
       const data = await chrome.storage.local.get('isInspectorModeEnabled');
@@ -221,9 +215,13 @@
 
   // Remove event listeners when the connection is closed
   chrome.runtime.onConnect.addListener(connectionPort => {
-    connectionPort.onDisconnect.addListener(() => {
-      removeEventListeners();
-      removeElements();
-    });
+    if (!connectionPort) return;
+    if (connectionPort.name === 'content-connection') {
+      connectionPort.onDisconnect.addListener(() => {
+        isInspectorModeEnabled = false;
+        removeEventListeners();
+        removeElements();
+      });
+    }
   });
 })();

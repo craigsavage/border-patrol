@@ -131,11 +131,7 @@ async function sendInspectorModeUpdate(tabId) {
     const tab = await chrome.tabs.get(tabId);
     if (!tab?.url || tab.url.startsWith('chrome://')) return;
 
-    // Check if the chrome storage API is available
-    if (!chrome || !chrome.storage) {
-      console.warn('Chrome storage API unavailable in background.');
-      return;
-    }
+    if (!chrome || !chrome.storage) return;
 
     // Retrieve the inspector mode state
     const data = await chrome.storage.local.get('isInspectorModeEnabled');
@@ -147,8 +143,7 @@ async function sendInspectorModeUpdate(tabId) {
       isEnabled,
     });
   } catch (error) {
-    // TODO: Ignore error if tab is closed
-    console.error('Error sending inspector mode update:', error);
+    // Ignore errors if the tab is no longer active
   }
 }
 
