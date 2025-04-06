@@ -30,6 +30,8 @@ chrome.runtime.onInstalled.addListener(details => {
  * @param {Object} tab - The tab object.
  */
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (!tab) return;
+
   if (changeInfo.status === 'complete') {
     const data = await getData(tabId);
     if (!data) return;
@@ -37,6 +39,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const isEnabled = data[`isEnabled_${tabId}`] || false;
     updateExtensionState(isEnabled);
     injectBorderScript(tabId);
+    sendInspectorModeUpdate(tabId);
   }
 });
 
@@ -52,6 +55,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   const isEnabled = data[`isEnabled_${tabId}`] || false;
   updateExtensionState(isEnabled);
   injectBorderScript(tabId);
+  sendInspectorModeUpdate(tabId);
 });
 
 /**
@@ -59,6 +63,8 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
  * @param {Object} tab - The tab object.
  */
 chrome.action.onClicked.addListener(async tab => {
+  if (!tab) return;
+
   const tabId = tab.id;
   const data = await getData(tabId);
   if (!data) return;
@@ -94,14 +100,7 @@ async function injectBorderScript(tabId) {
   try {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
-    if (
-      !tab.url ||
-      tab.url.startsWith('chrome://') ||
-      tab.url.startsWith('chrome-extension://')
-    ) {
-      console.warn(`Skipping injection on restricted URL: ${tab.url}`);
-      return;
-    }
+    if (!tab?.url || tab.url.startsWith('chrome://')) return;
 
     // Inject overlay.css into the active tab
     await chrome.scripting.insertCSS({
@@ -128,11 +127,13 @@ async function injectBorderScript(tabId) {
  */
 async function sendInspectorModeUpdate(tabId) {
   try {
+    // Check if the tab is a valid webpage
+    const tab = await chrome.tabs.get(tabId);
+    if (!tab?.url || tab.url.startsWith('chrome://')) return;
+
     // Check if the chrome storage API is available
     if (!chrome || !chrome.storage) {
-      console.error(
-        'Chrome storage API is unavailable. Extension context may be invalid.'
-      );
+      console.warn('Chrome storage API unavailable in background.');
       return;
     }
 

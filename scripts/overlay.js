@@ -13,16 +13,20 @@
 
   /** Initializes the inspector mode state and DOM elements */
   async function init() {
-    isInspectorModeEnabled = await getInspectorModeState();
-    overlayContainer =
-      document.getElementById('bp-inspector-container') ||
-      createAndAppend('bp-inspector-container', document.body);
-    overlay =
-      document.getElementById('bp-inspector-overlay') ||
-      createAndAppend('bp-inspector-overlay', overlayContainer);
-    highlight =
-      document.getElementById('bp-element-highlight') ||
-      createAndAppend('bp-element-highlight', document.body);
+    try {
+      isInspectorModeEnabled = await getInspectorModeState();
+      overlayContainer =
+        document.getElementById('bp-inspector-container') ||
+        createAndAppend('bp-inspector-container', document.body);
+      overlay =
+        document.getElementById('bp-inspector-overlay') ||
+        createAndAppend('bp-inspector-overlay', overlayContainer);
+      highlight =
+        document.getElementById('bp-element-highlight') ||
+        createAndAppend('bp-element-highlight', document.body);
+    } catch (error) {
+      console.error('Error initializing inspector mode:', error);
+    }
   }
 
   /**
