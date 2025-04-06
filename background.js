@@ -93,6 +93,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 /**
+ * Checks if the provided URL is a restricted URL.
+ * @param {string} url - The URL to check.
+ * @returns {boolean} True if the URL is restricted, false otherwise.
+ */
+function isRestrictedUrl(url) {
+  const invalidSchemes = [
+    'chrome:',
+    'chrome-extension:',
+    'about:',
+    'edge:',
+    'file:',
+  ];
+
+  return (
+    invalidSchemes.some(scheme => url.startsWith(scheme)) ||
+    url.startsWith('https://chrome.google.com/webstore') ||
+    url.startsWith('https://chromewebstore.google.com')
+  );
+}
+
+/**
  * Injects the border script into the specified tab.
  * @param {number} tabId - The ID of the tab to inject the script into.
  */
@@ -100,7 +121,7 @@ async function injectBorderScript(tabId) {
   try {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
-    if (!tab?.url || tab.url.startsWith('chrome://')) return;
+    if (!tab?.url || isRestrictedUrl(tab.url)) return;
 
     // Inject overlay.css into the active tab
     await chrome.scripting.insertCSS({
