@@ -183,6 +183,19 @@
     if (highlight) highlight.style.display = 'none';
   }
 
+  /** Removes all elements from the DOM and resets variables to null */
+  function removeElements() {
+    // Remove all elements
+    if (overlayContainer) overlayContainer.remove();
+    if (overlay) overlay.remove();
+    if (highlight) highlight.remove();
+
+    // Reset variables to null
+    overlayContainer = null;
+    overlay = null;
+    highlight = null;
+  }
+
   /** Removes event listeners */
   function removeEventListeners() {
     document.removeEventListener('mouseover', mouseOverHandler);
@@ -206,6 +219,7 @@
   chrome.runtime.onConnect.addListener(connectionPort => {
     connectionPort.onDisconnect.addListener(() => {
       removeEventListeners();
+      removeElements();
     });
   });
 })();
