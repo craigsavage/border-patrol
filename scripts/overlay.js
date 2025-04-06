@@ -177,7 +177,7 @@
     }
   }
 
-  /** Hides the overlay and highlighton mouseout */
+  /** Hides the overlay and highlight on mouseout */
   function mouseOutHandler() {
     if (overlay) overlay.style.display = 'none';
     if (highlight) highlight.style.display = 'none';
