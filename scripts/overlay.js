@@ -11,6 +11,19 @@
     await updateInspectorModeState();
   }
 
+  /**
+   * Creates and appends an element to a parent element
+   * @param {string} id - The id of the element
+   * @param {Object} parent - The parent element
+   * @returns {Object} The created element
+   */
+  function createAndAppend(id, parent) {
+    const element = document.createElement('div');
+    element.id = id;
+    parent.appendChild(element);
+    return element;
+  }
+
   /** Checks if the inspector mode is enabled */
   async function updateInspectorModeState() {
     isInspectorModeEnabled = await getInspectorModeState();
@@ -96,9 +109,10 @@
 
     let overlayContainer = document.getElementById('bp-inspector-container');
     if (!overlayContainer) {
-      overlayContainer = document.createElement('div');
-      overlayContainer.id = 'bp-inspector-container';
-      document.body.appendChild(overlayContainer);
+      overlayContainer = createAndAppend(
+        'bp-inspector-container',
+        document.body
+      );
     }
 
     const bodyRect = document.body.getBoundingClientRect();
@@ -111,9 +125,7 @@
 
     let overlay = document.getElementById('bp-inspector-overlay');
     if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'bp-inspector-overlay';
-      overlayContainer.appendChild(overlay);
+      overlay = createAndAppend('bp-inspector-overlay', overlayContainer);
     }
 
     overlay.innerHTML = `
@@ -132,18 +144,19 @@
     // Display the highlight
     let highlight = document.getElementById('bp-element-highlight');
     if (!highlight) {
-      highlight = document.createElement('div');
-      highlight.id = 'bp-element-highlight';
-      overlayContainer.appendChild(highlight);
+      highlight = createAndAppend('bp-element-highlight', overlayContainer);
     }
 
-    // Set position and size of the highlight
-    highlight.style.top = `${rect.top + window.scrollY}px`;
-    highlight.style.left = `${rect.left + window.scrollX}px`;
-    highlight.style.width = `${rect.width}px`;
-    highlight.style.height = `${rect.height}px`;
+    // Display the highlight
+    requestAnimationFrame(() => {
+      // Set position and size of the highlight
+      highlight.style.top = `${rect.top + window.scrollY}px`;
+      highlight.style.left = `${rect.left + window.scrollX}px`;
+      highlight.style.width = `${rect.width}px`;
+      highlight.style.height = `${rect.height}px`;
 
-    highlight.style.display = 'block';
+      highlight.style.display = 'block';
+    });
   }
 
   /**
