@@ -71,6 +71,7 @@ chrome.action.onClicked.addListener(async tab => {
 
   updateExtensionState(newState);
   injectBorderScript(tabId);
+  sendInspectorModeUpdate(tabId);
 });
 
 // Handles recieving messages
@@ -118,6 +119,35 @@ async function injectBorderScript(tabId) {
     chrome.tabs.connect(tabId, { name: 'content-connection' });
   } catch (error) {
     console.error('Error injecting scripts or CSS:', error);
+  }
+}
+
+/**
+ * Sends a message to the content script to update the inspector mode state.
+ * @param {number} tabId - The ID of the tab to send the message to.
+ */
+async function sendInspectorModeUpdate(tabId) {
+  try {
+    // Check if the chrome storage API is available
+    if (!chrome || !chrome.storage) {
+      console.error(
+        'Chrome storage API is unavailable. Extension context may be invalid.'
+      );
+      return;
+    }
+
+    // Retrieve the inspector mode state
+    const data = await chrome.storage.local.get('isInspectorModeEnabled');
+    const isEnabled = data?.isInspectorModeEnabled || false;
+
+    // Send message to update inspector mode
+    await chrome.tabs.sendMessage(tabId, {
+      action: 'UPDATE_INSPECTOR_MODE',
+      isEnabled,
+    });
+  } catch (error) {
+    // TODO: Ignore error if tab is closed
+    console.error('Error sending inspector mode update:', error);
   }
 }
 
