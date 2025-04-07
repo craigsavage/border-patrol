@@ -26,6 +26,9 @@
         createAndAppend('bp-element-highlight', document.body);
     } catch (error) {
       console.error('Error initializing inspector mode:', error);
+      // Clean up if initialization fails
+      isInspectorModeEnabled = false;
+      removeElements();
     }
   }
 
