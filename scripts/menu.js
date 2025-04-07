@@ -62,6 +62,8 @@ async function toggleInspectorMode() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
+  if (!tab?.url || tab.url.startsWith('chrome://')) return;
+
   // Update storage with new state for the active tab
   await chrome.storage.local.set({
     isInspectorModeEnabled: toggleInspector.checked,

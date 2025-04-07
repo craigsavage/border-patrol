@@ -13,16 +13,23 @@
 
   /** Initializes the inspector mode state and DOM elements */
   async function init() {
-    isInspectorModeEnabled = await getInspectorModeState();
-    overlayContainer =
-      document.getElementById('bp-inspector-container') ||
-      createAndAppend('bp-inspector-container', document.body);
-    overlay =
-      document.getElementById('bp-inspector-overlay') ||
-      createAndAppend('bp-inspector-overlay', overlayContainer);
-    highlight =
-      document.getElementById('bp-element-highlight') ||
-      createAndAppend('bp-element-highlight', document.body);
+    try {
+      isInspectorModeEnabled = await getInspectorModeState();
+      overlayContainer =
+        document.getElementById('bp-inspector-container') ||
+        createAndAppend('bp-inspector-container', document.body);
+      overlay =
+        document.getElementById('bp-inspector-overlay') ||
+        createAndAppend('bp-inspector-overlay', overlayContainer);
+      highlight =
+        document.getElementById('bp-element-highlight') ||
+        createAndAppend('bp-element-highlight', document.body);
+    } catch (error) {
+      console.error('Error initializing inspector mode:', error);
+      // Clean up if initialization fails
+      isInspectorModeEnabled = false;
+      removeElements();
+    }
   }
 
   /**
@@ -40,17 +47,11 @@
 
   /**
    * Retrieves the inspector mode state from chrome storage.
-   * @returns {boolean} The inspector mode state from chrome storage
+   * @returns {Promise<boolean>} The inspector mode state from chrome storage
    */
   async function getInspectorModeState() {
     try {
-      // Check if the chrome storage API is available
-      if (!chrome || !chrome.storage) {
-        console.error(
-          'Chrome storage API is unavailable. Extension context may be invalid.'
-        );
-        return false;
-      }
+      if (!chrome || !chrome.storage) return false;
 
       // Retrieve the inspector mode state
       const data = await chrome.storage.local.get('isInspectorModeEnabled');
@@ -183,6 +184,19 @@
     if (highlight) highlight.style.display = 'none';
   }
 
+  /** Removes all elements from the DOM and resets variables to null */
+  function removeElements() {
+    // Remove all elements
+    if (overlayContainer) overlayContainer.remove();
+    if (overlay) overlay.remove();
+    if (highlight) highlight.remove();
+
+    // Reset variables to null
+    overlayContainer = null;
+    overlay = null;
+    highlight = null;
+  }
+
   /** Removes event listeners */
   function removeEventListeners() {
     document.removeEventListener('mouseover', mouseOverHandler);
@@ -204,8 +218,13 @@
 
   // Remove event listeners when the connection is closed
   chrome.runtime.onConnect.addListener(connectionPort => {
-    connectionPort.onDisconnect.addListener(() => {
-      removeEventListeners();
-    });
+    if (!connectionPort) return;
+    if (connectionPort.name === 'content-connection') {
+      connectionPort.onDisconnect.addListener(() => {
+        isInspectorModeEnabled = false;
+        removeEventListeners();
+        removeElements();
+      });
+    }
   });
 })();

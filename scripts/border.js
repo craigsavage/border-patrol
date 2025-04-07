@@ -91,7 +91,6 @@ chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
 
 // Receive message to apply outline to all elements
 chrome.runtime.onMessage.addListener(async request => {
-  // console.log('Received message:', request);
   if (request.action === 'UPDATE_SETTINGS') {
     let { borderThickness, borderStyle, tabId } = request;
     const data = await chrome.storage.local.get(`isEnabled_${tabId}`);

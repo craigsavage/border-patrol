@@ -3,7 +3,6 @@
  * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
  */
 function updateExtensionState(isEnabled) {
-  chrome.action.setBadgeText({ text: isEnabled ? 'ON' : 'OFF' });
   chrome.action.setIcon({
     path: isEnabled
       ? 'icons/border-patrol-icon-16.png'
@@ -31,6 +30,8 @@ chrome.runtime.onInstalled.addListener(details => {
  * @param {Object} tab - The tab object.
  */
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (!tab) return;
+
   if (changeInfo.status === 'complete') {
     const data = await getData(tabId);
     if (!data) return;
@@ -38,6 +39,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const isEnabled = data[`isEnabled_${tabId}`] || false;
     updateExtensionState(isEnabled);
     injectBorderScript(tabId);
+    sendInspectorModeUpdate(tabId);
   }
 });
 
@@ -53,6 +55,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   const isEnabled = data[`isEnabled_${tabId}`] || false;
   updateExtensionState(isEnabled);
   injectBorderScript(tabId);
+  sendInspectorModeUpdate(tabId);
 });
 
 /**
@@ -60,6 +63,8 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
  * @param {Object} tab - The tab object.
  */
 chrome.action.onClicked.addListener(async tab => {
+  if (!tab) return;
+
   const tabId = tab.id;
   const data = await getData(tabId);
   if (!data) return;
@@ -72,6 +77,7 @@ chrome.action.onClicked.addListener(async tab => {
 
   updateExtensionState(newState);
   injectBorderScript(tabId);
+  sendInspectorModeUpdate(tabId);
 });
 
 // Handles recieving messages
@@ -87,6 +93,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 /**
+ * Checks if the provided URL is a restricted URL.
+ * @param {string} url - The URL to check.
+ * @returns {boolean} True if the URL is restricted, false otherwise.
+ */
+function isRestrictedUrl(url) {
+  const invalidSchemes = [
+    'chrome:',
+    'chrome-extension:',
+    'about:',
+    'edge:',
+    'file:',
+  ];
+
+  return (
+    invalidSchemes.some(scheme => url.startsWith(scheme)) ||
+    url.startsWith('https://chrome.google.com/webstore') ||
+    url.startsWith('https://chromewebstore.google.com')
+  );
+}
+
+/**
  * Injects the border script into the specified tab.
  * @param {number} tabId - The ID of the tab to inject the script into.
  */
@@ -94,14 +121,7 @@ async function injectBorderScript(tabId) {
   try {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
-    if (
-      !tab.url ||
-      tab.url.startsWith('chrome://') ||
-      tab.url.startsWith('chrome-extension://')
-    ) {
-      console.warn(`Skipping injection on restricted URL: ${tab.url}`);
-      return;
-    }
+    if (!tab?.url || isRestrictedUrl(tab.url)) return;
 
     // Inject overlay.css into the active tab
     await chrome.scripting.insertCSS({
@@ -119,6 +139,32 @@ async function injectBorderScript(tabId) {
     chrome.tabs.connect(tabId, { name: 'content-connection' });
   } catch (error) {
     console.error('Error injecting scripts or CSS:', error);
+  }
+}
+
+/**
+ * Sends a message to the content script to update the inspector mode state.
+ * @param {number} tabId - The ID of the tab to send the message to.
+ */
+async function sendInspectorModeUpdate(tabId) {
+  try {
+    // Check if the tab is a valid webpage
+    const tab = await chrome.tabs.get(tabId);
+    if (!tab?.url || isRestrictedUrl(tab.url)) return;
+
+    if (!chrome || !chrome.storage) return;
+
+    // Retrieve the inspector mode state
+    const data = await chrome.storage.local.get('isInspectorModeEnabled');
+    const isEnabled = data?.isInspectorModeEnabled || false;
+
+    // Send message to update inspector mode
+    await chrome.tabs.sendMessage(tabId, {
+      action: 'UPDATE_INSPECTOR_MODE',
+      isEnabled,
+    });
+  } catch (error) {
+    // Ignore errors if the tab is no longer active
   }
 }
 
