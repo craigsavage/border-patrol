@@ -175,8 +175,7 @@ async function sendInspectorModeUpdate(tabId) {
  */
 async function getData(tabId) {
   if (!tabId) {
-    const queryOptions = { active: true, lastFocusedWindow: true };
-    const [tab] = await chrome.tabs.query(queryOptions);
+    const tab = await getTab();
     tabId = tab.id;
   }
 
@@ -185,3 +184,37 @@ async function getData(tabId) {
   const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
   return data;
 }
+
+/**
+ * Retrieves the active tab.
+ * @returns {Object} The active tab object.
+ */
+async function getTab() {
+  const queryOptions = { active: true, lastFocusedWindow: true };
+  const [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
+}
+
+// Handles keyboard shortcut commands
+chrome.commands.onCommand.addListener(async command => {
+  // Toggle the extension
+  if (command === 'toggle_border_patrol') {
+    const tabId = (await getTab())?.id;
+    const data = await getData(tabId);
+    if (!data) return;
+
+    const isEnabled = data[`isEnabled_${tabId}`] || false;
+    const newState = !isEnabled;
+
+    // Store the new state using tab ID as the key
+    await chrome.storage.local.set({ [`isEnabled_${tabId}`]: newState });
+
+    updateExtensionState(newState);
+
+    // Apply changes to the active tab
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ['scripts/border.js'],
+    });
+  }
+});
