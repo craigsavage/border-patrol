@@ -90,7 +90,7 @@ async function updateSettings() {
 
   // Send message to update border settings
   chrome.tabs.sendMessage(tab.id, {
-    action: 'UPDATE_SETTINGS',
+    action: 'UPDATE_BORDER_SETTINGS',
     tabId: tabId,
     borderThickness: borderThickness.value,
     borderStyle: borderStyle.value,
