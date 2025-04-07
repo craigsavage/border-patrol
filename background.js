@@ -150,7 +150,7 @@ async function sendInspectorModeUpdate(tabId) {
   try {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
-    if (!tab?.url || tab.url.startsWith('chrome://')) return;
+    if (!tab?.url || isRestrictedUrl(tab.url)) return;
 
     if (!chrome || !chrome.storage) return;
 
