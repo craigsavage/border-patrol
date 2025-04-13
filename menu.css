@@ -4,7 +4,7 @@
   --bp-gray: #999;
   --bp-dark-gray: #333;
 
-  /* Primary Colors */
+  /* Primary Blue Color Palette */
   --bp-blue-50: #f2f8fd;
   --bp-blue-100: #e5f0f9;
   --bp-blue-200: #c5e0f2;
@@ -18,6 +18,7 @@
   --bp-blue-950: #132a3e;
 }
 
+/* Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -27,13 +28,10 @@
 
 body {
   padding: 1rem;
-  width: 15rem;
+  width: 16rem;
 }
 
-div {
-  margin-bottom: 1rem;
-}
-
+/* Title Styles */
 .menu-title {
   font-family: 'Lilita One', 'Inter Tight', sans-serif;
   font-size: 1.6rem;
@@ -43,53 +41,17 @@ div {
   color: var(--bp-blue);
   border: 3px dashed var(--bp-blue);
   border-radius: 10px;
-  padding: 0.6rem;
+  padding: 0.5rem;
   margin-bottom: 1rem;
-}
-
-.form-group {
-  display: flex;
-  justify-content: space-between;
-}
-
-.label {
-  display: block;
-  color: var(--bp-blue-900);
-  font-weight: 600;
-  font-size: 0.8rem;
-  margin-bottom: 0.4rem;
-}
-
-input[type='range'] {
-  width: 100%;
-}
-
-select {
-  width: 100%;
-}
-
-a {
-  text-decoration: none;
-  color: var(--bp-gray);
-}
-
-hr {
-  margin: 1rem 0;
-  border: none;
-  border-top: 1px solid var(--bp-light-gray);
-}
-
-footer {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--bp-gray);
 }
 
 fieldset {
   border: 1px solid var(--bp-light-gray);
   border-radius: 5px;
-  padding: 0.3rem 0.6rem;
+  padding: 0.3rem 0.6rem 0.9rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 legend {
@@ -98,4 +60,54 @@ legend {
   font-size: 0.8rem;
   text-align: center;
   padding: 0.3rem 0.6rem;
+}
+
+/* Form Group Styles */
+.form-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  color: var(--bp-blue-900);
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 0.2rem;
+}
+
+input[type='range'] {
+  width: 100%;
+}
+
+select {
+  width: 100%;
+  padding: 0.3rem;
+  border: 1px solid var(--bp-light-gray);
+  border-radius: 5px;
+  font-size: 0.8rem;
+  color: var(--bp-blue-900);
+}
+
+/* Link Styles */
+a {
+  text-decoration: none;
+  color: var(--bp-gray);
+}
+
+/* Separator */
+hr {
+  margin: 0.8rem 0;
+  border: none;
+  border-top: 1px solid var(--bp-light-gray);
+}
+
+/* Footer Styles */
+footer {
+  margin-top: 0.8rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bp-gray);
 }
