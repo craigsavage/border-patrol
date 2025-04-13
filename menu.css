@@ -1,6 +1,7 @@
 :root {
   --bp-blue: #2374ab;
   --bp-light-gray: #ccc;
+  --bp-gray: #999;
   --bp-dark-gray: #333;
 
   /* Primary Colors */
@@ -55,7 +56,7 @@ div {
   display: block;
   color: var(--bp-blue-900);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   margin-bottom: 0.4rem;
 }
 
@@ -69,7 +70,7 @@ select {
 
 a {
   text-decoration: none;
-  color: var(--bp-dark-gray);
+  color: var(--bp-gray);
 }
 
 hr {
@@ -82,5 +83,19 @@ footer {
   margin-top: 1rem;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--bp-dark-gray);
+  color: var(--bp-gray);
+}
+
+fieldset {
+  border: 1px solid var(--bp-light-gray);
+  border-radius: 5px;
+  padding: 0.3rem 0.6rem;
+}
+
+legend {
+  color: var(--bp-blue-900);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 0.3rem 0.6rem;
 }
