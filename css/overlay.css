@@ -1,0 +1,31 @@
+#bp-inspector-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+#bp-inspector-overlay {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 250px;
+  min-width: 150px;
+}
+
+#bp-element-highlight {
+  position: absolute;
+  background-color: firebrick;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 9998;
+}
