@@ -1,24 +1,38 @@
-# Border Patrol - CSS Outliner & Debugging Tool
+## Border Patrol - CSS Outliner & Debugging Tool
 
-Border Patrol is a browser extension that outlines every element on a webpage, helping developers and designers visualize layouts, margins, and padding instantly. This extension provides a simple yet powerful way to debug CSS box models.
+**Border Patrol** is a free and open-source Chrome extension designed to help web developers and designers quickly visualize the structure of any webpage. By applying outlines to every element, it makes it incredibly easy to identify layout issues, understand the impact of CSS properties like width, padding, and margins, and debug CSS problems.
 
-## Features
+### Key Features
 
-Border Patrol handles applying borders (we use the outline property) to every element so that it becomes easy to visually understand the structure of any webpage. This makes it incredibly easy to debug layout issues caused by CSS properties like width, padding, and margins.
+- **Instant Element Outlining:** Immediately applies outlines (using the CSS `outline` property) to all elements on a webpage, revealing their boundaries.
+- **Layout Debugging:** Simplifies the process of debugging CSS layouts, making it easier to pinpoint issues related to:
+  - Width and height
+  - Padding and margins
+  - Box model problems
+- **Easy Toggle:** Quickly toggle Border Patrol on or off with a keyboard shortcut or via the extension's popup menu.
+- **Customizable Appearance:**
+  - Adjust the thickness of the outlines.
+  - Choose from various outline styles (solid, dashed, dotted, double).
+- **Inspector Mode:**
+  - **Element Information Overlay:** Displays a helpful overlay with detailed information about the CSS styles of the hovered element, including:
+    - Dimensions (width x height)
+    - Border properties
+    - Margin properties
+    - Padding properties
+  - **Visual Highlighting:** Highlights the element on the page, making it easy to correlate the displayed information with the selected element.
+- **Open Source & Community Driven:** Border Patrol is open-source, welcoming contributions from the community to improve and expand its functionality.
 
-- Instantly outlines all elements on a webpage.
-- Helps debug layouts, margins, and padding.
-- Lightweight and easy to toggle on/off.
-- Customizable options for the style and thickness of the borders.
-- Open-source with community contributions.
+### Keyboard Shortcut
 
-Use the shortcut `Alt+Shift+B` to toggle borders on any page
+- Toggle Borders: `Alt+Shift+B`
 
 ### Inspector Mode
+
 - Displays a functional overlay containing information about the CSS styles for the hovered element, such as: dimensions, borders, margins, padding, etc...
 - Visually highlights the space occupied by each element
 
 ### Open-source with community contributions
+
 This is open source, so anyone can contribute to the extension.
 
 - Please make `Pull Requests` based on the `dev` branch
