@@ -1,5 +1,46 @@
 :root {
-  --brand-color: firebrick;
+  --bp-blue: #2374ab;
+  --bp-blush: #aa4465;
+  --bp-green: #80c2af;
+
+  /* Primary Colors */
+  --bp-blue-50: #f2f8fd;
+  --bp-blue-100: #e5f0f9;
+  --bp-blue-200: #c5e0f2;
+  --bp-blue-300: #92c7e7;
+  --bp-blue-400: #57a9d9;
+  --bp-blue-500: #328ec5;
+  --bp-blue-600: #2374ab; /* Main Color */
+  --bp-blue-700: #1d5a87;
+  --bp-blue-800: #1c4e70;
+  --bp-blue-900: #1c425e;
+  --bp-blue-950: #132a3e;
+
+  /* Secondary Colors */
+  --bp-blush-50: #fbf4f7;
+  --bp-blush-100: #f8ebf0;
+  --bp-blush-200: #f2d8e4;
+  --bp-blush-300: #e9b8cd;
+  --bp-blush-400: #da8cac;
+  --bp-blush-500: #cb698d;
+  --bp-blush-600: #aa4465; /* Main Color */
+  --bp-blush-700: #9d3957;
+  --bp-blush-800: #823248;
+  --bp-blush-900: #6e2d3f;
+  --bp-blush-950: #411622;
+
+  /* */
+  --bp-green-50: #f4f9f7;
+  --bp-green-100: #d9eee7;
+  --bp-green-200: #b2ddcf;
+  --bp-green-300: #80c2af; /* Main Color */
+  --bp-green-400: #5aa793;
+  --bp-green-500: #418b79;
+  --bp-green-600: #326f62;
+  --bp-green-700: #2b5a50;
+  --bp-green-800: #264942;
+  --bp-green-900: #233e38;
+  --bp-green-950: #102321;
 }
 
 * {
@@ -18,12 +59,17 @@ div {
   margin-bottom: 1rem;
 }
 
-.title {
+.menu-title {
+  font-family: 'Lilita One', 'Inter Tight', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  font-style: normal;
   text-align: center;
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 1.5rem;
+  color: var(--bp-blue);
+  border: 3px dashed var(--bp-blue);
+  border-radius: 10px;
+  padding: 0.6rem;
   margin-bottom: 1rem;
-  color: var(--brand-color);
 }
 
 .form-group {
