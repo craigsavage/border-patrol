@@ -1,7 +1,7 @@
 :root {
   --bp-blue: #2374ab;
-  --bp-blush: #aa4465;
-  --bp-green: #80c2af;
+  --bp-light-gray: #ccc;
+  --bp-dark-gray: #333;
 
   /* Primary Colors */
   --bp-blue-50: #f2f8fd;
@@ -15,32 +15,6 @@
   --bp-blue-800: #1c4e70;
   --bp-blue-900: #1c425e;
   --bp-blue-950: #132a3e;
-
-  /* Secondary Colors */
-  --bp-blush-50: #fbf4f7;
-  --bp-blush-100: #f8ebf0;
-  --bp-blush-200: #f2d8e4;
-  --bp-blush-300: #e9b8cd;
-  --bp-blush-400: #da8cac;
-  --bp-blush-500: #cb698d;
-  --bp-blush-600: #aa4465; /* Main Color */
-  --bp-blush-700: #9d3957;
-  --bp-blush-800: #823248;
-  --bp-blush-900: #6e2d3f;
-  --bp-blush-950: #411622;
-
-  /* */
-  --bp-green-50: #f4f9f7;
-  --bp-green-100: #d9eee7;
-  --bp-green-200: #b2ddcf;
-  --bp-green-300: #80c2af; /* Main Color */
-  --bp-green-400: #5aa793;
-  --bp-green-500: #418b79;
-  --bp-green-600: #326f62;
-  --bp-green-700: #2b5a50;
-  --bp-green-800: #264942;
-  --bp-green-900: #233e38;
-  --bp-green-950: #102321;
 }
 
 * {
@@ -79,6 +53,7 @@ div {
 
 .label {
   display: block;
+  color: var(--bp-blue-900);
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 0.4rem;
@@ -94,18 +69,18 @@ select {
 
 a {
   text-decoration: none;
-  color: gray;
+  color: var(--bp-dark-gray);
 }
 
 hr {
   margin: 1rem 0;
   border: none;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--bp-light-gray);
 }
 
 footer {
   margin-top: 1rem;
   text-align: center;
   font-size: 0.8rem;
-  color: gray;
+  color: var(--bp-dark-gray);
 }
