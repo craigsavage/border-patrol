@@ -26,13 +26,16 @@
 
 - Toggle Borders: `Alt+Shift+B`
 
-### Inspector Mode
+### Contributing
 
-- Displays a functional overlay containing information about the CSS styles for the hovered element, such as: dimensions, borders, margins, padding, etc...
-- Visually highlights the space occupied by each element
+Border Patrol is an open-source project, and contributions are welcome!
 
-### Open-source with community contributions
+- **Pull Requests:** Please submit pull requests based on the `dev` branch.
 
-This is open source, so anyone can contribute to the extension.
+### Feedback and Support 💬
 
-- Please make `Pull Requests` based on the `dev` branch
+For bug reports, feature requests, or general feedback, please submit an issue on the [GitHub repository](https://github.com/craigsavage/border-patrol/issues).
+
+### License
+
+Border Patrol is released under the [Apache-2.0 License](https://github.com/craigsavage/border-patrol/blob/main/LICENSE) 📄.
