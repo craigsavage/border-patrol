@@ -22,7 +22,7 @@ async function applyOutline(isEnabled, size, style) {
       'borderStyle',
     ]);
     size = data.borderThickness || 1;
-    style = data.borderStyle || style;
+    style = data.borderStyle || 'solid';
   }
   const defaultColor = 'red'; // Fallback color if tag not found
 

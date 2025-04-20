@@ -18,9 +18,17 @@ function updateExtensionState(isEnabled) {
  * Clears any previous state and updates the extension state.
  * @param {Object} details - Details about the installation or update.
  */
-chrome.runtime.onInstalled.addListener(details => {
+chrome.runtime.onInstalled.addListener(async details => {
   chrome.storage.local.set({}); // Clears any previous state
   updateExtensionState(false);
+
+  try {
+    const tabId = (await getTab())?.id;
+    injectBorderScript(tabId);
+    sendInspectorModeUpdate(tabId);
+  } catch (error) {
+    console.error('Error getting tab ID:', error);
+  }
 });
 
 /**
