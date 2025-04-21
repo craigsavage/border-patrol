@@ -15,22 +15,29 @@ function updateExtensionState(isEnabled) {
 
 /**
  * Runs when the extension is installed or updated.
- * Clears any previous state and updates the extension state.
+ * Clears any previous state and initializes the extension state and default settings.
  * @param {Object} details - Details about the installation or update.
  */
 chrome.runtime.onInstalled.addListener(async details => {
-  await chrome.storage.local.set({}); // Clears any previous state
+  // Clear any previous state and set default settings
+  await chrome.storage.local.set({});
+  await chrome.storage.local.set({
+    borderThickness: 1,
+    borderStyle: 'solid',
+    isInspectorModeEnabled: false,
+  });
   updateExtensionState(false);
 
   try {
-    const tabId = (await getTab())?.id;
-    if (!tabId) return;
+    const tab = await getTab();
+    if (!tab?.url || isRestrictedUrl(tab.url) || !tab.id) return;
+
+    const tabId = tab.id;
 
     // Initialize the extension state for the active tab to false after installation
     await chrome.storage.local.set({ [`isEnabled_${tabId}`]: false });
 
     injectBorderScript(tabId);
-    sendInspectorModeUpdate(tabId);
   } catch (error) {
     // Ignore errors
   }
