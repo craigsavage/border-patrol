@@ -25,7 +25,6 @@
         document.getElementById('bp-element-highlight') ||
         createAndAppend('bp-element-highlight', document.body);
     } catch (error) {
-      console.error('Error initializing inspector mode:', error);
       // Clean up if initialization fails
       isInspectorModeEnabled = false;
       removeElements();
@@ -57,7 +56,7 @@
       const data = await chrome.storage.local.get('isInspectorModeEnabled');
       return data?.isInspectorModeEnabled || false;
     } catch (error) {
-      console.error('Error getting inspector mode state:', error);
+      // Ignore errors
       return false;
     }
   }

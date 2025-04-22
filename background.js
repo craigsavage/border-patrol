@@ -15,12 +15,33 @@ function updateExtensionState(isEnabled) {
 
 /**
  * Runs when the extension is installed or updated.
- * Clears any previous state and updates the extension state.
+ * Clears any previous state and initializes the extension state and default settings.
  * @param {Object} details - Details about the installation or update.
  */
-chrome.runtime.onInstalled.addListener(details => {
-  chrome.storage.local.set({}); // Clears any previous state
+chrome.runtime.onInstalled.addListener(async details => {
+  // Clear any previous state
+  await chrome.storage.local.set({});
+  // Set default settings for the extension
+  await chrome.storage.local.set({
+    borderThickness: 1,
+    borderStyle: 'solid',
+    isInspectorModeEnabled: false,
+  });
   updateExtensionState(false);
+
+  try {
+    const tab = await getTab();
+    if (!tab?.url || isRestrictedUrl(tab.url) || !tab.id) return;
+
+    const tabId = tab.id;
+
+    // Initialize the extension state for the active tab to false after installation
+    await chrome.storage.local.set({ [`isEnabled_${tabId}`]: false });
+
+    injectBorderScript(tabId);
+  } catch (error) {
+    // Ignore errors
+  }
 });
 
 /**
@@ -29,8 +50,8 @@ chrome.runtime.onInstalled.addListener(details => {
  * @param {Object} changeInfo - Information about the change to the tab.
  * @param {Object} tab - The tab object.
  */
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (!tab) return;
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  if (!tabId) return;
 
   if (changeInfo.status === 'complete') {
     const data = await getData(tabId);
@@ -48,7 +69,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
  * @param {Object} activeInfo - Information about the activated tab.
  */
 chrome.tabs.onActivated.addListener(async activeInfo => {
-  const tabId = activeInfo.tabId;
+  const tabId = activeInfo?.tabId;
+  if (!tabId) return;
+
   const data = await getData(tabId);
   if (!data) return;
 
@@ -118,6 +141,8 @@ function isRestrictedUrl(url) {
  * @param {number} tabId - The ID of the tab to inject the script into.
  */
 async function injectBorderScript(tabId) {
+  if (!tabId) return;
+
   try {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
@@ -138,7 +163,7 @@ async function injectBorderScript(tabId) {
     // Connect to the content script
     chrome.tabs.connect(tabId, { name: 'content-connection' });
   } catch (error) {
-    console.error('Error injecting scripts or CSS:', error);
+    // Ignore errors
   }
 }
 
@@ -147,6 +172,8 @@ async function injectBorderScript(tabId) {
  * @param {number} tabId - The ID of the tab to send the message to.
  */
 async function sendInspectorModeUpdate(tabId) {
+  if (!tabId) return;
+
   try {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
@@ -187,12 +214,19 @@ async function getData(tabId) {
 
 /**
  * Retrieves the active tab.
- * @returns {Object} The active tab object.
+ * @returns {Promise<Object>} The active tab object, or an empty object if not found.
  */
 async function getTab() {
-  const queryOptions = { active: true, lastFocusedWindow: true };
-  const [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
+  try {
+    const queryOptions = { active: true, lastFocusedWindow: true };
+    const [tab] = await chrome.tabs.query(queryOptions);
+    if (!tab) {
+      return {};
+    }
+    return tab;
+  } catch (error) {
+    return {};
+  }
 }
 
 // Handles keyboard shortcut commands
