@@ -163,7 +163,7 @@ async function injectBorderScript(tabId) {
     // Connect to the content script
     chrome.tabs.connect(tabId, { name: 'content-connection' });
   } catch (error) {
-    console.error('Error injecting scripts or CSS:', error);
+    // Ignore errors
   }
 }
 

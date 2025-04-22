@@ -73,7 +73,7 @@ async function applyOutline(isEnabled, size, style) {
  */
 chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
   if (chrome.runtime.lastError) {
-    console.error('Error getting tab ID:', chrome.runtime.lastError);
+    // Ignore errors
     return;
   }
 
