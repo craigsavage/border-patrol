@@ -11,7 +11,7 @@
   - Box model problems
 - **Easy Toggle:** Quickly toggle Border Patrol on or off with a keyboard shortcut or via the extension's popup menu.
 - **Customizable Appearance:**
-  - Adjust the thickness of the outlines.
+  - Adjust the size of the outlines.
   - Choose from various outline styles (solid, dashed, dotted, double).
 - **Inspector Mode:**
   - **Element Information Overlay:** Displays a helpful overlay with detailed information about the CSS styles of the hovered element, including:

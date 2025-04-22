@@ -3,7 +3,7 @@
  *
  * @param {boolean} isEnabled - Determines whether the outline should be applied.
  * If true, an outline is applied to each element; otherwise, no outline is applied.
- * @param {number} size - The thickness of the outline in pixels.
+ * @param {number} size - The size of the outline in pixels.
  * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
  */
 async function applyOutline(isEnabled, size, style) {
@@ -17,11 +17,8 @@ async function applyOutline(isEnabled, size, style) {
 
   // Get border size and style from storage if not provided
   if (!size || !style) {
-    const data = await chrome.storage.local.get([
-      'borderThickness',
-      'borderStyle',
-    ]);
-    size = data.borderThickness || 1;
+    const data = await chrome.storage.local.get(['borderSize', 'borderStyle']);
+    size = data.borderSize || 1;
     style = data.borderStyle || 'solid';
   }
   const defaultColor = 'red'; // Fallback color if tag not found
@@ -80,22 +77,22 @@ chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
   const tabId = response.tabId;
   const data = await chrome.storage.local.get([
     `isEnabled_${tabId}`,
-    'borderThickness',
+    'borderSize',
     'borderStyle',
   ]);
-  const { borderThickness, borderStyle } = data;
+  const { borderSize, borderStyle } = data;
   const isEnabled = data[`isEnabled_${tabId}`];
 
-  applyOutline(isEnabled, borderThickness, borderStyle);
+  applyOutline(isEnabled, borderSize, borderStyle);
 });
 
 // Receive message to apply outline to all elements
 chrome.runtime.onMessage.addListener(async request => {
   if (request.action === 'UPDATE_BORDER_SETTINGS') {
-    let { borderThickness, borderStyle, tabId } = request;
+    let { borderSize, borderStyle, tabId } = request;
     const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
     const isEnabled = data[`isEnabled_${tabId}`];
 
-    applyOutline(isEnabled, borderThickness, borderStyle);
+    applyOutline(isEnabled, borderSize, borderStyle);
   }
 });
