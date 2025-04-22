@@ -1,3 +1,5 @@
+import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
+
 /**
  * Updates the extension state based on the current state.
  * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
@@ -30,7 +32,7 @@ chrome.runtime.onInstalled.addListener(async details => {
   updateExtensionState(false);
 
   try {
-    const tab = await getTab();
+    const tab = await getActiveTab();
     if (!tab?.url || isRestrictedUrl(tab.url) || !tab.id) return;
 
     const tabId = tab.id;
@@ -40,7 +42,7 @@ chrome.runtime.onInstalled.addListener(async details => {
 
     injectBorderScript(tabId);
   } catch (error) {
-    // Ignore errors
+    console.error('Error initializing extension:', error);
   }
 });
 
@@ -116,27 +118,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 /**
- * Checks if the provided URL is a restricted URL.
- * @param {string} url - The URL to check.
- * @returns {boolean} True if the URL is restricted, false otherwise.
- */
-function isRestrictedUrl(url) {
-  const invalidSchemes = [
-    'chrome:',
-    'chrome-extension:',
-    'about:',
-    'edge:',
-    'file:',
-  ];
-
-  return (
-    invalidSchemes.some(scheme => url.startsWith(scheme)) ||
-    url.startsWith('https://chrome.google.com/webstore') ||
-    url.startsWith('https://chromewebstore.google.com')
-  );
-}
-
-/**
  * Injects the border script into the specified tab.
  * @param {number} tabId - The ID of the tab to inject the script into.
  */
@@ -202,7 +183,7 @@ async function sendInspectorModeUpdate(tabId) {
  */
 async function getData(tabId) {
   if (!tabId) {
-    const tab = await getTab();
+    const tab = await getActiveTab();
     tabId = tab.id;
   }
 
@@ -212,28 +193,11 @@ async function getData(tabId) {
   return data;
 }
 
-/**
- * Retrieves the active tab.
- * @returns {Promise<Object>} The active tab object, or an empty object if not found.
- */
-async function getTab() {
-  try {
-    const queryOptions = { active: true, lastFocusedWindow: true };
-    const [tab] = await chrome.tabs.query(queryOptions);
-    if (!tab) {
-      return {};
-    }
-    return tab;
-  } catch (error) {
-    return {};
-  }
-}
-
 // Handles keyboard shortcut commands
 chrome.commands.onCommand.addListener(async command => {
   // Toggle the extension
   if (command === 'toggle_border_patrol') {
-    const tabId = (await getTab())?.id;
+    const tabId = (await getActiveTab())?.id;
     const data = await getData(tabId);
     if (!data) return;
 
