@@ -19,8 +19,9 @@ function updateExtensionState(isEnabled) {
  * @param {Object} details - Details about the installation or update.
  */
 chrome.runtime.onInstalled.addListener(async details => {
-  // Clear any previous state and set default settings
+  // Clear any previous state
   await chrome.storage.local.set({});
+  // Set default settings for the extension
   await chrome.storage.local.set({
     borderThickness: 1,
     borderStyle: 'solid',
