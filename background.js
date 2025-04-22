@@ -56,7 +56,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   if (!tabId) return;
 
   if (changeInfo.status === 'complete') {
-    const data = await getData(tabId);
+    const data = await getDataForTab(tabId);
     if (!data) return;
 
     const isEnabled = data[`isEnabled_${tabId}`] || false;
@@ -74,7 +74,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   const tabId = activeInfo?.tabId;
   if (!tabId) return;
 
-  const data = await getData(tabId);
+  const data = await getDataForTab(tabId);
   if (!data) return;
 
   const isEnabled = data[`isEnabled_${tabId}`] || false;
@@ -91,7 +91,7 @@ chrome.action.onClicked.addListener(async tab => {
   if (!tab) return;
 
   const tabId = tab.id;
-  const data = await getData(tabId);
+  const data = await getDataForTab(tabId);
   if (!data) return;
 
   const isEnabled = data[`isEnabled_${tabId}`] || false;
@@ -144,7 +144,7 @@ async function injectBorderScript(tabId) {
     // Connect to the content script
     chrome.tabs.connect(tabId, { name: 'content-connection' });
   } catch (error) {
-    // Ignore errors
+    console.error('Error injecting scripts or CSS:', error);
   }
 }
 
@@ -172,7 +172,7 @@ async function sendInspectorModeUpdate(tabId) {
       isEnabled,
     });
   } catch (error) {
-    // Ignore errors if the tab is no longer active
+    console.error('Error sending message to content script:', error);
   }
 }
 
@@ -181,7 +181,7 @@ async function sendInspectorModeUpdate(tabId) {
  * @param {number} tabId - The ID of the tab to retrieve data for.
  * @returns {Object} The extension state data for the specified tab.
  */
-async function getData(tabId) {
+async function getDataForTab(tabId) {
   if (!tabId) {
     const tab = await getActiveTab();
     tabId = tab.id;
@@ -198,7 +198,7 @@ chrome.commands.onCommand.addListener(async command => {
   // Toggle the extension
   if (command === 'toggle_border_patrol') {
     const tabId = (await getActiveTab())?.id;
-    const data = await getData(tabId);
+    const data = await getDataForTab(tabId);
     if (!data) return;
 
     const isEnabled = data[`isEnabled_${tabId}`] || false;
