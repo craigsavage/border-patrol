@@ -1,6 +1,6 @@
 const toggleBorders = document.querySelector('#toggleBorders');
 const toggleInspector = document.querySelector('#toggleInspector');
-const borderThickness = document.querySelector('#borderThickness');
+const borderSize = document.querySelector('#borderSize');
 const borderStyle = document.querySelector('#borderStyle');
 
 /** Initializes the toggle switch state and border settings from storage. */
@@ -12,7 +12,7 @@ async function initializeStates() {
   const data = await chrome.storage.local.get([
     `isEnabled_${tabId}`,
     'isInspectorModeEnabled',
-    'borderThickness',
+    'borderSize',
     'borderStyle',
   ]);
 
@@ -21,7 +21,7 @@ async function initializeStates() {
   toggleInspector.checked = data.isInspectorModeEnabled || false;
 
   // Set the border settings
-  borderThickness.value = data.borderThickness || 1;
+  borderSize.value = data.borderSize || 1;
   borderStyle.value = data.borderStyle || 'solid';
 
   // Apply changes to the active tab
@@ -84,7 +84,7 @@ async function updateSettings() {
   const tabId = tab.id;
 
   await chrome.storage.local.set({
-    borderThickness: borderThickness.value,
+    borderSize: borderSize.value,
     borderStyle: borderStyle.value,
   });
 
@@ -92,7 +92,7 @@ async function updateSettings() {
   chrome.tabs.sendMessage(tab.id, {
     action: 'UPDATE_BORDER_SETTINGS',
     tabId: tabId,
-    borderThickness: borderThickness.value,
+    borderSize: borderSize.value,
     borderStyle: borderStyle.value,
   });
 }
@@ -103,5 +103,5 @@ document.addEventListener('DOMContentLoaded', initializeStates);
 // Event listeners for border settings changes
 toggleBorders.addEventListener('click', toggleExtension);
 toggleInspector.addEventListener('change', toggleInspectorMode);
-borderThickness.addEventListener('input', updateSettings);
+borderSize.addEventListener('input', updateSettings);
 borderStyle.addEventListener('change', updateSettings);

@@ -1,3 +1,7 @@
+import {
+  DEFAULT_BORDER_SIZE,
+  DEFAULT_BORDER_STYLE,
+} from './scripts/constants.js';
 import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
 
 /**
@@ -25,8 +29,8 @@ chrome.runtime.onInstalled.addListener(async details => {
   await chrome.storage.local.set({});
   // Set default settings for the extension
   await chrome.storage.local.set({
-    borderThickness: 1,
-    borderStyle: 'solid',
+    borderSize: DEFAULT_BORDER_SIZE,
+    borderStyle: DEFAULT_BORDER_STYLE,
     isInspectorModeEnabled: false,
   });
   updateExtensionState(false);
