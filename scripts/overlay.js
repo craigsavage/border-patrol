@@ -120,11 +120,16 @@
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
-      <strong>${element.tagName.toLowerCase()}</strong><br>
-      ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
-      ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
-      ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
-      ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
+      <div class="bp-element-info">
+        <strong>${element.tagName.toLowerCase()}</strong><br>
+        ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
+        ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
+        ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
+        ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
+      </div>
+      <footer class="bp-branding-info">
+        <span class="bp-branding">Border Patrol</span>
+      </footer>
     `;
 
     // Set display to block before getOverlayPosition
