@@ -48,7 +48,7 @@
 .bp-branding-info {
   font-size: 0.6rem;
   color: var(--bp-blue-400);
-  border-top: 1px solid var(--bp-blue-50);
+  border-top: 1px dashed var(--bp-blue-50);
   padding-top: 0.1rem;
   margin-top: 0.1rem;
   text-align: right;
