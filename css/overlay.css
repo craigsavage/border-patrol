@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 :root {
   --bp-blue: #2374ab;
   --bp-light-gray: #ccc;
@@ -12,14 +14,6 @@
 
   --bp-blush-600: #aa4465;
   --bp-blush-700: #9d3957;
-}
-
-/* Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
 }
 
 #bp-inspector-container {
@@ -37,6 +31,7 @@
   background: rgba(0, 0, 0, 0.75);
   color: var(--bp-blue-50);
   padding: 5px 10px;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   border-radius: 5px;
   pointer-events: none;
