@@ -10,14 +10,14 @@ async function initializeStates() {
 
   const tabId = tab.id;
   const data = await chrome.storage.local.get([
-    `isEnabled_${tabId}`,
+    `isBorderEnabled_${tabId}`,
     'isInspectorModeEnabled',
     'borderSize',
     'borderStyle',
   ]);
 
   // Set the toggle switch state
-  toggleBorders.checked = data[`isEnabled_${tabId}`] || false;
+  toggleBorders.checked = data[`isBorderEnabled_${tabId}`] || false;
   toggleInspector.checked = data.isInspectorModeEnabled || false;
 
   // Set the border settings
@@ -35,14 +35,15 @@ async function initializeStates() {
 async function toggleExtension() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
+  if (!tab?.url || tab.url.startsWith('chrome://')) return;
 
   const tabId = tab.id;
-  const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
-  const isEnabled = data[`isEnabled_${tabId}`] || false;
+  const data = await chrome.storage.local.get(`isBorderEnabled_${tabId}`);
+  const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
   const newState = !isEnabled;
 
   // Update storage with new state for the active tab
-  await chrome.storage.local.set({ [`isEnabled_${tabId}`]: newState });
+  await chrome.storage.local.set({ [`isBorderEnabled_${tabId}`]: newState });
 
   // Update UI toggle
   toggleBorders.checked = newState;

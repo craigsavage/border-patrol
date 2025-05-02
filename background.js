@@ -4,18 +4,20 @@ import {
 } from './scripts/constants.js';
 import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
 
+const tabStates = {}; // tabId -> { borderMode: boolean, inspectMode: boolean }
+
 /**
  * Updates the extension state based on the current state.
  * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
  */
 function updateExtensionState(isEnabled) {
+  chrome.action.setTitle({
+    title: isEnabled ? 'Border Patrol - Enabled' : 'Border Patrol - Disabled',
+  });
   chrome.action.setIcon({
     path: isEnabled
       ? 'icons/border-patrol-icon-16.png'
       : 'icons/border-patrol-icon-16-disabled.png',
-  });
-  chrome.action.setTitle({
-    title: isEnabled ? 'Border Patrol - Enabled' : 'Border Patrol - Disabled',
   });
 }
 
@@ -31,7 +33,6 @@ chrome.runtime.onInstalled.addListener(async details => {
   await chrome.storage.local.set({
     borderSize: DEFAULT_BORDER_SIZE,
     borderStyle: DEFAULT_BORDER_STYLE,
-    isInspectorModeEnabled: false,
   });
   updateExtensionState(false);
 
@@ -42,7 +43,7 @@ chrome.runtime.onInstalled.addListener(async details => {
     const tabId = tab.id;
 
     // Initialize the extension state for the active tab to false after installation
-    await chrome.storage.local.set({ [`isEnabled_${tabId}`]: false });
+    await chrome.storage.local.set({ [`isBorderEnabled_${tabId}`]: false });
 
     injectBorderScript(tabId);
   } catch (error) {
@@ -63,7 +64,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     const data = await getDataForTab(tabId);
     if (!data) return;
 
-    const isEnabled = data[`isEnabled_${tabId}`] || false;
+    const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
     updateExtensionState(isEnabled);
     injectBorderScript(tabId);
     sendInspectorModeUpdate(tabId);
@@ -81,7 +82,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   const data = await getDataForTab(tabId);
   if (!data) return;
 
-  const isEnabled = data[`isEnabled_${tabId}`] || false;
+  const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
   updateExtensionState(isEnabled);
   injectBorderScript(tabId);
   sendInspectorModeUpdate(tabId);
@@ -98,11 +99,11 @@ chrome.action.onClicked.addListener(async tab => {
   const data = await getDataForTab(tabId);
   if (!data) return;
 
-  const isEnabled = data[`isEnabled_${tabId}`] || false;
+  const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
   const newState = !isEnabled;
 
   // Store the new state using tab ID as the key
-  await chrome.storage.local.set({ [`isEnabled_${tab.id}`]: newState });
+  await chrome.storage.local.set({ [`isBorderEnabled_${tab.id}`]: newState });
 
   updateExtensionState(newState);
   injectBorderScript(tabId);
@@ -193,7 +194,7 @@ async function getDataForTab(tabId) {
 
   if (!tabId) return {};
 
-  const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
+  const data = await chrome.storage.local.get(`isBorderEnabled_${tabId}`);
   return data;
 }
 
@@ -205,11 +206,11 @@ chrome.commands.onCommand.addListener(async command => {
     const data = await getDataForTab(tabId);
     if (!data) return;
 
-    const isEnabled = data[`isEnabled_${tabId}`] || false;
+    const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
     const newState = !isEnabled;
 
     // Store the new state using tab ID as the key
-    await chrome.storage.local.set({ [`isEnabled_${tabId}`]: newState });
+    await chrome.storage.local.set({ [`isBorderEnabled_${tabId}`]: newState });
 
     updateExtensionState(newState);
 

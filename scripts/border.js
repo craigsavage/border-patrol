@@ -76,12 +76,12 @@ chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
 
   const tabId = response.tabId;
   const data = await chrome.storage.local.get([
-    `isEnabled_${tabId}`,
+    `isBorderEnabled_${tabId}`,
     'borderSize',
     'borderStyle',
   ]);
   const { borderSize, borderStyle } = data;
-  const isEnabled = data[`isEnabled_${tabId}`];
+  const isEnabled = data[`isBorderEnabled_${tabId}`];
 
   applyOutline(isEnabled, borderSize, borderStyle);
 });
@@ -90,8 +90,8 @@ chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
 chrome.runtime.onMessage.addListener(async request => {
   if (request.action === 'UPDATE_BORDER_SETTINGS') {
     let { borderSize, borderStyle, tabId } = request;
-    const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
-    const isEnabled = data[`isEnabled_${tabId}`];
+    const data = await chrome.storage.local.get(`isBorderEnabled_${tabId}`);
+    const isEnabled = data[`isBorderEnabled_${tabId}`];
 
     applyOutline(isEnabled, borderSize, borderStyle);
   }
