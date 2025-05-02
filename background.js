@@ -4,7 +4,7 @@ import {
 } from './scripts/constants.js';
 import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
 
-const tabStates = {}; // tabId -> { borderMode: boolean, inspectMode: boolean }
+const _tabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: boolean }
 
 /**
  * Updates the extension state based on the current state.
@@ -110,17 +110,49 @@ chrome.action.onClicked.addListener(async tab => {
   sendInspectorModeUpdate(tabId);
 });
 
-// Handles recieving messages
+// Handles recieving messages from content scripts
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (!sender.tab) return;
+  const tabId = sender.tab.id;
+
   // Receive message to retrieve tab ID
   if (request.action === 'GET_TAB_ID') {
-    sendResponse({ tabId: sender.tab?.id });
+    sendResponse(tabId);
   }
   // Receive message to update extension state
   if (request.action === 'UPDATE_ICON') {
     updateExtensionState(request.isEnabled);
   }
+  // Recieve message to get border mode state
+  if (request.action === 'GET_BORDER_MODE') {
+    sendResponse(getTabState({ tabId, key: 'borderMode' }));
+  }
+  // Recieve message to get inspector mode state
+  if (request.action === 'GET_INSPECTOR_MODE') {
+    sendResponse(getTabState({ tabId, key: 'inspectorMode' }));
+  }
 });
+
+/**
+ * Retrieves the extension state for the specified tab ID and key.
+ * @param {{ tabId: number, key: string }} options - Options to retrieve the tab state.
+ * @param {number} options.tabId - The ID of the tab to retrieve the state for.
+ * @param {string} options.key - The key of the state to retrieve.
+ * @returns {boolean} The state of the extension for the specified tab ID and key.
+ */
+function getTabState({ tabId, key }) {
+  // Check if the tab ID is in cache
+  if (_tabStates[tabId]) return _tabStates[tabId]?.[key] || false;
+
+  try {
+    // Retrieve the inspector mode state from storage
+    const tabStates = chrome.storage.local.get(`tabStates${tabId}`);
+    return tabStates?.[key] || false;
+  } catch (error) {
+    // Ignore errors
+    return false;
+  }
+}
 
 /**
  * Injects the border script into the specified tab.

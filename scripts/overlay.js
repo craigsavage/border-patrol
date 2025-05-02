@@ -51,10 +51,14 @@
   async function getInspectorModeState() {
     try {
       if (!chrome || !chrome.storage) return false;
-
+      const isEnabled = await chrome.runtime.sendMessage({
+        action: 'GET_INSPECTOR_MODE',
+      });
+      console.log('IS INSPECTOR MODE ENABLED:', isEnabled);
+      return isEnabled;
       // Retrieve the inspector mode state
-      const data = await chrome.storage.local.get('isInspectorModeEnabled');
-      return data?.isInspectorModeEnabled || false;
+      // const data = await chrome.storage.local.get('isInspectorModeEnabled');
+      // return data?.isInspectorModeEnabled || false;
     } catch (error) {
       // Ignore errors
       return false;
@@ -216,6 +220,10 @@
   // Recieve message to update inspector mode
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'UPDATE_INSPECTOR_MODE') {
+      console.log(
+        'Received message to update inspector mode:',
+        request.isEnabled
+      );
       isInspectorModeEnabled = request.isEnabled;
     }
   });
