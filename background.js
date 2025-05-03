@@ -4,10 +4,48 @@ import {
 } from './scripts/constants.js';
 import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
 
+// In-memory cache for tab states
 const _tabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: boolean }
 
 /**
+ * Retrieves the extension state for the specified tab ID and key.
+ *
+ * @param {{ tabId: number, key: string }} options - Options to retrieve the tab state.
+ * @param {number} options.tabId - The ID of the tab to retrieve the state for.
+ * @param {string} options.key - The key of the state to retrieve.
+ * @returns {boolean} The state of the extension for the specified tab ID and key.
+ */
+function getTabState({ tabId, key }) {
+  // Check if the tab ID is in cache
+  if (_tabStates[tabId]) return _tabStates[tabId]?.[key] || false;
+
+  try {
+    // Retrieve the inspector mode state from storage
+    const tabStates = chrome.storage.local.get(tabId);
+    return tabStates?.[key] || false;
+  } catch (error) {
+    // Ignore errors
+    return false;
+  }
+}
+
+/**
+ * Sets the extension state for the specified tab ID and key.
+ *
+ * @param {{ tabId: number, key: string, value: boolean }} options - Options to set the tab state.
+ * @param {number} options.tabId - The ID of the tab to set the state for.
+ * @param {string} options.key - The key of the state to set.
+ * @param {boolean} options.value - The value to set the state to.
+ */
+function setTabState({ tabId, key, value }) {
+  _tabStates[tabId] = _tabStates[tabId] || {}; // Initialize if not present
+  _tabStates[tabId][key] = value;
+  chrome.storage.local.set({ [tabId]: _tabStates[tabId] });
+}
+
+/**
  * Updates the extension state based on the current state.
+ *
  * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
  */
 function updateExtensionState(isEnabled) {
@@ -45,7 +83,7 @@ chrome.runtime.onInstalled.addListener(async details => {
     // Initialize the extension state for the active tab to false after installation
     await chrome.storage.local.set({ [`isBorderEnabled_${tabId}`]: false });
 
-    injectBorderScript(tabId);
+    injectScripts(tabId);
   } catch (error) {
     console.error('Error initializing extension:', error);
   }
@@ -66,7 +104,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 
     const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
     updateExtensionState(isEnabled);
-    injectBorderScript(tabId);
+    injectScripts(tabId);
     sendInspectorModeUpdate(tabId);
   }
 });
@@ -84,7 +122,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
 
   const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
   updateExtensionState(isEnabled);
-  injectBorderScript(tabId);
+  injectScripts(tabId);
   sendInspectorModeUpdate(tabId);
 });
 
@@ -99,14 +137,15 @@ chrome.action.onClicked.addListener(async tab => {
   const data = await getDataForTab(tabId);
   if (!data) return;
 
-  const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
+  // Get and toggle the current state
+  const isEnabled = getTabState({ tabId, key: 'borderMode' });
   const newState = !isEnabled;
 
   // Store the new state using tab ID as the key
-  await chrome.storage.local.set({ [`isBorderEnabled_${tab.id}`]: newState });
+  setTabState({ tabId, key: 'borderMode', value: newState });
 
   updateExtensionState(newState);
-  injectBorderScript(tabId);
+  injectScripts(tabId);
   sendInspectorModeUpdate(tabId);
 });
 
@@ -134,31 +173,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 /**
- * Retrieves the extension state for the specified tab ID and key.
- * @param {{ tabId: number, key: string }} options - Options to retrieve the tab state.
- * @param {number} options.tabId - The ID of the tab to retrieve the state for.
- * @param {string} options.key - The key of the state to retrieve.
- * @returns {boolean} The state of the extension for the specified tab ID and key.
- */
-function getTabState({ tabId, key }) {
-  // Check if the tab ID is in cache
-  if (_tabStates[tabId]) return _tabStates[tabId]?.[key] || false;
-
-  try {
-    // Retrieve the inspector mode state from storage
-    const tabStates = chrome.storage.local.get(`tabStates${tabId}`);
-    return tabStates?.[key] || false;
-  } catch (error) {
-    // Ignore errors
-    return false;
-  }
-}
-
-/**
- * Injects the border script into the specified tab.
+ * Injects the border.js and overlay.js scripts into the active tab.
+ *
  * @param {number} tabId - The ID of the tab to inject the script into.
  */
-async function injectBorderScript(tabId) {
+async function injectScripts(tabId) {
   if (!tabId) return;
 
   try {
@@ -196,7 +215,6 @@ async function sendInspectorModeUpdate(tabId) {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
     if (!tab?.url || isRestrictedUrl(tab.url)) return;
-
     if (!chrome || !chrome.storage) return;
 
     // Retrieve the inspector mode state
@@ -232,17 +250,22 @@ async function getDataForTab(tabId) {
 
 // Handles keyboard shortcut commands
 chrome.commands.onCommand.addListener(async command => {
-  // Toggle the extension
+  // Toggle the border for the active tab
   if (command === 'toggle_border_patrol') {
-    const tabId = (await getActiveTab())?.id;
-    const data = await getDataForTab(tabId);
-    if (!data) return;
+    const tab = await getActiveTab();
 
-    const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
+    // Validate if the tab is a valid webpage
+    if (!tab?.url || isRestrictedUrl(tab.url)) return;
+    if (!chrome || !chrome.storage) return;
+
+    const tabId = tab.id;
+
+    // Get and toggle the current state
+    const isEnabled = getTabState({ tabId, key: 'borderMode' });
     const newState = !isEnabled;
 
     // Store the new state using tab ID as the key
-    await chrome.storage.local.set({ [`isBorderEnabled_${tabId}`]: newState });
+    setTabState({ tabId: tab.id, key: 'borderMode', value: newState });
 
     updateExtensionState(newState);
 
