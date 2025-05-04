@@ -5,7 +5,7 @@ import {
 import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
 
 // In-memory cache for tab states
-const _tabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: boolean }
+const cachedTabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: boolean }
 
 /**
  * Retrieves the extension state for the specified tab ID and key.
@@ -17,11 +17,12 @@ const _tabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: boolean
  */
 async function getTabState({ tabId, key }) {
   // Check if the tab ID is in cache
-  if (_tabStates[tabId]) return _tabStates[tabId]?.[key] || false;
+  if (cachedTabStates[tabId]) return cachedTabStates[tabId]?.[key] || false;
 
   try {
     // If not in cache, retrieve from storage
     const storedData = await chrome.storage.local.get(tabId.toString());
+    log('getTabState from storage', storedData);
     return storedData?.[tabId]?.[key] || false;
   } catch (error) {
     // Ignore errors
@@ -38,9 +39,9 @@ async function getTabState({ tabId, key }) {
  * @param {boolean} options.value - The value to set the state to.
  */
 function setTabState({ tabId, key, value }) {
-  _tabStates[tabId] = _tabStates[tabId] || {}; // Initialize if not present
-  _tabStates[tabId][key] = value;
-  chrome.storage.local.set({ [tabId]: _tabStates[tabId] });
+  cachedTabStates[tabId] = cachedTabStates[tabId] || {}; // Initialize if not present
+  cachedTabStates[tabId][key] = value;
+  chrome.storage.local.set({ [tabId]: cachedTabStates[tabId] });
 }
 
 /**
