@@ -36,21 +36,25 @@ async function getTabState({ tabId, key }) {
 }
 
 /**
- * Sets the extension state for the specified tab ID and key.
+ * Updates and stores the extension states for a specified tab.
  *
- * @param {{ tabId: number, key: string, value: boolean }} options - Options to set the tab state.
- * @param {number} options.tabId - The ID of the tab to set the state for.
- * @param {string} options.key - The key of the state to set.
- * @param {boolean} options.value - The value to set the state to.
+ * @param {{ tabId: number, states: Object }} options - Options to set the tab states.
+ * @param {number} options.tabId - The ID of the tab to set the states for.
+ * @param {Object} options.states - An object containing the states to be updated.
  */
-function setTabState({ tabId, key, value }) {
+function setTabState({ tabId, states }) {
   const tabIdString = tabId.toString();
 
-  // Update cache with new state
-  cachedTabStates[tabIdString] = cachedTabStates[tabIdString] || {};
-  cachedTabStates[tabIdString][key] = value;
+  // Ensure the cache has a default state for the tab
+  cachedTabStates[tabIdString] = cachedTabStates[tabIdString] ?? {
+    borderMode: false,
+    inspectorMode: false,
+  };
 
-  // Update storage with new state
+  // Merge the new states into the existing cached states
+  cachedTabStates[tabIdString] = { ...cachedTabStates[tabIdString], ...states };
+
+  // Persist the updated state to Chrome's local storage
   chrome.storage.local.set({ [tabIdString]: cachedTabStates[tabIdString] });
 }
 
@@ -152,7 +156,7 @@ chrome.action.onClicked.addListener(async tab => {
   const newState = !isEnabled;
 
   // Store the new state using tab ID as the key
-  setTabState({ tabId, key: 'borderMode', value: newState });
+  setTabState({ tabId, states: { borderMode: newState } });
 
   updateExtensionState(newState);
   injectScripts(tabId);
@@ -258,7 +262,7 @@ chrome.commands.onCommand.addListener(async command => {
     const newState = !isEnabled;
 
     // Store the new state using tab ID as the key
-    setTabState({ tabId: tab.id, key: 'borderMode', value: newState });
+    setTabState({ tabId, states: { borderMode: newState } });
 
     updateExtensionState(newState);
 
