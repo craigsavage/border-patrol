@@ -15,14 +15,14 @@ const _tabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: boolean
  * @param {string} options.key - The key of the state to retrieve.
  * @returns {boolean} The state of the extension for the specified tab ID and key.
  */
-function getTabState({ tabId, key }) {
+async function getTabState({ tabId, key }) {
   // Check if the tab ID is in cache
   if (_tabStates[tabId]) return _tabStates[tabId]?.[key] || false;
 
   try {
-    // Retrieve the inspector mode state from storage
-    const tabStates = chrome.storage.local.get(tabId);
-    return tabStates?.[key] || false;
+    // If not in cache, retrieve from storage
+    const storedData = await chrome.storage.local.get(tabId.toString());
+    return storedData?.[tabId]?.[key] || false;
   } catch (error) {
     // Ignore errors
     return false;
@@ -49,6 +49,7 @@ function setTabState({ tabId, key, value }) {
  * @param {boolean} isEnabled - Determines whether the extension is enabled or disabled.
  */
 function updateExtensionState(isEnabled) {
+  // TODO: Should enable if either borderMode or inspectorMode is enabled
   chrome.action.setTitle({
     title: isEnabled ? 'Border Patrol - Enabled' : 'Border Patrol - Disabled',
   });
@@ -65,6 +66,7 @@ function updateExtensionState(isEnabled) {
  * @param {Object} details - Details about the installation or update.
  */
 chrome.runtime.onInstalled.addListener(async details => {
+  console.log('onInstalled');
   // Clear any previous state
   await chrome.storage.local.set({});
   // Set default settings for the extension
@@ -91,18 +93,23 @@ chrome.runtime.onInstalled.addListener(async details => {
 
 /**
  * Injects the border script when a tab is updated (when a page loads or reloads).
+ *
  * @param {number} tabId - The ID of the tab that has been updated.
  * @param {Object} changeInfo - Information about the change to the tab.
  * @param {Object} tab - The tab object.
  */
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  console.log('onUpdated');
+
   if (!tabId) return;
 
-  if (changeInfo.status === 'complete') {
-    const data = await getDataForTab(tabId);
-    if (!data) return;
+  // Validate if the tab is a valid webpage
+  const tab = await chrome.tabs.get(tabId);
+  if (!tab?.url || isRestrictedUrl(tab.url)) return;
 
-    const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
+  if (changeInfo.status === 'complete') {
+    const isEnabled = await getTabState({ tabId, key: 'borderMode' });
+
     updateExtensionState(isEnabled);
     injectScripts(tabId);
     sendInspectorModeUpdate(tabId);
@@ -111,16 +118,15 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 
 /**
  * Injects the border script when a tab is activated (when switching tabs).
+ *
  * @param {Object} activeInfo - Information about the activated tab.
  */
 chrome.tabs.onActivated.addListener(async activeInfo => {
+  console.log('onActivated');
   const tabId = activeInfo?.tabId;
   if (!tabId) return;
 
-  const data = await getDataForTab(tabId);
-  if (!data) return;
-
-  const isEnabled = data[`isBorderEnabled_${tabId}`] || false;
+  const isEnabled = await getTabState({ tabId, key: 'borderMode' });
   updateExtensionState(isEnabled);
   injectScripts(tabId);
   sendInspectorModeUpdate(tabId);
@@ -128,17 +134,22 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
 
 /**
  * Toggles the extension state when the extension icon is clicked.
+ *
  * @param {Object} tab - The tab object.
  */
 chrome.action.onClicked.addListener(async tab => {
+  console.log('onClicked');
   if (!tab) return;
 
+  // Validate if the tab is a valid webpage
+  if (!tab?.url || isRestrictedUrl(tab.url)) return;
+  if (!chrome || !chrome.storage) return;
+
+  // Get tab ID
   const tabId = tab.id;
-  const data = await getDataForTab(tabId);
-  if (!data) return;
 
   // Get and toggle the current state
-  const isEnabled = getTabState({ tabId, key: 'borderMode' });
+  const isEnabled = await getTabState({ tabId, key: 'borderMode' });
   const newState = !isEnabled;
 
   // Store the new state using tab ID as the key
@@ -150,7 +161,7 @@ chrome.action.onClicked.addListener(async tab => {
 });
 
 // Handles recieving messages from content scripts
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (!sender.tab) return;
   const tabId = sender.tab.id;
 
@@ -164,11 +175,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   // Recieve message to get border mode state
   if (request.action === 'GET_BORDER_MODE') {
-    sendResponse(getTabState({ tabId, key: 'borderMode' }));
+    sendResponse(await getTabState({ tabId, key: 'borderMode' }));
   }
   // Recieve message to get inspector mode state
   if (request.action === 'GET_INSPECTOR_MODE') {
-    sendResponse(getTabState({ tabId, key: 'inspectorMode' }));
+    sendResponse(await getTabState({ tabId, key: 'inspectorMode' }));
   }
 });
 
@@ -206,6 +217,7 @@ async function injectScripts(tabId) {
 
 /**
  * Sends a message to the content script to update the inspector mode state.
+ *
  * @param {number} tabId - The ID of the tab to send the message to.
  */
 async function sendInspectorModeUpdate(tabId) {
@@ -218,8 +230,7 @@ async function sendInspectorModeUpdate(tabId) {
     if (!chrome || !chrome.storage) return;
 
     // Retrieve the inspector mode state
-    const data = await chrome.storage.local.get('isInspectorModeEnabled');
-    const isEnabled = data?.isInspectorModeEnabled || false;
+    const isEnabled = await getTabState({ tabId, key: 'inspectorMode' });
 
     // Send message to update inspector mode
     await chrome.tabs.sendMessage(tabId, {
@@ -229,23 +240,6 @@ async function sendInspectorModeUpdate(tabId) {
   } catch (error) {
     console.error('Error sending message to content script:', error);
   }
-}
-
-/**
- * Retrieves the extension state data for the specified tab.
- * @param {number} tabId - The ID of the tab to retrieve data for.
- * @returns {Object} The extension state data for the specified tab.
- */
-async function getDataForTab(tabId) {
-  if (!tabId) {
-    const tab = await getActiveTab();
-    tabId = tab.id;
-  }
-
-  if (!tabId) return {};
-
-  const data = await chrome.storage.local.get(`isBorderEnabled_${tabId}`);
-  return data;
 }
 
 // Handles keyboard shortcut commands
@@ -261,7 +255,7 @@ chrome.commands.onCommand.addListener(async command => {
     const tabId = tab.id;
 
     // Get and toggle the current state
-    const isEnabled = getTabState({ tabId, key: 'borderMode' });
+    const isEnabled = await getTabState({ tabId, key: 'borderMode' });
     const newState = !isEnabled;
 
     // Store the new state using tab ID as the key

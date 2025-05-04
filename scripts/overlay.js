@@ -46,19 +46,19 @@
 
   /**
    * Retrieves the inspector mode state from chrome storage.
+   *
    * @returns {Promise<boolean>} The inspector mode state from chrome storage
    */
   async function getInspectorModeState() {
     try {
       if (!chrome || !chrome.storage) return false;
+
+      // Retrieve the inspector mode state
       const isEnabled = await chrome.runtime.sendMessage({
         action: 'GET_INSPECTOR_MODE',
       });
       console.log('IS INSPECTOR MODE ENABLED:', isEnabled);
       return isEnabled;
-      // Retrieve the inspector mode state
-      // const data = await chrome.storage.local.get('isInspectorModeEnabled');
-      // return data?.isInspectorModeEnabled || false;
     } catch (error) {
       // Ignore errors
       return false;
