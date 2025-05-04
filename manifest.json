@@ -27,17 +27,5 @@
       },
       "description": "Toggle Border Patrol"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "exclude_matches": [
-        "https://chrome.google.com/webstore*",
-        "https://chromewebstore.google.com/*"
-      ],
-      "css": ["css/overlay.css"],
-      "js": ["scripts/border.js", "scripts/overlay.js"],
-      "run_at": "document_end"
-    }
-  ]
+  }
 }
