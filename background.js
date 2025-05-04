@@ -16,16 +16,23 @@ const cachedTabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: bo
  * @returns {boolean} The state of the extension for the specified tab ID and key.
  */
 async function getTabState({ tabId, key }) {
-  // Check if the tab ID is in cache
-  if (cachedTabStates[tabId]) return cachedTabStates[tabId]?.[key] || false;
+  const tabIdString = tabId.toString();
+
+  // Check if the tab ID exists in cache before accessing its properties
+  if (cachedTabStates?.[tabIdString]?.hasOwnProperty(key)) {
+    return cachedTabStates[tabIdString][key];
+  }
 
   try {
-    // If not in cache, retrieve from storage
-    const storedData = await chrome.storage.local.get(tabId.toString());
-    log('getTabState from storage', storedData);
-    return storedData?.[tabId]?.[key] || false;
+    // Retrieve state from storage if it doesn't exist in cache
+    const storedData = await chrome.storage.local.get(tabIdString);
+    console.log('getTabState from storage', storedData);
+    return storedData?.[tabIdString]?.[key]
+      ? storedData[tabIdString][key]
+      : false;
   } catch (error) {
     // Ignore errors
+    console.error('Error retrieving tab state from storage:', error);
     return false;
   }
 }
@@ -39,9 +46,14 @@ async function getTabState({ tabId, key }) {
  * @param {boolean} options.value - The value to set the state to.
  */
 function setTabState({ tabId, key, value }) {
-  cachedTabStates[tabId] = cachedTabStates[tabId] || {}; // Initialize if not present
-  cachedTabStates[tabId][key] = value;
-  chrome.storage.local.set({ [tabId]: cachedTabStates[tabId] });
+  const tabIdString = tabId.toString();
+
+  // Update cache with new state
+  cachedTabStates[tabIdString] = cachedTabStates[tabIdString] || {};
+  cachedTabStates[tabIdString][key] = value;
+
+  // Update storage with new state
+  chrome.storage.local.set({ [tabIdString]: cachedTabStates[tabIdString] });
 }
 
 /**
