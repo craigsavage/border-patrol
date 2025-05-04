@@ -27,9 +27,7 @@ async function getTabState({ tabId, key }) {
     // Retrieve state from storage if it doesn't exist in cache
     const storedData = await chrome.storage.local.get(tabIdString);
     console.log('getTabState from storage', storedData);
-    return storedData?.[tabIdString]?.[key]
-      ? storedData[tabIdString][key]
-      : false;
+    return storedData?.[tabIdString]?.[key] ?? false;
   } catch (error) {
     // Ignore errors
     console.error('Error retrieving tab state from storage:', error);
@@ -74,8 +72,9 @@ function updateExtensionState(isEnabled) {
 }
 
 /**
- * Runs when the extension is installed or updated.
+ * Executed when the extension is installed or updated.
  * Clears any previous state and initializes the extension state and default settings.
+ *
  * @param {Object} details - Details about the installation or update.
  */
 chrome.runtime.onInstalled.addListener(async details => {
@@ -87,21 +86,8 @@ chrome.runtime.onInstalled.addListener(async details => {
     borderSize: DEFAULT_BORDER_SIZE,
     borderStyle: DEFAULT_BORDER_STYLE,
   });
+
   updateExtensionState(false);
-
-  try {
-    const tab = await getActiveTab();
-    if (!tab?.url || isRestrictedUrl(tab.url) || !tab.id) return;
-
-    const tabId = tab.id;
-
-    // Initialize the extension state for the active tab to false after installation
-    await chrome.storage.local.set({ [`isBorderEnabled_${tabId}`]: false });
-
-    injectScripts(tabId);
-  } catch (error) {
-    console.error('Error initializing extension:', error);
-  }
 });
 
 /**
