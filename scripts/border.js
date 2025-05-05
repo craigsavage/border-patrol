@@ -74,25 +74,38 @@ chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
     return;
   }
 
-  const tabId = response.tabId;
+  const tabId = response;
+  const tabIdString = tabId.toString();
+
   const data = await chrome.storage.local.get([
-    `isBorderEnabled_${tabId}`,
+    tabIdString,
     'borderSize',
     'borderStyle',
   ]);
   const { borderSize, borderStyle } = data;
-  const isEnabled = data[`isBorderEnabled_${tabId}`];
+  const isEnabled = data?.[tabIdString]?.borderMode ?? false;
 
   applyOutline(isEnabled, borderSize, borderStyle);
 });
 
 // Receive message to apply outline to all elements
 chrome.runtime.onMessage.addListener(async request => {
+  console.log('Received message to apply outline:', request);
+
+  // Receive message to update border settings
   if (request.action === 'UPDATE_BORDER_SETTINGS') {
     let { borderSize, borderStyle, tabId } = request;
-    const data = await chrome.storage.local.get(`isBorderEnabled_${tabId}`);
-    const isEnabled = data[`isBorderEnabled_${tabId}`];
+    const tabIdString = tabId.toString();
+
+    const data = await chrome.storage.local.get(tabIdString);
+    const isEnabled = data?.[tabIdString]?.borderMode ?? false;
 
     applyOutline(isEnabled, borderSize, borderStyle);
+  }
+  // Receive message to update border mode
+  if (request.action === 'UPDATE_BORDER_MODE') {
+    // Get border settings from storage
+    const data = await chrome.storage.local.get(['borderSize', 'borderStyle']);
+    applyOutline(request.isEnabled, data.borderSize, data.borderStyle);
   }
 });
