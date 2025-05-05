@@ -165,7 +165,19 @@ chrome.action.onClicked.addListener(async tab => {
 
 // Handles recieving messages from content scripts
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  if (!sender.tab) return;
+  console.log('Received message from content script:', request, sender);
+
+  // Check if the sender has a tab ID (possibly from popup)
+  if (!sender?.tab?.id) {
+    // Handle message from popup (sender.tab.id is undefined)
+    if (request.action === 'UPDATE_ICON') {
+      updateExtensionState(request.isEnabled);
+    }
+    return;
+  }
+
+  if (!sender?.tab?.url || isRestrictedUrl(sender?.tab?.url)) return;
+
   const tabId = sender.tab.id;
 
   // Receive message to retrieve tab ID
@@ -178,11 +190,13 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   }
   // Recieve message to get border mode state
   if (request.action === 'GET_BORDER_MODE') {
-    sendResponse(await getTabState({ tabId, key: 'borderMode' }));
+    const state = await getTabState({ tabId, key: 'borderMode' });
+    sendResponse(state);
   }
   // Recieve message to get inspector mode state
   if (request.action === 'GET_INSPECTOR_MODE') {
-    sendResponse(await getTabState({ tabId, key: 'inspectorMode' }));
+    const state = await getTabState({ tabId, key: 'inspectorMode' });
+    sendResponse(state);
   }
 });
 

@@ -87,6 +87,9 @@ async function toggleInspectorMode() {
     [tabIdString]: { ...storedState[tabIdString], inspectorMode: newState },
   });
 
+  // Send message to update extension state
+  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', isEnabled: newState });
+
   // Send message to update inspector mode
   chrome.tabs.sendMessage(tab.id, {
     action: 'UPDATE_INSPECTOR_MODE',
