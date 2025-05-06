@@ -55,14 +55,14 @@ async function toggleBorderMode() {
     [tabIdString]: { ...storedState[tabIdString], borderMode: newState },
   });
 
-  // Send message to update extension state
-  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', isEnabled: newState });
-
   // Send message to update border mode
   chrome.tabs.sendMessage(tab.id, {
     action: 'UPDATE_BORDER_MODE',
     isEnabled: newState,
   });
+
+  // Send message to update extension state
+  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', tabId });
 }
 
 /** Toggles the inspector mode state and applies changes to the active tab. */
@@ -87,14 +87,14 @@ async function toggleInspectorMode() {
     [tabIdString]: { ...storedState[tabIdString], inspectorMode: newState },
   });
 
-  // Send message to update extension state
-  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', isEnabled: newState });
-
   // Send message to update inspector mode
   chrome.tabs.sendMessage(tab.id, {
     action: 'UPDATE_INSPECTOR_MODE',
     isEnabled: toggleInspector.checked,
   });
+
+  // Send message to update extension state
+  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', tabId });
 }
 
 /** Updates the border settings and applies changes to the active tab. */

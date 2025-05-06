@@ -17,6 +17,7 @@
     try {
       // Retrieve the inspector mode state
       isInspectorModeEnabled = await getInspectorModeState();
+      console.log('IS INSPECTOR MODE ENABLED:', isInspectorModeEnabled);
 
       // Check if overlay is already initialized
       if (document.getElementById('bp-inspector-container')) {
@@ -75,10 +76,17 @@
       if (!chrome || !chrome.storage) return false;
 
       // Retrieve the inspector mode state
-      const isEnabled = await chrome.runtime.sendMessage({
-        action: 'GET_INSPECTOR_MODE',
-      });
-      console.log('IS INSPECTOR MODE ENABLED:', isEnabled);
+      await chrome.runtime.sendMessage(
+        { action: 'GET_INSPECTOR_MODE' },
+        response => {
+          isInspectorModeEnabled = response;
+        }
+      );
+
+      console.log(
+        'IS INSPECTOR MODE ENABLED:',
+        isEnisInspectorModeEnabledabled
+      );
       return isEnabled;
     } catch (error) {
       // Ignore errors
