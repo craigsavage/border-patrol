@@ -13,8 +13,19 @@
 
   /** Initializes the inspector mode state and DOM elements */
   async function init() {
+    console.log('Initializing inspector mode...');
     try {
+      // Retrieve the inspector mode state
       isInspectorModeEnabled = await getInspectorModeState();
+      console.log('IS INSPECTOR MODE ENABLED:', isInspectorModeEnabled);
+
+      // Check if overlay is already initialized
+      if (document.getElementById('bp-inspector-container')) {
+        console.log('Overlay already initialized.');
+        return;
+      }
+
+      // Initialize DOM elements
       overlayContainer =
         document.getElementById('bp-inspector-container') ||
         createAndAppend('bp-inspector-container', document.body);
@@ -24,11 +35,22 @@
       highlight =
         document.getElementById('bp-element-highlight') ||
         createAndAppend('bp-element-highlight', document.body);
+
+      addEventListeners();
     } catch (error) {
       // Clean up if initialization fails
+      console.error('Error initializing inspector mode:', error);
       isInspectorModeEnabled = false;
       removeElements();
     }
+  }
+
+  /** Adds event listeners */
+  function addEventListeners() {
+    document.addEventListener('mouseover', mouseOverHandler);
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseout', mouseOutHandler);
+    console.log('Overlay event listeners added.');
   }
 
   /**
@@ -46,6 +68,7 @@
 
   /**
    * Retrieves the inspector mode state from chrome storage.
+   *
    * @returns {Promise<boolean>} The inspector mode state from chrome storage
    */
   async function getInspectorModeState() {
@@ -53,8 +76,18 @@
       if (!chrome || !chrome.storage) return false;
 
       // Retrieve the inspector mode state
-      const data = await chrome.storage.local.get('isInspectorModeEnabled');
-      return data?.isInspectorModeEnabled || false;
+      await chrome.runtime.sendMessage(
+        { action: 'GET_INSPECTOR_MODE' },
+        response => {
+          isInspectorModeEnabled = response;
+        }
+      );
+
+      console.log(
+        'IS INSPECTOR MODE ENABLED:',
+        isEnisInspectorModeEnabledabled
+      );
+      return isEnabled;
     } catch (error) {
       // Ignore errors
       return false;
@@ -208,14 +241,13 @@
     document.removeEventListener('mouseout', mouseOutHandler);
   }
 
-  // Add event listeners
-  document.addEventListener('mouseover', mouseOverHandler);
-  document.addEventListener('mousemove', mouseMoveHandler);
-  document.addEventListener('mouseout', mouseOutHandler);
-
   // Recieve message to update inspector mode
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'UPDATE_INSPECTOR_MODE') {
+      console.log(
+        'Received message to update inspector mode:',
+        request.isEnabled
+      );
       isInspectorModeEnabled = request.isEnabled;
     }
   });

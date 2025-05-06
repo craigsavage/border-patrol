@@ -9,20 +9,22 @@ async function initializeStates() {
   if (!tab) return;
 
   const tabId = tab.id;
+  const tabIdString = tabId.toString();
+
+  // Get state from storage
   const data = await chrome.storage.local.get([
-    `isEnabled_${tabId}`,
-    'isInspectorModeEnabled',
+    tabIdString,
     'borderSize',
     'borderStyle',
   ]);
 
   // Set the toggle switch state
-  toggleBorders.checked = data[`isEnabled_${tabId}`] || false;
-  toggleInspector.checked = data.isInspectorModeEnabled || false;
+  toggleBorders.checked = data[tabIdString]?.borderMode ?? false;
+  toggleInspector.checked = data[tabIdString]?.inspectorMode ?? false;
 
   // Set the border settings
-  borderSize.value = data.borderSize || 1;
-  borderStyle.value = data.borderStyle || 'solid';
+  borderSize.value = data.borderSize ?? 1;
+  borderStyle.value = data.borderStyle ?? 'solid';
 
   // Apply changes to the active tab
   chrome.scripting.executeScript({
@@ -31,42 +33,58 @@ async function initializeStates() {
   });
 }
 
-/** Toggles the extension state and applies changes to the active tab. */
-async function toggleExtension() {
+/** Toggles the border mode state and applies changes to the active tab. */
+async function toggleBorderMode() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
+  if (!tab?.url || tab.url.startsWith('chrome://')) return;
 
   const tabId = tab.id;
-  const data = await chrome.storage.local.get(`isEnabled_${tabId}`);
-  const isEnabled = data[`isEnabled_${tabId}`] || false;
-  const newState = !isEnabled;
+  const tabIdString = tabId.toString();
 
-  // Update storage with new state for the active tab
-  await chrome.storage.local.set({ [`isEnabled_${tabId}`]: newState });
+  // Get state from storage
+  const storedState = await chrome.storage.local.get(tabIdString);
+  const isEnabled = storedState?.[tabIdString]?.borderMode ?? false;
+  const newState = !isEnabled;
 
   // Update UI toggle
   toggleBorders.checked = newState;
 
-  // Send message to update extension icon
-  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', isEnabled: newState });
-
-  // Apply changes to the active tab
-  chrome.scripting.executeScript({
-    target: { tabId: tabId },
-    files: ['scripts/border.js'],
+  // Update storage with new state for the active tab
+  await chrome.storage.local.set({
+    [tabIdString]: { ...storedState[tabIdString], borderMode: newState },
   });
+
+  // Send message to update border mode
+  chrome.tabs.sendMessage(tab.id, {
+    action: 'UPDATE_BORDER_MODE',
+    isEnabled: newState,
+  });
+
+  // Send message to update extension state
+  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', tabId });
 }
 
 /** Toggles the inspector mode state and applies changes to the active tab. */
 async function toggleInspectorMode() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
-
   if (!tab?.url || tab.url.startsWith('chrome://')) return;
+
+  const tabId = tab.id;
+  const tabIdString = tabId.toString();
+
+  // Get state from storage
+  const storedState = await chrome.storage.local.get(tabIdString);
+  const isEnabled = storedState?.[tabIdString]?.inspectorMode ?? false;
+  const newState = !isEnabled;
+
+  // Update UI toggle
+  toggleInspector.checked = newState;
 
   // Update storage with new state for the active tab
   await chrome.storage.local.set({
-    isInspectorModeEnabled: toggleInspector.checked,
+    [tabIdString]: { ...storedState[tabIdString], inspectorMode: newState },
   });
 
   // Send message to update inspector mode
@@ -74,10 +92,13 @@ async function toggleInspectorMode() {
     action: 'UPDATE_INSPECTOR_MODE',
     isEnabled: toggleInspector.checked,
   });
+
+  // Send message to update extension state
+  chrome.runtime.sendMessage({ action: 'UPDATE_ICON', tabId });
 }
 
-/** Updates the border settings in storage. */
-async function updateSettings() {
+/** Updates the border settings and applies changes to the active tab. */
+async function updateBorderSettings() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
@@ -101,7 +122,7 @@ async function updateSettings() {
 document.addEventListener('DOMContentLoaded', initializeStates);
 
 // Event listeners for border settings changes
-toggleBorders.addEventListener('click', toggleExtension);
+toggleBorders.addEventListener('click', toggleBorderMode);
 toggleInspector.addEventListener('change', toggleInspectorMode);
-borderSize.addEventListener('input', updateSettings);
-borderStyle.addEventListener('change', updateSettings);
+borderSize.addEventListener('input', updateBorderSettings);
+borderStyle.addEventListener('change', updateBorderSettings);

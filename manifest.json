@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Border Patrol - CSS Outliner & Debugging Tool",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "Border Patrol is a browser extension that outlines every element on a webpage, helping developers and designers visualize layouts, margins, and padding instantly.",
   "permissions": ["scripting", "storage", "activeTab"],
   "host_permissions": ["<all_urls>"],
@@ -27,17 +27,5 @@
       },
       "description": "Toggle Border Patrol"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "exclude_matches": [
-        "https://chrome.google.com/webstore*",
-        "https://chromewebstore.google.com/*"
-      ],
-      "css": ["css/overlay.css"],
-      "js": ["scripts/border.js", "scripts/overlay.js"],
-      "run_at": "document_end"
-    }
-  ]
+  }
 }

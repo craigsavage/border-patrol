@@ -1,5 +1,6 @@
 /**
  * Checks if the provided URL is a restricted URL.
+ *
  * @param {string} url - The URL to check.
  * @returns {boolean} True if the URL is restricted, false otherwise.
  */
@@ -20,16 +21,16 @@ export function isRestrictedUrl(url) {
 }
 
 /**
- * Retrieves the active tab.
+ * Retrieves the active tab object.
+ *
  * @returns {Promise<Object>} The active tab object, or an empty object if not found.
  */
 export async function getActiveTab() {
   try {
     const queryOptions = { active: true, lastFocusedWindow: true };
     const [tab] = await chrome.tabs.query(queryOptions);
-    if (!tab) {
-      return {};
-    }
+    if (!tab) return {};
+
     return tab;
   } catch (error) {
     console.error('Error retrieving active tab:', error);
