@@ -209,7 +209,7 @@ chrome.action.onClicked.addListener(async tab => {
 
 // Handles recieving messages from content scripts
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  console.log('Received message from content script:', request, sender);
+  console.log('Received message:', request, 'from sender:', sender);
 
   // Check if the sender has a tab ID (possibly from popup)
   if (!sender?.tab?.id) {
@@ -292,7 +292,6 @@ async function sendInspectorModeUpdate(tabId) {
     // Check if the tab is a valid webpage
     const tab = await chrome.tabs.get(tabId);
     if (!tab?.url || isRestrictedUrl(tab.url)) return;
-    if (!chrome || !chrome.storage) return;
 
     // Retrieve the inspector mode state
     const isEnabled = await getTabState({ tabId, key: 'inspectorMode' });
@@ -309,13 +308,14 @@ async function sendInspectorModeUpdate(tabId) {
 
 // Handles keyboard shortcut commands
 chrome.commands.onCommand.addListener(async command => {
+  console.log('Command received:', command);
+
   // Toggle the border for the active tab
   if (command === 'toggle_border_patrol') {
     const tab = await getActiveTab();
 
     // Validate if the tab is a valid webpage
-    if (!tab?.url || isRestrictedUrl(tab.url)) return;
-    if (!chrome || !chrome.storage) return;
+    if (!tabId || !tab?.url || isRestrictedUrl(tab.url)) return;
 
     const tabId = tab.id;
 
