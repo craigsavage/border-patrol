@@ -1,11 +1,12 @@
 import {
   DEFAULT_BORDER_SIZE,
   DEFAULT_BORDER_STYLE,
+  DEFAULT_TAB_STATE,
 } from './scripts/constants.js';
 import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
 
 // In-memory cache for tab states
-const cachedTabStates = {}; // tabId -> { borderMode: boolean, inspectorMode: boolean }
+const cachedTabStates = {}; // tabId: { borderMode: boolean, inspectorMode: boolean }
 
 /**
  * Retrieves the extension state for the specified tab ID and key.
@@ -19,19 +20,28 @@ async function getTabState({ tabId, key }) {
   const tabIdString = tabId.toString();
 
   // Check if the tab ID exists in cache before accessing its properties
-  if (cachedTabStates?.[tabIdString]?.hasOwnProperty(key)) {
-    return cachedTabStates[tabIdString][key];
+  if (cachedTabStates?.[tabIdString]) {
+    console.log('getTabState from cache', cachedTabStates[tabIdString]);
+    if (key) return cachedTabStates[tabIdString][key];
+    else return cachedTabStates[tabIdString];
   }
 
   try {
     // Retrieve state from storage if it doesn't exist in cache
     const storedData = await chrome.storage.local.get(tabIdString);
     console.log('getTabState from storage', storedData);
-    return storedData?.[tabIdString]?.[key] ?? false;
+    const tabState = storedData?.[tabIdString];
+
+    // Save state to cache
+    cachedTabStates[tabIdString] = tabState ?? { ...DEFAULT_TAB_STATE };
+
+    if (key) return tabState?.[key] ?? false;
+    else return tabState ?? { ...DEFAULT_TAB_STATE };
   } catch (error) {
     // Ignore errors
     console.error('Error retrieving tab state from storage:', error);
-    return false;
+    if (key) return false;
+    return { ...DEFAULT_TAB_STATE };
   }
 }
 
@@ -183,21 +193,26 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   // Receive message to retrieve tab ID
   if (request.action === 'GET_TAB_ID') {
     sendResponse(tabId);
+    return tabId;
   }
   // Receive message to update extension state
   if (request.action === 'UPDATE_ICON') {
     updateExtensionState(request.isEnabled);
+    return;
   }
   // Recieve message to get border mode state
   if (request.action === 'GET_BORDER_MODE') {
     const state = await getTabState({ tabId, key: 'borderMode' });
     sendResponse(state);
+    return state;
   }
   // Recieve message to get inspector mode state
   if (request.action === 'GET_INSPECTOR_MODE') {
     const state = await getTabState({ tabId, key: 'inspectorMode' });
     sendResponse(state);
+    return state;
   }
+  return;
 });
 
 /**

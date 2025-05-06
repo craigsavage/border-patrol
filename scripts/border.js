@@ -69,10 +69,7 @@ async function applyOutline(isEnabled, size, style) {
  * if the extension is enabled, otherwise removes the outline.
  */
 chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
-  if (chrome.runtime.lastError) {
-    // Ignore errors
-    return;
-  }
+  if (chrome.runtime.lastError) return;
 
   const tabId = response;
   const tabIdString = tabId.toString();
