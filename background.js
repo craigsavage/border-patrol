@@ -12,7 +12,7 @@ const cachedTabStates = {}; // tabId: { borderMode: boolean, inspectorMode: bool
  * Retrieves the extension state for the specified tab ID and key.
  * Checks cache first, then storage. Updates cache from storage.
  *
- * @param {{ tabId: number, key: string }} options - Options to retrieve the tab state.
+ * @param {{ tabId: number, key?: string }} options - Options to retrieve the tab state.
  * @param {number} options.tabId - The ID of the tab to retrieve the state for.
  * @param {string} [options.key] - Optional. The key of the state to retrieve. If not provided, returns the entire state.
  * @returns {Promise<boolean | Object>} The state of the extension for the specified tab ID and key, or the full state object.
@@ -282,7 +282,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 /**
- * Injects the border script when a tab is activated (when switching tabs).
+ * Handles tab activation (when switching tabs).
+ * Injects scripts and updates state for the newly active tab.
  *
  * @param {Object} activeInfo - Information about the activated tab.
  */
@@ -321,16 +322,6 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   }
 });
 
-/**
- * Toggles the extension state when the extension icon is clicked.
- *
- * @param {Object} tab - The tab object.
- */
-chrome.action.onClicked.addListener(async tab => {
-  console.log('onClicked', tab);
-  // Actions are now handled via the popup UI and keyboard commands
-});
-
 // Handles recieving messages from content scripts
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   console.log('Received message:', request, 'from sender:', sender);
@@ -345,6 +336,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
     // Receive message to get initial popup state
     if (request.action === 'GET_INITIAL_POPUP_STATE') {
+      // Popup is requesting initial state when opened
       const tabState = await getTabState({ tabId });
       const borderSettings = await chrome.storage.local.get([
         'borderSize',
@@ -375,10 +367,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       // Get new border settings from request
       const { borderSize, borderStyle } = request;
       // Update the settings in storage
-      await chrome.storage.local.set({
-        borderSize,
-        borderStyle,
-      });
+      await chrome.storage.local.set({ borderSize, borderStyle });
       console.log('Updated border settings:', { borderSize, borderStyle });
       sendResponse({ borderSize, borderStyle });
       return true; // Indicate async handling
@@ -429,7 +418,7 @@ chrome.commands.onCommand.addListener(async command => {
     const tab = await getActiveTab();
 
     // Validate if the tab is a valid webpage
-    if (!tabId || !tab?.url || isRestrictedUrl(tab.url)) return;
+    if (!tab.id || !tab?.url || isRestrictedUrl(tab.url)) return;
 
     const tabId = tab.id;
 

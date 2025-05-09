@@ -12,6 +12,7 @@
   /** Initializes the inspector mode state and DOM elements */
   async function handleInspectorModeUpdate(isEnabled) {
     console.log('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
+    isInspectorModeEnabled = isEnabled; // Update the inspector mode state cache
 
     if (isInspectorModeEnabled) {
       console.log('Inspector mode enabled. Initializing overlay.');
@@ -80,8 +81,8 @@
   /**
    * Calculates the position of the overlay relative to the cursor and prevents it from going off-screen
    *
-   * @param {*} event - The triggered event
-   * @param {*} overlayElement - The overlay dom element
+   * @param {Event} event - The triggered event
+   * @param {HTMLElement} overlayElement - The overlay dom element
    * @returns {Object} The position of the overlay
    */
   function getOverlayPosition(event, overlayElement) {
@@ -127,8 +128,11 @@
       element === overlay ||
       element === highlight ||
       overlayContainer.contains(element)
-    )
+    ) {
+      // Hide overlay/highlight if hovered over our own elements
+      mouseOutHandler();
       return;
+    }
 
     const rect = element.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(element);
@@ -242,25 +246,12 @@
     console.log('Received message:', request);
     // Check if the message is to update inspector mode
     if (request.action === 'UPDATE_INSPECTOR_MODE') {
-      console.log('Overlay received UPDATE_INSPECTOR_MODE:', request.isEnabled);
       handleInspectorModeUpdate(request.isEnabled);
     }
     // Respond to PING message if needed (used by background to check injection)
     if (request.action === 'PING') {
       sendResponse({ status: 'PONG' });
       return true; // Indicate async response
-    }
-  });
-
-  // Remove event listeners when the connection is closed
-  chrome.runtime.onConnect.addListener(connectionPort => {
-    if (!connectionPort) return;
-    if (connectionPort.name === 'content-connection') {
-      connectionPort.onDisconnect.addListener(() => {
-        isInspectorModeEnabled = false;
-        removeEventListeners();
-        removeElements();
-      });
     }
   });
 })();
