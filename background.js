@@ -193,6 +193,7 @@ async function sendContentScriptUpdates(tabId) {
     ]);
     await chrome.tabs.sendMessage(tabId, {
       action: 'UPDATE_BORDER_SETTINGS', // Re-using this action name
+      tabId: tabId,
       borderSize: settings.borderSize ?? DEFAULT_BORDER_SIZE,
       borderStyle: settings.borderStyle ?? DEFAULT_BORDER_STYLE,
     });
@@ -216,7 +217,7 @@ async function handleTabStateChange(tabId, statesToUpdate) {
   if (!tabId) return;
 
   // Ensure scripts are injected first if needed (Chrome handles not injecting duplicates)
-  await ensureScriptsInjected(tabId);
+  await ensureScriptIsInjected(tabId);
 
   // Update the state in storage and cache
   await setTabState({ tabId, states: statesToUpdate });
@@ -269,7 +270,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
   if (changeInfo.status === 'complete') {
     // Ensure scripts are injected
-    await ensureScriptsInjected(tabId);
+    await ensureScriptIsInjected(tabId);
     // Update the extension icon and title
     await updateExtensionState(tabId);
     // Send the current state to the content script
@@ -305,7 +306,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
     }
 
     // Ensure scripts are injected
-    await ensureScriptsInjected(tabId);
+    await ensureScriptIsInjected(tabId);
     // Update the extension icon and title
     await updateExtensionState(tabId);
     // Send the current state to the content script
@@ -352,14 +353,27 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
   // Check if the sender has a tab ID (possibly from popup)
   if (!sender?.tab?.id) {
-    // Handle message from popup (sender.tab.id is undefined)
+    const tab = await getActiveTab();
+
+    // Validate if the tab is a valid webpage
+    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) return;
+    const tabId = tab.id;
+
     if (request.action === 'UPDATE_ICON') {
       console.log('Received message from popup:', request);
       if (!request.tabId) return;
       updateExtensionState(request.tabId);
-    } else {
-      console.warn('Received message from unexpected sender:', sender);
-      // sendResponse();
+      return true;
+    }
+    if (request.action === 'GET_INITIAL_POPUP_STATE') {
+      return true;
+    }
+    if (request.action === 'TOGGLE_BORDER_MODE') {
+      const currentState = await getTabState({ tabId });
+      const newState = !currentState.borderMode;
+      await handleTabStateChange(tabId, { borderMode: newState });
+      sendResponse(newState);
+      return true;
     }
     // Return false if sendResponse is not called asynchronously
     return false;

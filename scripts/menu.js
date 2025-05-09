@@ -5,6 +5,18 @@ const borderStyle = document.querySelector('#borderStyle');
 
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
+  console.log('Initializing popup state...');
+
+  try {
+    // Request initial state and settings from background script
+    const response = await chrome.runtime.sendMessage({
+      action: 'GET_INITIAL_POPUP_STATE',
+    });
+    console.log('Received initial state:', response);
+  } catch (error) {
+    console.error('Error during initialization:', error);
+  }
+
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
@@ -35,6 +47,11 @@ async function initializeStates() {
 
 /** Toggles the border mode state and applies changes to the active tab. */
 async function toggleBorderMode() {
+  chrome.runtime.sendMessage({ action: 'TOGGLE_BORDER_MODE' }, res => {
+    console.log(res);
+    toggleBorders.checked = res;
+  });
+  return;
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
   if (!tab?.url || tab.url.startsWith('chrome://')) return;
