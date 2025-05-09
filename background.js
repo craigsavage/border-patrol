@@ -397,28 +397,25 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   // Receive message to retrieve tab ID
   if (request.action === 'GET_TAB_ID') {
     sendResponse(tabId);
-    return tabId;
-  }
-  // Receive message to update extension state
-  if (request.action === 'UPDATE_ICON') {
-    updateExtensionState(tabId);
-    return;
+    return true; // Indicate async handling
   }
   // Recieve message to get border mode state
   if (request.action === 'GET_BORDER_MODE') {
     const state = await getTabState({ tabId, key: 'borderMode' });
     sendResponse(state);
+    return true; // Indicate async handling
   }
   // Recieve message to get inspector mode state
   if (request.action === 'GET_INSPECTOR_MODE') {
     const state = await getTabState({ tabId, key: 'inspectorMode' });
     sendResponse(state);
+    return true; // Indicate async handling
   }
   // Recieve message to ping
   if (request.action === 'PING') {
     // Respond to PING message for injection check
     sendResponse({ status: 'PONG' });
-    return true;
+    return true; // Indicate async handling
   }
 });
 
