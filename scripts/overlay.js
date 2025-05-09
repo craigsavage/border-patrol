@@ -78,34 +78,6 @@
   }
 
   /**
-   * Retrieves the inspector mode state from chrome storage.
-   *
-   * @returns {Promise<boolean>} The inspector mode state from chrome storage
-   */
-  async function getInspectorModeState() {
-    try {
-      if (!chrome || !chrome.storage) return false;
-
-      // Retrieve the inspector mode state
-      await chrome.runtime.sendMessage(
-        { action: 'GET_INSPECTOR_MODE' },
-        response => {
-          isInspectorModeEnabled = response;
-        }
-      );
-
-      console.log(
-        'IS INSPECTOR MODE ENABLED:',
-        isEnisInspectorModeEnabledabled
-      );
-      return isEnabled;
-    } catch (error) {
-      // Ignore errors
-      return false;
-    }
-  }
-
-  /**
    * Calculates the position of the overlay relative to the cursor and prevents it from going off-screen
    *
    * @param {*} event - The triggered event
