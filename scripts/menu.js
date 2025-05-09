@@ -27,12 +27,17 @@ async function initializeStates() {
 /** Toggles the border mode state and applies changes to the active tab. */
 async function toggleBorderMode() {
   console.log('Toggling border mode from popup...');
-  // Send message to background script to handle the state toggle
-  const response = await chrome.runtime.sendMessage({
-    action: 'TOGGLE_BORDER_MODE',
-  });
-  console.log('Response', response);
-  toggleBorders.checked = response;
+  try {
+    // Send message to background script to handle the state toggle
+    const newState = await chrome.runtime.sendMessage({
+      action: 'TOGGLE_BORDER_MODE',
+    });
+    onsole.log('Received response for TOGGLE_BORDER_MODE:', newState);
+    // Update UI based on the confirmed state from background
+    toggleBorders.checked = newState;
+  } catch (error) {
+    console.error('Error toggling border mode:', error);
+  }
 }
 
 /** Toggles the inspector mode state and applies changes to the active tab. */
