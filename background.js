@@ -331,20 +331,6 @@ chrome.action.onClicked.addListener(async tab => {
   console.log('onClicked', tab);
   // TODO: Possibly don't do anything here since changes are excuted from the popup
   return;
-
-  // Validate if the tab is a valid webpage
-  if (!tabId || !tab?.url || isRestrictedUrl(tab.url)) return;
-
-  // Get tab ID
-  const tabId = tab.id;
-
-  // Get current state
-  const currentState = await getTabState({ tabId });
-  // Toggle border mode
-  const newState = !currentState.borderMode;
-
-  // Handle the state change centrally
-  await handleTabStateChange({ tabId, states: { borderMode: newState } });
 });
 
 // Handles recieving messages from content scripts
@@ -359,22 +345,47 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) return;
     const tabId = tab.id;
 
-    if (request.action === 'UPDATE_ICON') {
-      console.log('Received message from popup:', request);
-      if (!request.tabId) return;
-      updateExtensionState(request.tabId);
-      return true;
-    }
+    // Receive message to get initial popup state
     if (request.action === 'GET_INITIAL_POPUP_STATE') {
-      return true;
+      const tabState = await getTabState({ tabId });
+      const borderSettings = await chrome.storage.local.get([
+        'borderSize',
+        'borderStyle',
+      ]);
+      console.log('Initial state:', { tabState, borderSettings });
+      sendResponse({ tabState, borderSettings });
+      return true; // Indicate async handling
     }
+    // Receive message to update border mode
     if (request.action === 'TOGGLE_BORDER_MODE') {
       const currentState = await getTabState({ tabId });
       const newState = !currentState.borderMode;
       await handleTabStateChange(tabId, { borderMode: newState });
       sendResponse(newState);
-      return true;
+      return true; // Indicate async handling
     }
+    // Receive message to update inspector mode
+    if (request.action === 'TOGGLE_INSPECTOR_MODE') {
+      const currentState = await getTabState({ tabId });
+      const newState = !currentState.borderMode;
+      await handleTabStateChange(tabId, { inspectorMode: newState });
+      sendResponse(newState);
+      return true; // Indicate async handling
+    }
+    // Receive message to update border settings
+    if (request.action === 'UPDATE_BORDER_SETTINGS') {
+      // Get new border settings from request
+      const { borderSize, borderStyle } = request;
+      // Update the settings in storage
+      await chrome.storage.local.set({
+        borderSize,
+        borderStyle,
+      });
+      console.log('Updated border settings:', { borderSize, borderStyle });
+      sendResponse({ borderSize, borderStyle });
+      return true; // Indicate async handling
+    }
+
     // Return false if sendResponse is not called asynchronously
     return false;
   }
