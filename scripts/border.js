@@ -80,36 +80,38 @@
   }
 
   // Receive message to apply outline to all elements
-  chrome.runtime.onMessage.addListener(async request => {
-    console.log('Received message to apply outline:', request);
+  chrome.runtime.onMessage.addListener(
+    async (request, sender, sendResponse) => {
+      console.log('Received message to apply outline:', request);
 
-    // Receive message to update border mode
-    if (request.action === 'UPDATE_BORDER_MODE') {
-      // Get new border mode from request
-      isBorderModeEnabled = request.isEnabled;
-      // Apply/remove outline based on the new mode and current settings
-      applyOutline(
-        isBorderModeEnabled,
-        currentBorderSettings.size,
-        currentBorderSettings.style
-      );
+      // Receive message to update border mode
+      if (request.action === 'UPDATE_BORDER_MODE') {
+        // Get new border mode from request
+        isBorderModeEnabled = request.isEnabled;
+        // Apply/remove outline based on the new mode and current settings
+        applyOutline(
+          isBorderModeEnabled,
+          currentBorderSettings.size,
+          currentBorderSettings.style
+        );
+      }
+      // Receive message to update border settings
+      if (request.action === 'UPDATE_BORDER_SETTINGS') {
+        // Get new border settings from request
+        currentBorderSettings.size = request.borderSize;
+        currentBorderSettings.style = request.borderStyle;
+        // Apply/remove outline based on the current mode and new settings
+        applyOutline(
+          isBorderModeEnabled,
+          currentBorderSettings.size,
+          currentBorderSettings.style
+        );
+      }
+      // Respond to PING message if needed (used by background to check injection)
+      if (request.action === 'PING') {
+        sendResponse({ status: 'PONG' });
+        return true; // Indicate async response
+      }
     }
-    // Receive message to update border settings
-    if (request.action === 'UPDATE_BORDER_SETTINGS') {
-      // Get new border settings from request
-      currentBorderSettings.size = request.borderSize;
-      currentBorderSettings.style = request.borderStyle;
-      // Apply/remove outline based on the current mode and new settings
-      applyOutline(
-        isBorderModeEnabled,
-        currentBorderSettings.size,
-        currentBorderSettings.style
-      );
-    }
-    // Respond to PING message if needed (used by background to check injection)
-    if (request.action === 'PING') {
-      sendResponse({ status: 'PONG' });
-      return true; // Indicate async response
-    }
-  });
+  );
 })();
