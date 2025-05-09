@@ -7,11 +7,14 @@
    * Applies (or removes) an outline to all elements on the page.
    *
    * @param {boolean} isEnabled - Determines whether the outline should be applied.
-   * If true, an outline is applied to each element; otherwise, no outline is applied.
    * @param {number} size - The size of the outline in pixels.
    * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
    */
   async function applyOutline(isEnabled, size, style) {
+    console.log(
+      `Applying outline - Enabled: ${isEnabled}, Size: ${size}, Style: ${style}`
+    );
+
     // Remove outline if extension is disabled
     if (!isEnabled) {
       document.querySelectorAll('*').forEach(element => {
@@ -20,16 +23,8 @@
       return;
     }
 
-    // Get border size and style from storage if not provided
-    if (!size || !style) {
-      const data = await chrome.storage.local.get([
-        'borderSize',
-        'borderStyle',
-      ]);
-      size = data.borderSize || 1;
-      style = data.borderStyle || 'solid';
-    }
-    const defaultColor = 'red'; // Fallback color if tag not found
+    // Define default color (fallback if tag not found)
+    const defaultColor = 'red';
 
     // Define element groups with their tags and colors
     const elementGroups = {
@@ -68,53 +63,53 @@
         }
       }
 
+      // Exclude applying outlines to Border Patrol elements
+      if (
+        element.id &&
+        [
+          'bp-inspector-container',
+          'bp-inspector-overlay',
+          'bp-element-highlight',
+        ].includes(element.id)
+      ) {
+        return;
+      }
+
       element.style.outline = `${size}px ${style} ${color}`;
     });
   }
-
-  /**
-   * Retrieves the tab ID and applies an outline to all elements on the page
-   * if the extension is enabled, otherwise removes the outline.
-   */
-  chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, async response => {
-    if (chrome.runtime.lastError) return;
-
-    const tabId = response;
-    const tabIdString = tabId.toString();
-
-    const data = await chrome.storage.local.get([
-      tabIdString,
-      'borderSize',
-      'borderStyle',
-    ]);
-    const { borderSize, borderStyle } = data;
-    const isEnabled = data?.[tabIdString]?.borderMode ?? false;
-
-    applyOutline(isEnabled, borderSize, borderStyle);
-  });
 
   // Receive message to apply outline to all elements
   chrome.runtime.onMessage.addListener(async request => {
     console.log('Received message to apply outline:', request);
 
-    // Receive message to update border settings
-    if (request.action === 'UPDATE_BORDER_SETTINGS') {
-      let { borderSize, borderStyle, tabId } = request;
-      const tabIdString = tabId.toString();
-
-      const data = await chrome.storage.local.get(tabIdString);
-      const isEnabled = data?.[tabIdString]?.borderMode ?? false;
-
-      applyOutline(isEnabled, borderSize, borderStyle);
-    }
     // Receive message to update border mode
     if (request.action === 'UPDATE_BORDER_MODE') {
-      // Get border settings from storage
-      const data = await chrome.storage.local.get([
-        'borderSize',
-        'borderStyle',
-      ]);
-      applyOutline(request.isEnabled, data.borderSize, data.borderStyle);
+      // Get new border mode from request
+      isBorderModeEnabled = request.isEnabled;
+      // Apply/remove outline based on the new mode and current settings
+      applyOutline(
+        isBorderModeEnabled,
+        currentBorderSettings.size,
+        currentBorderSettings.style
+      );
+    }
+    // Receive message to update border settings
+    if (request.action === 'UPDATE_BORDER_SETTINGS') {
+      // Get new border settings from request
+      currentBorderSettings.size = request.borderSize;
+      currentBorderSettings.style = request.borderStyle;
+      // Apply/remove outline based on the current mode and new settings
+      applyOutline(
+        isBorderModeEnabled,
+        currentBorderSettings.size,
+        currentBorderSettings.style
+      );
+    }
+    // Respond to PING message if needed (used by background to check injection)
+    if (request.action === 'PING') {
+      sendResponse({ status: 'PONG' });
+      return true; // Indicate async response
     }
   });
 })();
