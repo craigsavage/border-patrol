@@ -210,17 +210,20 @@ async function sendContentScriptUpdates(tabId) {
  * Handles state changes for a specific tab.
  * Updates storage, extension state (icon/title), and sends updates to content scripts.
  *
- * @param {number} tabId - The ID of the tab.
- * @param {Object} statesToUpdate - The partial state object to merge (e.g., { borderMode: true }).
+ * @param {Object} options - Options for handling the tab state change.
+ * @param {number} options.tabId - The ID of the tab.
+ * @param {Object} [options.states] - The partial state object to merge (e.g., { borderMode: true }).
  */
-async function handleTabStateChange(tabId, statesToUpdate) {
+async function handleTabStateChange({ tabId, states }) {
   if (!tabId) return;
 
   // Ensure scripts are injected first if needed (Chrome handles not injecting duplicates)
   await ensureScriptIsInjected(tabId);
 
-  // Update the state in storage and cache
-  await setTabState({ tabId, states: statesToUpdate });
+  if (states) {
+    // Update the state in storage and cache
+    await setTabState({ tabId, states });
+  }
 
   // Update the extension icon and title based on the NEW state
   await updateExtensionState(tabId);
@@ -275,9 +278,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tabId || !tab?.url || isRestrictedUrl(tab.url)) return;
 
   if (changeInfo.status === 'complete') {
-    // Ensure scripts are injected and send initial state
-    // Pass empty object to avoid overwriting state since nothing changed
-    await handleTabStateChange(tabId, {});
+    await handleTabStateChange({ tabId });
   }
 });
 
@@ -309,9 +310,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
       return;
     }
 
-    // Ensure scripts are injected and send current state
-    // Pass empty object to avoid overwriting state since nothing changed
-    await handleTabStateChange(tabId, {});
+    await handleTabStateChange({ tabId });
   } catch (error) {
     console.error(`Error in onActivated for tab ${tabId}:`, error);
     // Disable extention state if there's an error
@@ -345,8 +344,9 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       if (request.action === 'TOGGLE_BORDER_MODE') {
         const currentBorderState = await getTabState({ tabId: activeTabId });
         const newBorderState = !currentBorderState.borderMode;
-        await handleTabStateChange(activeTabId, {
-          borderMode: newBorderState,
+        await handleTabStateChange({
+          tabId: activeTabId,
+          states: { borderMode: newBorderState },
         });
         sendResponse(newBorderState); // Send the new state back to the popup
         return true; // Indicate async handling
@@ -357,8 +357,9 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
           tabId: activeTabId,
         });
         const newInspectorState = !currentInspectorState.inspectorMode;
-        await handleTabStateChange(activeTabId, {
-          inspectorMode: newInspectorState,
+        await handleTabStateChange({
+          tabId: activeTabId,
+          states: { inspectorMode: newInspectorState },
         });
         sendResponse(newInspectorState); // Send the new state back to the popup
         return true; // Indicate async handling
@@ -391,7 +392,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             );
           }
         }
-        sendResponse({ borderSize, borderStyle }); // Send confirmation back to the popup
+        sendResponse({ borderSize, borderStyle }, { context: 'popup' }); // Send confirmation back to the popup
       } else {
         console.warn('Received unknown message from popup:', request);
         sendResponse({ error: 'Unknown action' });
@@ -464,6 +465,6 @@ chrome.commands.onCommand.addListener(async command => {
     console.log(`Command toggling border mode for tab ${tabId} to ${newState}`);
 
     // Handle the state change centrally
-    await handleTabStateChange(tabId, { borderMode: newState });
+    await handleTabStateChange({ tabId, states: { borderMode: newState } });
   }
 });
