@@ -176,7 +176,6 @@ async function sendContentScriptUpdates(tabId) {
     const tabState = await getTabState({ tabId });
 
     // Send messages to update modes in the content script
-    // TODO: Could combine these to reduce requests
     await chrome.tabs.sendMessage(tabId, {
       action: 'UPDATE_BORDER_MODE',
       isEnabled: tabState.borderMode,
@@ -210,17 +209,20 @@ async function sendContentScriptUpdates(tabId) {
  * Handles state changes for a specific tab.
  * Updates storage, extension state (icon/title), and sends updates to content scripts.
  *
- * @param {number} tabId - The ID of the tab.
- * @param {Object} statesToUpdate - The partial state object to merge (e.g., { borderMode: true }).
+ * @param {Object} options - Options for handling the tab state change.
+ * @param {number} options.tabId - The ID of the tab.
+ * @param {Object} [options.states] - The partial state object to merge (e.g., { borderMode: true }).
  */
-async function handleTabStateChange(tabId, statesToUpdate) {
+async function handleTabStateChange({ tabId, states }) {
   if (!tabId) return;
 
   // Ensure scripts are injected first if needed (Chrome handles not injecting duplicates)
   await ensureScriptIsInjected(tabId);
 
-  // Update the state in storage and cache
-  await setTabState({ tabId, states: statesToUpdate });
+  if (states) {
+    // Update the state in storage and cache
+    await setTabState({ tabId, states });
+  }
 
   // Update the extension icon and title based on the NEW state
   await updateExtensionState(tabId);
@@ -275,9 +277,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tabId || !tab?.url || isRestrictedUrl(tab.url)) return;
 
   if (changeInfo.status === 'complete') {
-    // Ensure scripts are injected and send initial state
-    // Pass empty object to avoid overwriting state since nothing changed
-    await handleTabStateChange(tabId, {});
+    await handleTabStateChange({ tabId });
   }
 });
 
@@ -309,9 +309,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
       return;
     }
 
-    // Ensure scripts are injected and send current state
-    // Pass empty object to avoid overwriting state since nothing changed
-    await handleTabStateChange(tabId, {});
+    await handleTabStateChange({ tabId });
   } catch (error) {
     console.error(`Error in onActivated for tab ${tabId}:`, error);
     // Disable extention state if there's an error
@@ -332,103 +330,80 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
   // Handle messages from the popup (no sender.tab.id)
   if (!tabId) {
-    // Get the active tab to determine which tab the popup is associated with
-    getActiveTab()
-      .then(async activeTab => {
-        if (
-          !activeTab?.id ||
-          !activeTab?.url ||
-          isRestrictedUrl(activeTab.url)
-        ) {
-          console.warn(
-            'Received message from popup, but active tab is invalid or restricted.'
-          );
-          sendResponse({ error: 'Invalid or restricted tab' }); // Send a response indicating failure
-          return;
-        }
-        // Use the active tab's ID for processing popup messages
-        const activeTabId = activeTab.id;
+    try {
+      // Get the active tab to determine which tab the popup is associated with
+      const activeTab = await getActiveTab();
+      if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url))
+        return;
 
-        // Receive message to get initial popup state
-        if (request.action === 'GET_INITIAL_POPUP_STATE') {
-          // Popup is requesting initial state when opened
-          const tabState = await getTabState({ tabId: activeTabId });
-          const borderSettings = await chrome.storage.local.get([
-            'borderSize',
-            'borderStyle',
-          ]);
-          console.log('Initial state for popup:', { tabState, borderSettings });
-          sendResponse({ tabState, borderSettings });
-        }
-        // Receive message to toggle border mode
-        else if (request.action === 'TOGGLE_BORDER_MODE') {
-          const currentBorderState = await getTabState({ tabId: activeTabId });
-          const newBorderState = !currentBorderState.borderMode;
-          await handleTabStateChange(activeTabId, {
-            borderMode: newBorderState,
-          });
-          sendResponse(newBorderState); // Send the new state back to the popup
-        }
-        // Receive message to toggle inspector mode
-        else if (request.action === 'TOGGLE_INSPECTOR_MODE') {
-          const currentInspectorState = await getTabState({
-            tabId: activeTabId,
-          });
-          const newInspectorState = !currentInspectorState.inspectorMode;
-          await handleTabStateChange(activeTabId, {
-            inspectorMode: newInspectorState,
-          });
-          sendResponse(newInspectorState); // Send the new state back to the popup
-        }
-        // Receive message to update border settings
-        else if (request.action === 'UPDATE_BORDER_SETTINGS') {
-          // Get new border settings from request
-          const { borderSize, borderStyle } = request;
-          // Update the settings in storage
-          await chrome.storage.local.set({ borderSize, borderStyle });
-          console.log('Updated global border settings:', {
-            borderSize,
-            borderStyle,
-          });
+      // Use the active tab's ID for processing popup messages
+      const activeTabId = activeTab.id;
 
-          // Send update to content script immediately if border mode is active
-          const tabState = await getTabState({ tabId: activeTabId });
-          if (tabState.borderMode) {
-            try {
-              await chrome.tabs.sendMessage(activeTabId, {
-                action: 'UPDATE_BORDER_SETTINGS',
-                borderSize: borderSize ?? DEFAULT_BORDER_SIZE,
-                borderStyle: borderStyle ?? DEFAULT_BORDER_STYLE,
-              });
-              console.log(`Sent updated border settings to tab ${activeTabId}`);
-            } catch (contentScriptError) {
-              console.warn(
-                `Could not send UPDATE_BORDER_SETTINGS message to tab ${activeTabId}. Content script may not be ready.`,
-                contentScriptError
-              );
-            }
+      // Receive message to toggle border mode
+      if (request.action === 'TOGGLE_BORDER_MODE') {
+        console.log('Received border mode toggle from popup:', request);
+
+        const currentBorderState = await getTabState({ tabId: activeTabId });
+        const newBorderState = !currentBorderState.borderMode;
+        await handleTabStateChange({
+          tabId: activeTabId,
+          states: { borderMode: newBorderState },
+        });
+        return true; // Indicate async handling
+      }
+      // Receive message to toggle inspector mode
+      else if (request.action === 'TOGGLE_INSPECTOR_MODE') {
+        console.log('Received inspector mode toggle from popup:', request);
+
+        const currentInspectorState = await getTabState({
+          tabId: activeTabId,
+        });
+        const newInspectorState = !currentInspectorState.inspectorMode;
+        await handleTabStateChange({
+          tabId: activeTabId,
+          states: { inspectorMode: newInspectorState },
+        });
+        return true; // Indicate async handling
+      }
+      // Receive message to update border settings
+      else if (request.action === 'UPDATE_BORDER_SETTINGS') {
+        console.log('Received border settings update from popup:', request);
+
+        // Get new border settings from request
+        const { borderSize, borderStyle } = request;
+        // Update the settings in storage
+        await chrome.storage.local.set({ borderSize, borderStyle });
+
+        // Send update to content script immediately if border mode is active
+        const tabState = await getTabState({ tabId: activeTabId });
+        if (tabState.borderMode) {
+          try {
+            await chrome.tabs.sendMessage(activeTabId, {
+              action: 'UPDATE_BORDER_SETTINGS',
+              borderSize: borderSize ?? DEFAULT_BORDER_SIZE,
+              borderStyle: borderStyle ?? DEFAULT_BORDER_STYLE,
+            });
+            console.log(`Sent updated border settings to tab ${activeTabId}`);
+          } catch (contentScriptError) {
+            console.error(
+              `Error sending updated border settings to tab ${activeTabId}:`,
+              contentScriptError
+            );
           }
-          sendResponse({ borderSize, borderStyle }); // Send confirmation back to the popup
-        } else {
-          console.warn('Received unknown message from popup:', request);
-          sendResponse({ error: 'Unknown action' });
         }
-      })
-      .catch(error => {
-        console.error('Error handling popup message:', error);
-        sendResponse({ error: 'Internal server error' }); // Send an error response
-      });
+      } else {
+        console.warn('Received unknown message from popup:', request);
+        return false; // No action matched
+      }
 
-    return true; // Indicate async handling for popup messages
+      return true; // Indicate async handling for popup messages
+    } catch (error) {
+      console.error('Error handling popup message:', error);
+      return false; // An error occurred
+    }
   } else {
     // Handle messages from content scripts (have sender.tab.id)
-    if (!sender?.tab?.url || isRestrictedUrl(sender?.tab?.url)) {
-      console.warn(
-        'Received message from restricted or invalid tab:',
-        sender?.tab?.url
-      );
-      return false; // Don't process messages from restricted URLs
-    }
+    if (!sender?.tab?.url || isRestrictedUrl(sender?.tab?.url)) return false;
 
     // Receive message to retrieve tab ID
     if (request.action === 'GET_TAB_ID') {
@@ -488,6 +463,6 @@ chrome.commands.onCommand.addListener(async command => {
     console.log(`Command toggling border mode for tab ${tabId} to ${newState}`);
 
     // Handle the state change centrally
-    await handleTabStateChange(tabId, { borderMode: newState });
+    await handleTabStateChange({ tabId, states: { borderMode: newState } });
   }
 });
