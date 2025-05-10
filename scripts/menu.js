@@ -56,6 +56,7 @@ async function toggleInspectorMode() {
     console.log('Received response for TOGGLE_INSPECTOR_MODE:', newState);
     // Update UI based on the confirmed state from background
     toggleInspector.checked = newState;
+    console.log(`toggleInspector.checked is now: ${toggleInspector.checked}`);
   } catch (error) {
     console.error('Error toggling inspector mode:', error);
   }
@@ -76,12 +77,11 @@ async function updateBorderSettings() {
   }
 }
 
-// Run initialization function when the popup loads
+// Run initialization when popup loads
 document.addEventListener('DOMContentLoaded', initializeStates);
 
-// Event listeners for border settings changes
-if (toggleBorders) toggleBorders.addEventListener('change', toggleBorderMode);
-if (toggleInspector)
-  toggleInspector.addEventListener('change', toggleInspectorMode);
-if (borderSize) borderSize.addEventListener('input', updateBorderSettings);
-if (borderStyle) borderStyle.addEventListener('change', updateBorderSettings);
+// Add event listeners
+toggleBorders?.addEventListener('change', toggleBorderMode);
+toggleInspector?.addEventListener('change', toggleInspectorMode);
+borderSize?.addEventListener('input', updateBorderSettings);
+borderStyle?.addEventListener('change', updateBorderSettings);
