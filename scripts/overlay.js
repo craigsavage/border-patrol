@@ -9,44 +9,54 @@
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
 
-  init();
-
   /** Initializes the inspector mode state and DOM elements */
-  async function init() {
-    console.log('Initializing inspector mode...');
-    try {
-      // Retrieve the inspector mode state
-      isInspectorModeEnabled = await getInspectorModeState();
-      console.log('IS INSPECTOR MODE ENABLED:', isInspectorModeEnabled);
+  async function handleInspectorModeUpdate(isEnabled) {
+    console.log('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
+    isInspectorModeEnabled = isEnabled; // Update the inspector mode state cache
 
-      // Check if overlay is already initialized
-      if (document.getElementById('bp-inspector-container')) {
-        console.log('Overlay already initialized.');
-        return;
-      }
-
-      // Initialize DOM elements
-      overlayContainer =
-        document.getElementById('bp-inspector-container') ||
-        createAndAppend('bp-inspector-container', document.body);
-      overlay =
-        document.getElementById('bp-inspector-overlay') ||
-        createAndAppend('bp-inspector-overlay', overlayContainer);
-      highlight =
-        document.getElementById('bp-element-highlight') ||
-        createAndAppend('bp-element-highlight', document.body);
-
+    if (isInspectorModeEnabled) {
+      console.log('Inspector mode enabled. Initializing overlay.');
+      initializeOverlayDOM();
       addEventListeners();
-    } catch (error) {
-      // Clean up if initialization fails
-      console.error('Error initializing inspector mode:', error);
-      isInspectorModeEnabled = false;
-      removeElements();
+      // Send initial state to background? Not needed usually, background manages state.
+    } else {
+      console.log('Inspector mode disabled. Cleaning up overlay.');
+      removeEventListeners();
+      removeElements(); // Clean up DOM elements when disabled
     }
+  }
+
+  /** Initializes the DOM elements if they are not already initialized */
+  function initializeOverlayDOM() {
+    // Check if overlay is already initialized
+    if (document.getElementById('bp-inspector-container')) {
+      console.log('Overlay already initialized.');
+      overlayContainer = document.getElementById('bp-inspector-container');
+      overlay = document.getElementById('bp-inspector-overlay');
+      highlight = document.getElementById('bp-element-highlight');
+      return;
+    }
+
+    // Initialize DOM elements
+    overlayContainer = createAndAppend('bp-inspector-container', document.body);
+    overlay = createAndAppend('bp-inspector-overlay', overlayContainer);
+    highlight = createAndAppend('bp-element-highlight', document.body);
+
+    // Ensure they are hidden initially
+    if (overlay) overlay.style.display = 'none';
+    if (highlight) highlight.style.display = 'none';
+    console.log('Overlay initialized.');
   }
 
   /** Adds event listeners */
   function addEventListeners() {
+    // Check if overlay is already initialized
+    if (!overlayContainer || !overlay || !highlight) {
+      console.error('Overlay elements not initialized.');
+      return;
+    }
+
+    // Add event listeners to the document
     document.addEventListener('mouseover', mouseOverHandler);
     document.addEventListener('mousemove', mouseMoveHandler);
     document.addEventListener('mouseout', mouseOutHandler);
@@ -55,11 +65,13 @@
 
   /**
    * Creates and appends an element to a parent element
+   *
    * @param {string} id - The id of the element
    * @param {Object} parent - The parent element
    * @returns {Object} The created element
    */
   function createAndAppend(id, parent) {
+    if (!id || !parent) return null;
     const element = document.createElement('div');
     element.id = id;
     parent.appendChild(element);
@@ -67,45 +79,17 @@
   }
 
   /**
-   * Retrieves the inspector mode state from chrome storage.
+   * Calculates the position of the overlay relative to the cursor and prevents it from going off-screen
    *
-   * @returns {Promise<boolean>} The inspector mode state from chrome storage
-   */
-  async function getInspectorModeState() {
-    try {
-      if (!chrome || !chrome.storage) return false;
-
-      // Retrieve the inspector mode state
-      await chrome.runtime.sendMessage(
-        { action: 'GET_INSPECTOR_MODE' },
-        response => {
-          isInspectorModeEnabled = response;
-        }
-      );
-
-      console.log(
-        'IS INSPECTOR MODE ENABLED:',
-        isEnisInspectorModeEnabledabled
-      );
-      return isEnabled;
-    } catch (error) {
-      // Ignore errors
-      return false;
-    }
-  }
-
-  /**
-   * Calculates the position of the overlay relative to the cursor
-   * and prevents it from going off-screen
-   * @param {*} event - The triggered event
-   * @param {*} overlay - The overlay dom element
+   * @param {Event} event - The triggered event
+   * @param {HTMLElement} overlayElement - The overlay dom element
    * @returns {Object} The position of the overlay
    */
-  function getOverlayPosition(event, overlay) {
-    if (!overlay) return { top: 0, left: 0 }; // Default values
+  function getOverlayPosition(event, overlayElement) {
+    if (!overlayElement) return { top: 0, left: 0 }; // Default values
 
     const overlayMargin = 10; // Margin from cursor
-    const overlayRect = overlay.getBoundingClientRect();
+    const overlayRect = overlayElement.getBoundingClientRect();
 
     // Calculate position of the overlay relative to the cursor
     let posX = event.clientX + overlayMargin;
@@ -129,14 +113,26 @@
 
   /**
    * Displays the overlay on mouseover
-   * @param {*} event - The triggered event
+   *
+   * @param {Event} event - The triggered event
    */
   async function mouseOverHandler(event) {
-    // Check if the storage API is available and inspector mode is enabled
-    if (!chrome?.storage || !isInspectorModeEnabled) return;
+    // Check if inspector mode is enabled
+    if (!isInspectorModeEnabled || !overlay || !highlight || !overlayContainer)
+      return;
 
     const element = event.target;
-    if (!element || element.id === 'bp-inspector-overlay') return;
+    // Avoid targeting the overlay or highlight elements
+    if (
+      !element ||
+      element === overlay ||
+      element === highlight ||
+      overlayContainer.contains(element)
+    ) {
+      // Hide overlay/highlight if hovered over our own elements
+      mouseOutHandler();
+      return;
+    }
 
     const rect = element.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(element);
@@ -167,6 +163,7 @@
 
     // Set display to block before getOverlayPosition
     overlay.style.display = 'block';
+    overlay.style.pointerEvents = 'none'; // Ensure overlay doesn't block clicks
 
     updateOverlayPosition(event);
 
@@ -179,15 +176,17 @@
       highlight.style.height = `${rect.height}px`;
 
       highlight.style.display = 'block';
+      highlight.style.pointerEvents = 'none'; // Ensure highlight doesn't block clicks
     });
   }
 
   /**
    * Updates the position of the overlay
-   * @param {*} event - The triggered event
+   *
+   * @param {Event} event - The triggered event
    */
   function updateOverlayPosition(event) {
-    if (!overlay) return;
+    if (!overlay || !isInspectorModeEnabled) return;
 
     // Calculate position of the overlay
     const { top, left } = getOverlayPosition(event, overlay);
@@ -201,7 +200,8 @@
 
   /**
    * Updates the position of the overlay on mousemove
-   * @param {*} event - The triggered event
+   *
+   * @param {Event} event - The triggered event
    */
   function mouseMoveHandler(event) {
     if (!isInspectorModeEnabled) return;
@@ -243,24 +243,15 @@
 
   // Recieve message to update inspector mode
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('Received message:', request);
+    // Check if the message is to update inspector mode
     if (request.action === 'UPDATE_INSPECTOR_MODE') {
-      console.log(
-        'Received message to update inspector mode:',
-        request.isEnabled
-      );
-      isInspectorModeEnabled = request.isEnabled;
+      handleInspectorModeUpdate(request.isEnabled);
     }
-  });
-
-  // Remove event listeners when the connection is closed
-  chrome.runtime.onConnect.addListener(connectionPort => {
-    if (!connectionPort) return;
-    if (connectionPort.name === 'content-connection') {
-      connectionPort.onDisconnect.addListener(() => {
-        isInspectorModeEnabled = false;
-        removeEventListeners();
-        removeElements();
-      });
+    // Respond to PING message if needed (used by background to check injection)
+    if (request.action === 'PING') {
+      sendResponse({ status: 'PONG' });
+      return true; // Indicate async response
     }
   });
 })();
