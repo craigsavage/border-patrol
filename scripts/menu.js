@@ -46,53 +46,26 @@ async function initializeStates() {
   }
 }
 
-/** Toggles the border mode state and applies changes to the active tab. */
-async function toggleBorderMode() {
-  console.log('Toggling border mode from popup...');
-
-  try {
-    // Send message to background script to handle the state toggle
-    chrome.runtime.sendMessage({ action: 'TOGGLE_BORDER_MODE' });
-    console.log('Received response for TOGGLE_BORDER_MODE:', newState);
-    // Update UI based on the confirmed state from background
-    // toggleBorders.checked = newState;
-  } catch (error) {
-    console.error('Error toggling border mode:', error);
-  }
+/** Toggles the border. */
+function toggleBorderMode() {
+  // Send message to background script to handle the state toggle
+  chrome.runtime.sendMessage({ action: 'TOGGLE_BORDER_MODE' });
 }
 
-/** Toggles the inspector mode state and applies changes to the active tab. */
-async function toggleInspectorMode() {
-  console.log('Toggling inspector mode from popup...');
-
-  try {
-    // Send message to background script to handle the state toggle
-    const newState = await chrome.runtime.sendMessage({
-      action: 'TOGGLE_INSPECTOR_MODE',
-    });
-    console.log('Received response for TOGGLE_INSPECTOR_MODE:', newState);
-    // Update UI based on the confirmed state from background
-    toggleInspector.checked = newState;
-    console.log(`toggleInspector.checked is now: ${toggleInspector.checked}`);
-  } catch (error) {
-    console.error('Error toggling inspector mode:', error);
-  }
+/** Toggles the inspector mode. */
+function toggleInspectorMode() {
+  // Send message to background script to handle the state toggle
+  chrome.runtime.sendMessage({ action: 'TOGGLE_INSPECTOR_MODE' });
 }
 
-/** Updates the border settings and applies changes to the active tab. */
-async function updateBorderSettings() {
-  console.log('Updating border settings from popup...');
-
-  try {
-    // Send message to background script to handle the settings update
-    const response = await chrome.runtime.sendMessage({
-      action: 'UPDATE_BORDER_SETTINGS',
-      borderSize: borderSize.value,
-      borderStyle: borderStyle.value,
-    });
-  } catch (error) {
-    console.error('Error updating border settings:', error);
-  }
+/** Updates the border settings */
+function updateBorderSettings() {
+  // Send message to background script to handle the settings update
+  chrome.runtime.sendMessage({
+    action: 'UPDATE_BORDER_SETTINGS',
+    borderSize: borderSize.value,
+    borderStyle: borderStyle.value,
+  });
 }
 
 // Run initialization when popup loads

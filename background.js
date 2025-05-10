@@ -176,7 +176,6 @@ async function sendContentScriptUpdates(tabId) {
     const tabState = await getTabState({ tabId });
 
     // Send messages to update modes in the content script
-    // TODO: Could combine these to reduce requests
     await chrome.tabs.sendMessage(tabId, {
       action: 'UPDATE_BORDER_MODE',
       isEnabled: tabState.borderMode,
@@ -342,17 +341,20 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
       // Receive message to toggle border mode
       if (request.action === 'TOGGLE_BORDER_MODE') {
+        console.log('Received border mode toggle from popup:', request);
+
         const currentBorderState = await getTabState({ tabId: activeTabId });
         const newBorderState = !currentBorderState.borderMode;
         await handleTabStateChange({
           tabId: activeTabId,
           states: { borderMode: newBorderState },
         });
-        sendResponse(newBorderState); // Send the new state back to the popup
         return true; // Indicate async handling
       }
       // Receive message to toggle inspector mode
       else if (request.action === 'TOGGLE_INSPECTOR_MODE') {
+        console.log('Received inspector mode toggle from popup:', request);
+
         const currentInspectorState = await getTabState({
           tabId: activeTabId,
         });
@@ -361,19 +363,16 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
           tabId: activeTabId,
           states: { inspectorMode: newInspectorState },
         });
-        sendResponse(newInspectorState); // Send the new state back to the popup
         return true; // Indicate async handling
       }
       // Receive message to update border settings
       else if (request.action === 'UPDATE_BORDER_SETTINGS') {
+        console.log('Received border settings update from popup:', request);
+
         // Get new border settings from request
         const { borderSize, borderStyle } = request;
         // Update the settings in storage
         await chrome.storage.local.set({ borderSize, borderStyle });
-        console.log('Updated global border settings:', {
-          borderSize,
-          borderStyle,
-        });
 
         // Send update to content script immediately if border mode is active
         const tabState = await getTabState({ tabId: activeTabId });
@@ -386,22 +385,21 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             });
             console.log(`Sent updated border settings to tab ${activeTabId}`);
           } catch (contentScriptError) {
-            console.warn(
-              `Could not send UPDATE_BORDER_SETTINGS message to tab ${activeTabId}. Content script may not be ready.`,
+            console.error(
+              `Error sending updated border settings to tab ${activeTabId}:`,
               contentScriptError
             );
           }
         }
-        sendResponse({ borderSize, borderStyle }, { context: 'popup' }); // Send confirmation back to the popup
       } else {
         console.warn('Received unknown message from popup:', request);
-        sendResponse({ error: 'Unknown action' });
+        return false; // No action matched
       }
 
       return true; // Indicate async handling for popup messages
     } catch (error) {
       console.error('Error handling popup message:', error);
-      sendResponse({ error: 'Internal server error' }); // Send an error response
+      return false; // An error occurred
     }
   } else {
     // Handle messages from content scripts (have sender.tab.id)
