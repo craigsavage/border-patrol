@@ -341,20 +341,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       // Use the active tab's ID for processing popup messages
       const activeTabId = activeTab.id;
 
-      // Receive message to get initial popup state
-      if (request.action === 'GET_INITIAL_POPUP_STATE') {
-        // Popup is requesting initial state when opened
-        const tabState = await getTabState({ tabId: activeTabId });
-        const borderSettings = await chrome.storage.local.get([
-          'borderSize',
-          'borderStyle',
-        ]);
-        console.log('Initial state for popup:', { tabState, borderSettings });
-        sendResponse({ tabState, borderSettings });
-        return true; // Indicate async handling
-      }
       // Receive message to toggle border mode
-      else if (request.action === 'TOGGLE_BORDER_MODE') {
+      if (request.action === 'TOGGLE_BORDER_MODE') {
         const currentBorderState = await getTabState({ tabId: activeTabId });
         const newBorderState = !currentBorderState.borderMode;
         await handleTabStateChange(activeTabId, {

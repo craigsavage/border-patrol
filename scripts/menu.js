@@ -3,6 +3,18 @@ const toggleInspector = document.querySelector('#toggleInspector');
 const borderSize = document.querySelector('#borderSize');
 const borderStyle = document.querySelector('#borderStyle');
 
+console.log('menu.js loaded.'); // Log when the script starts
+
+/**
+ * Gets the active tab.
+ *
+ * @returns {Promise<chrome.tabs.Tab>} The active tab object.
+ */
+async function getActiveTab() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  return tab;
+}
+
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
   console.log('Initializing popup state...');
@@ -11,19 +23,31 @@ async function initializeStates() {
   if (!toggleBorders || !toggleInspector || !borderSize || !borderStyle) return;
 
   try {
-    // Request initial state and settings from background script
-    const response = await chrome.runtime.sendMessage({
-      action: 'GET_INITIAL_POPUP_STATE',
-    });
-    console.log('Received initial state:', response);
+    // Get the active tab
+    const activeTab = await getActiveTab();
+    if (!activeTab?.id) {
+      console.error('No active tab found.');
+      return;
+    }
+    console.log('Active tab:', activeTab);
+    // TODO:Check if the active tab is a restricted URL
 
-    // Set the toggle switch states based on the response
-    toggleBorders.checked = response.tabState?.borderMode ?? false;
-    toggleInspector.checked = response.tabState?.inspectorMode ?? false;
+    const tabIdString = activeTab.id?.toString();
 
-    // Set the border settings based on the response
-    borderSize.value = response.borderSettings?.borderSize ?? 1;
-    borderStyle.value = response.borderSettings?.borderStyle ?? 'solid';
+    // Get state from storage
+    const data = await chrome.storage.local.get([
+      tabIdString,
+      'borderSize',
+      'borderStyle',
+    ]);
+
+    // Set the toggle switch states
+    toggleBorders.checked = data[tabIdString]?.borderMode ?? false;
+    toggleInspector.checked = data[tabIdString]?.inspectorMode ?? false;
+
+    // Set the border settings values
+    borderSize.value = data.borderSize ?? 1;
+    borderStyle.value = data.borderStyle ?? 'solid';
   } catch (error) {
     console.error('Error during initialization:', error);
   }
