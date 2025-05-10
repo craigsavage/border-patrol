@@ -4,13 +4,13 @@
   let currentBorderSettings = { size: 1, style: 'solid' };
 
   /**
-   * Applies (or removes) an outline to all elements on the page.
+   * Manages applying or removing extension-specific outlines to elements.
    *
    * @param {boolean} isEnabled - Determines whether the outline should be applied.
    * @param {number} size - The size of the outline in pixels.
    * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
    */
-  async function applyOutline(isEnabled, size, style) {
+  async function manageElementOutlines(isEnabled, size, style) {
     console.log(
       `Applying outline - Enabled: ${isEnabled}, Size: ${size}, Style: ${style}`
     );
@@ -89,7 +89,7 @@
         // Get new border mode from request
         isBorderModeEnabled = request.isEnabled;
         // Apply/remove outline based on the new mode and current settings
-        applyOutline(
+        manageElementOutlines(
           isBorderModeEnabled,
           currentBorderSettings.size,
           currentBorderSettings.style
@@ -101,7 +101,7 @@
         currentBorderSettings.size = request.borderSize;
         currentBorderSettings.style = request.borderStyle;
         // Apply/remove outline based on the current mode and new settings
-        applyOutline(
+        manageElementOutlines(
           isBorderModeEnabled,
           currentBorderSettings.size,
           currentBorderSettings.style

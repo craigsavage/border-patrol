@@ -134,10 +134,11 @@ async function ensureScriptIsInjected(tabId) {
     if (!tab?.url || isRestrictedUrl(tab.url)) return;
 
     try {
-      // Check if scripts are already injected
+      // Check if scripts are already injected by sending a ping
       await chrome.tabs.sendMessage(tabId, { action: 'PING' });
-      console.log(`Scripts likely already injected in tab ${tabId}.`);
-      // return;  // No need to inject again
+      // If we get a response, scripts are already injected
+      console.log(`Scripts already injected in tab ${tabId}.`);
+      return;
     } catch (error) {
       console.log(`Scripts likely not injected in tab ${tabId}.`);
       // Continue with injection
@@ -162,8 +163,8 @@ async function ensureScriptIsInjected(tabId) {
 }
 
 /**
- * Sends the current state of border and inspector modes to the content script in the specified tab.
- * This should be called after state changes.
+ * Sends the current state of border and inspector modes, and border settings
+ * to the content script in the specified tab. This should be called after state changes.
  *
  * @param {number} tabId - The ID of the tab.
  */
@@ -186,14 +187,13 @@ async function sendContentScriptUpdates(tabId) {
     });
     console.log(`Sent mode updates to tab ${tabId}:`, tabState);
 
-    // Also send current border settings on state updates, just in case the content script needs them
+    // Send border settings to the content script
     const settings = await chrome.storage.local.get([
       'borderSize',
       'borderStyle',
     ]);
     await chrome.tabs.sendMessage(tabId, {
-      action: 'UPDATE_BORDER_SETTINGS', // Re-using this action name
-      tabId: tabId,
+      action: 'UPDATE_BORDER_SETTINGS',
       borderSize: settings.borderSize ?? DEFAULT_BORDER_SIZE,
       borderStyle: settings.borderStyle ?? DEFAULT_BORDER_STYLE,
     });
@@ -297,7 +297,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
     const tab = await chrome.tabs.get(tabId);
     if (!tab?.url || isRestrictedUrl(tab.url)) {
       console.log(`Restricted URL on activation, skipping: ${tab?.url}`);
-      // Consider setting icon to disabled for restricted tabs
+      // Set icon to disabled for restricted tabs
       chrome.action.setTitle({
         tabId: tabId,
         title: 'Border Patrol - Restricted',
@@ -310,7 +310,8 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
     }
 
     // Ensure scripts are injected and send current state
-    await handleTabStateChange(tabId, {}); // Pass empty object to avoid overwriting state
+    // Pass empty object to avoid overwriting state since nothing changed
+    await handleTabStateChange(tabId, {});
   } catch (error) {
     console.error(`Error in onActivated for tab ${tabId}:`, error);
     // Disable extention state if there's an error
@@ -322,7 +323,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   }
 });
 
-// Handles recieving messages from content scripts
+// Handles recieving messages from popup and content scripts
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   console.log('Received message:', request, 'from sender:', sender);
 
@@ -369,6 +370,24 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       // Update the settings in storage
       await chrome.storage.local.set({ borderSize, borderStyle });
       console.log('Updated border settings:', { borderSize, borderStyle });
+      // Get the current tab state to know if the border is enabled
+      const tabState = await getTabState({ tabId });
+      // Only send the update to the content script if border mode is active
+      if (tabState.borderMode) {
+        try {
+          await chrome.tabs.sendMessage(tabId, {
+            action: 'UPDATE_BORDER_SETTINGS',
+            borderSize: borderSize ?? DEFAULT_BORDER_SIZE,
+            borderStyle: borderStyle ?? DEFAULT_BORDER_STYLE,
+          });
+          console.log(`Sent updated border settings to tab ${tabId}`);
+        } catch (contentScriptError) {
+          console.warn(
+            `Could not send UPDATE_BORDER_SETTINGS message to tab ${tabId}. Content script may not be ready.`,
+            contentScriptError
+          );
+        }
+      }
       sendResponse({ borderSize, borderStyle });
       return true; // Indicate async handling
     }
@@ -418,7 +437,10 @@ chrome.commands.onCommand.addListener(async command => {
     const tab = await getActiveTab();
 
     // Validate if the tab is a valid webpage
-    if (!tab.id || !tab?.url || isRestrictedUrl(tab.url)) return;
+    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) {
+      console.warn('Ignoring command on restricted or invalid tab.');
+      return;
+    }
 
     const tabId = tab.id;
 
