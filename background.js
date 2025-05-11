@@ -310,6 +310,22 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   }
 });
 
+// Handles clearing cache and storage on tab removal (when closing tabs)
+chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+  Logger.info('onRemoved', tabId, removeInfo);
+
+  // Remove the tab state from the cache
+  delete cachedTabStates[tabId];
+
+  // Optionally clear storage for the tab if needed
+  try {
+    await chrome.storage.local.remove(tabId.toString());
+    Logger.info(`Cleared storage for tab ${tabId}`);
+  } catch (error) {
+    Logger.error(`Error clearing storage for tab ${tabId}:`, error);
+  }
+});
+
 // Handles recieving messages from popup and content scripts
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   Logger.info('Received message:', request, 'from sender:', sender);
