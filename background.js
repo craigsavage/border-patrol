@@ -144,10 +144,10 @@ async function ensureScriptIsInjected(tabId) {
       // Continue with injection
     }
 
-    // Inject overlay.css into the active tab
+    // Inject overlay styles into the active tab
     await chrome.scripting.insertCSS({
       target: { tabId },
-      files: ['css/overlay.css'],
+      files: ['styles/overlay.css'],
     });
 
     // Inject border.js and overlay.js into the active tab
