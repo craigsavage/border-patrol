@@ -9,20 +9,40 @@
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
 
-  /** Initializes the inspector mode state and DOM elements */
+  // Logger for debugging (copied lightweight logger from helpers.js)
+  const Logger = {
+    isDebug: false,
+    info(...args) {
+      if (this.isDebug) console.log('[BORDER PATROL]', ...args);
+    },
+    warn(...args) {
+      if (this.isDebug) console.warn('[BORDER PATROL]', ...args);
+    },
+    error(...args) {
+      console.error('[BORDER PATROL]', ...args);
+    },
+  };
+
+  /**
+   * Handles the inspector mode update
+   * If enabled, it initializes the overlay DOM elements and adds event listeners.
+   * If disabled, it removes the event listeners and cleans up the DOM elements.
+   *
+   * @param {boolean} isEnabled - The state of the inspector mode
+   */
   async function handleInspectorModeUpdate(isEnabled) {
-    console.log('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
+    Logger.info('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
+
     isInspectorModeEnabled = isEnabled; // Update the inspector mode state cache
 
     if (isInspectorModeEnabled) {
-      console.log('Inspector mode enabled. Initializing overlay.');
+      // Initialize the overlay DOM elements and add event listeners
       initializeOverlayDOM();
       addEventListeners();
-      // Send initial state to background? Not needed usually, background manages state.
     } else {
-      console.log('Inspector mode disabled. Cleaning up overlay.');
+      // Remove event listeners and clean up the DOM elements when disabled
       removeEventListeners();
-      removeElements(); // Clean up DOM elements when disabled
+      removeElements();
     }
   }
 
@@ -30,7 +50,6 @@
   function initializeOverlayDOM() {
     // Check if overlay is already initialized
     if (document.getElementById('bp-inspector-container')) {
-      console.log('Overlay already initialized.');
       overlayContainer = document.getElementById('bp-inspector-container');
       overlay = document.getElementById('bp-inspector-overlay');
       highlight = document.getElementById('bp-element-highlight');
@@ -45,14 +64,13 @@
     // Ensure they are hidden initially
     if (overlay) overlay.style.display = 'none';
     if (highlight) highlight.style.display = 'none';
-    console.log('Overlay initialized.');
   }
 
   /** Adds event listeners */
   function addEventListeners() {
     // Check if overlay is already initialized
     if (!overlayContainer || !overlay || !highlight) {
-      console.error('Overlay elements not initialized.');
+      Logger.error('Overlay elements not initialized.');
       return;
     }
 
@@ -60,7 +78,6 @@
     document.addEventListener('mouseover', mouseOverHandler);
     document.addEventListener('mousemove', mouseMoveHandler);
     document.addEventListener('mouseout', mouseOutHandler);
-    console.log('Overlay event listeners added.');
   }
 
   /**
@@ -206,16 +223,20 @@
   function mouseMoveHandler(event) {
     if (!isInspectorModeEnabled) return;
 
-    // Throttle the overlay position update
-    if (throttleTimeout === null) {
-      throttleTimeout = setTimeout(() => {
-        updateOverlayPosition(event);
-        throttleTimeout = null;
-      }, THROTTLE_DELAY);
+    try {
+      // Throttle the overlay position update
+      if (throttleTimeout === null) {
+        throttleTimeout = setTimeout(() => {
+          updateOverlayPosition(event);
+          throttleTimeout = null;
+        }, THROTTLE_DELAY);
+      }
+    } catch (error) {
+      Logger.error('Error updating overlay position:', error);
     }
   }
 
-  /** Hides the overlay and highlight on mouseout */
+  /** Hides the overlay and highlight when the mouse leaves the element */
   function mouseOutHandler() {
     if (overlay) overlay.style.display = 'none';
     if (highlight) highlight.style.display = 'none';
@@ -243,15 +264,24 @@
 
   // Recieve message to update inspector mode
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('Received message:', request);
-    // Check if the message is to update inspector mode
-    if (request.action === 'UPDATE_INSPECTOR_MODE') {
-      handleInspectorModeUpdate(request.isEnabled);
-    }
-    // Respond to PING message if needed (used by background to check injection)
-    if (request.action === 'PING') {
-      sendResponse({ status: 'PONG' });
-      return true; // Indicate async response
+    Logger.info('Received message:', request);
+
+    try {
+      // Check if the message is to update inspector mode
+      if (request.action === 'UPDATE_INSPECTOR_MODE') {
+        handleInspectorModeUpdate(request.isEnabled);
+      }
+      // Respond to PING message if needed (used by background to check injection)
+      else if (request.action === 'PING') {
+        sendResponse({ status: 'PONG' });
+        return true; // Indicate async response
+      } else {
+        // Ignore any other messages
+        return false;
+      }
+    } catch (error) {
+      Logger.error(`Error handling message:`, error);
+      return false; // An error occurred
     }
   });
 })();

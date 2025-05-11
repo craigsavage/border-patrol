@@ -3,6 +3,20 @@
   let isBorderModeEnabled = false;
   let currentBorderSettings = { size: 1, style: 'solid' };
 
+  // Logger for debugging (copied lightweight logger from helpers.js)
+  const Logger = {
+    isDebug: false,
+    info(...args) {
+      if (this.isDebug) console.log('[BORDER PATROL]', ...args);
+    },
+    warn(...args) {
+      if (this.isDebug) console.warn('[BORDER PATROL]', ...args);
+    },
+    error(...args) {
+      console.error('[BORDER PATROL]', ...args);
+    },
+  };
+
   /**
    * Manages applying or removing extension-specific outlines to elements.
    *
@@ -11,7 +25,7 @@
    * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
    */
   async function manageElementOutlines(isEnabled, size, style) {
-    console.log(
+    Logger.info(
       `Applying outline - Enabled: ${isEnabled}, Size: ${size}, Style: ${style}`
     );
 
@@ -82,7 +96,7 @@
   // Receive message to apply outline to all elements
   chrome.runtime.onMessage.addListener(
     async (request, sender, sendResponse) => {
-      console.log('Received message to apply outline:', request);
+      Logger.info('Received message to apply outline:', request);
 
       // Receive message to update border mode
       if (request.action === 'UPDATE_BORDER_MODE') {

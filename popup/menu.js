@@ -1,4 +1,4 @@
-import { getActiveTab, isRestrictedUrl } from '../scripts/helpers.js';
+import { getActiveTab, isRestrictedUrl, Logger } from '../scripts/helpers.js';
 
 // Get DOM elements
 const toggleBorders = document.querySelector('#toggleBorders');
@@ -8,7 +8,7 @@ const borderStyle = document.querySelector('#borderStyle');
 
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
-  console.log('Initializing popup state...');
+  Logger.info('Initializing popup state...');
 
   // Check if DOM elements exist before accessing
   if (!toggleBorders || !toggleInspector || !borderSize || !borderStyle) return;
@@ -35,7 +35,7 @@ async function initializeStates() {
     borderSize.value = data.borderSize ?? 1;
     borderStyle.value = data.borderStyle ?? 'solid';
   } catch (error) {
-    console.error('Error during initialization:', error);
+    Logger.error('Error during initialization:', error);
   }
 }
 
