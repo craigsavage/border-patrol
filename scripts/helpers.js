@@ -16,22 +16,23 @@ export function isRestrictedUrl(url) {
   return (
     invalidSchemes.some(scheme => url.startsWith(scheme)) ||
     url.startsWith('https://chrome.google.com/webstore') ||
-    url.startsWith('https://chromewebstore.google.com')
+    url.startsWith('https://chromewebstore.google.com') ||
+    url.startsWith('https://addons.mozilla.org/')
   );
 }
 
 /**
- * Retrieves the active tab object.
+ * Retrieves the active tab in the current window.
  *
- * @returns {Promise<Object>} The active tab object, or an empty object if not found.
+ * @returns {Promise<chrome.tabs.Tab>} The active tab object, or an empty object if not found.
  */
 export async function getActiveTab() {
   try {
-    const queryOptions = { active: true, lastFocusedWindow: true };
-    const [tab] = await chrome.tabs.query(queryOptions);
-    if (!tab) return {};
-
-    return tab;
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+    });
+    return tab ?? {};
   } catch (error) {
     console.error('Error retrieving active tab:', error);
     return {};

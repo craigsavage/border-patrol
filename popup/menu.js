@@ -1,18 +1,10 @@
+import { getActiveTab, isRestrictedUrl } from '../scripts/helpers.js';
+
 // Get DOM elements
 const toggleBorders = document.querySelector('#toggleBorders');
 const toggleInspector = document.querySelector('#toggleInspector');
 const borderSize = document.querySelector('#borderSize');
 const borderStyle = document.querySelector('#borderStyle');
-
-/**
- * Gets the active tab.
- *
- * @returns {Promise<chrome.tabs.Tab>} The active tab object.
- */
-async function getActiveTab() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab || {};
-}
 
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
@@ -24,7 +16,7 @@ async function initializeStates() {
   try {
     // Get the active tab and check if it's valid
     const tab = await getActiveTab();
-    if (!tab?.id || !tab?.url || tab.url.startsWith('chrome://')) return;
+    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) return;
 
     const tabIdString = tab.id?.toString();
 
