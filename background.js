@@ -104,8 +104,8 @@ async function updateExtensionState(tabId) {
     chrome.action.setIcon({
       tabId: tabId,
       path: isEnabled
-        ? 'icons/border-patrol-icon-16.png'
-        : 'icons/border-patrol-icon-16-disabled.png',
+        ? 'assets/icons/bp-icon-16.png'
+        : 'assets/icons/bp-icon-16-disabled.png',
     });
   } catch (error) {
     console.error(`Error updating extension state for tab ${tabId}:`, error);
@@ -114,7 +114,7 @@ async function updateExtensionState(tabId) {
     chrome.action.setTitle({ tabId: tabId, title: 'Border Patrol - Disabled' });
     chrome.action.setIcon({
       tabId: tabId,
-      path: 'icons/border-patrol-icon-16-disabled.png',
+      path: 'assets/icons/bp-icon-16-disabled.png',
     });
   }
 }
@@ -304,7 +304,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
       });
       chrome.action.setIcon({
         tabId: tabId,
-        path: 'icons/border-patrol-icon-16-disabled.png',
+        path: 'assets/icons/bp-icon-16-disabled.png',
       });
       return;
     }
@@ -316,7 +316,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
     chrome.action.setTitle({ tabId: tabId, title: 'Border Patrol - Disabled' });
     chrome.action.setIcon({
       tabId: tabId,
-      path: 'icons/border-patrol-icon-16-disabled.png',
+      path: 'assets/icons/bp-icon-16-disabled.png',
     });
   }
 });
