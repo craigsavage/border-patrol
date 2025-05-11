@@ -1,3 +1,4 @@
+// Get DOM elements
 const toggleBorders = document.querySelector('#toggleBorders');
 const toggleInspector = document.querySelector('#toggleInspector');
 const borderSize = document.querySelector('#borderSize');
