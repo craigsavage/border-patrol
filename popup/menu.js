@@ -1,21 +1,14 @@
+import { getActiveTab, isRestrictedUrl, Logger } from '../scripts/helpers.js';
+
+// Get DOM elements
 const toggleBorders = document.querySelector('#toggleBorders');
 const toggleInspector = document.querySelector('#toggleInspector');
 const borderSize = document.querySelector('#borderSize');
 const borderStyle = document.querySelector('#borderStyle');
 
-/**
- * Gets the active tab.
- *
- * @returns {Promise<chrome.tabs.Tab>} The active tab object.
- */
-async function getActiveTab() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab || {};
-}
-
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
-  console.log('Initializing popup state...');
+  Logger.info('Initializing popup state...');
 
   // Check if DOM elements exist before accessing
   if (!toggleBorders || !toggleInspector || !borderSize || !borderStyle) return;
@@ -23,7 +16,7 @@ async function initializeStates() {
   try {
     // Get the active tab and check if it's valid
     const tab = await getActiveTab();
-    if (!tab?.id || !tab?.url || tab.url.startsWith('chrome://')) return;
+    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) return;
 
     const tabIdString = tab.id?.toString();
 
@@ -42,7 +35,7 @@ async function initializeStates() {
     borderSize.value = data.borderSize ?? 1;
     borderStyle.value = data.borderStyle ?? 'solid';
   } catch (error) {
-    console.error('Error during initialization:', error);
+    Logger.error('Error during initialization:', error);
   }
 }
 

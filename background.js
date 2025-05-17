@@ -3,7 +3,7 @@ import {
   DEFAULT_BORDER_STYLE,
   DEFAULT_TAB_STATE,
 } from './scripts/constants.js';
-import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
+import { isRestrictedUrl, getActiveTab, Logger } from './scripts/helpers.js';
 
 // In-memory cache for tab states. This helps reduce repeated calls to storage
 const cachedTabStates = {}; // tabId: { borderMode: boolean, inspectorMode: boolean }
@@ -37,7 +37,7 @@ async function getTabState({ tabId, key }) {
     if (key) return cachedTabStates[tabIdString][key] ?? DEFAULT_TAB_STATE[key];
     else return cachedTabStates[tabIdString];
   } catch (error) {
-    console.error(
+    Logger.error(
       `Error retrieving tab state for tab ${tabId} from storage:`,
       error
     );
@@ -69,15 +69,12 @@ async function setTabState({ tabId, states }) {
     await chrome.storage.local.set({
       [tabIdString]: cachedTabStates[tabIdString],
     });
-    console.log(
+    Logger.info(
       `Updated tab state for tab ${tabId} in storage:`,
       cachedTabStates[tabIdString]
     );
   } catch (error) {
-    console.error(
-      `Error setting tab state for tab ${tabId} in storage:`,
-      error
-    );
+    Logger.error(`Error setting tab state for tab ${tabId} in storage:`, error);
   }
 }
 
@@ -91,11 +88,6 @@ async function updateExtensionState(tabId) {
   try {
     const tabState = await getTabState({ tabId });
     const isEnabled = tabState?.borderMode || tabState?.inspectorMode;
-    console.log(
-      `Updating extension state for tab ${tabId}:`,
-      tabState,
-      isEnabled
-    );
 
     chrome.action.setTitle({
       tabId: tabId,
@@ -104,17 +96,17 @@ async function updateExtensionState(tabId) {
     chrome.action.setIcon({
       tabId: tabId,
       path: isEnabled
-        ? 'icons/border-patrol-icon-16.png'
-        : 'icons/border-patrol-icon-16-disabled.png',
+        ? 'assets/icons/bp-icon-16.png'
+        : 'assets/icons/bp-icon-16-disabled.png',
     });
   } catch (error) {
-    console.error(`Error updating extension state for tab ${tabId}:`, error);
+    Logger.error(`Error updating extension state for tab ${tabId}:`, error);
 
     // Fallback to default state
     chrome.action.setTitle({ tabId: tabId, title: 'Border Patrol - Disabled' });
     chrome.action.setIcon({
       tabId: tabId,
-      path: 'icons/border-patrol-icon-16-disabled.png',
+      path: 'assets/icons/bp-icon-16-disabled.png',
     });
   }
 }
@@ -137,28 +129,32 @@ async function ensureScriptIsInjected(tabId) {
       // Check if scripts are already injected by sending a ping
       await chrome.tabs.sendMessage(tabId, { action: 'PING' });
       // If we get a response, scripts are already injected
-      console.log(`Scripts already injected in tab ${tabId}.`);
+      Logger.info(`Scripts already injected in tab ${tabId}.`);
       return;
     } catch (error) {
-      console.log(`Scripts likely not injected in tab ${tabId}.`);
+      Logger.info(`Scripts likely not injected in tab ${tabId}.`);
       // Continue with injection
     }
 
-    // Inject overlay.css into the active tab
-    await chrome.scripting.insertCSS({
-      target: { tabId },
-      files: ['css/overlay.css'],
-    });
+    try {
+      // Inject overlay styles into the active tab
+      await chrome.scripting.insertCSS({
+        target: { tabId },
+        files: ['styles/overlay.css'],
+      });
 
-    // Inject border.js and overlay.js into the active tab
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['scripts/border.js', 'scripts/overlay.js'],
-    });
+      // Inject border.js and overlay.js into the active tab
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        files: ['scripts/border.js', 'scripts/overlay.js'],
+      });
 
-    console.log(`Injected content scripts and CSS into tab ${tabId}`);
+      Logger.info(`Injected content scripts and CSS into tab ${tabId}`);
+    } catch (error) {
+      Logger.error(`Error injecting scripts or CSS into tab ${tabId}:`, error);
+    }
   } catch (error) {
-    console.error(`Error injecting scripts or CSS into tab ${tabId}:`, error);
+    Logger.error(`Error injecting scripts or CSS into tab ${tabId}:`, error);
   }
 }
 
@@ -184,7 +180,7 @@ async function sendContentScriptUpdates(tabId) {
       action: 'UPDATE_INSPECTOR_MODE',
       isEnabled: tabState.inspectorMode,
     });
-    console.log(`Sent mode updates to tab ${tabId}:`, tabState);
+    Logger.info(`Sent mode updates to tab ${tabId}:`, tabState);
 
     // Send border settings to the content script
     const settings = await chrome.storage.local.get([
@@ -196,12 +192,9 @@ async function sendContentScriptUpdates(tabId) {
       borderSize: settings.borderSize ?? DEFAULT_BORDER_SIZE,
       borderStyle: settings.borderStyle ?? DEFAULT_BORDER_STYLE,
     });
-    console.log(`Sent border settings update to tab ${tabId}:`, settings);
+    Logger.info(`Sent border settings update to tab ${tabId}:`, settings);
   } catch (error) {
-    console.warn(
-      `Error sending content script updates to tab ${tabId}:`,
-      error
-    );
+    Logger.warn(`Error sending content script updates to tab ${tabId}:`, error);
   }
 }
 
@@ -236,7 +229,7 @@ async function handleTabStateChange({ tabId, states }) {
  * Initializes default settings and potentially clears old per-tab state keys.
  */
 chrome.runtime.onInstalled.addListener(async details => {
-  console.log('onInstalled', details);
+  Logger.info('onInstalled', details);
 
   try {
     // Define default global settings
@@ -259,7 +252,7 @@ chrome.runtime.onInstalled.addListener(async details => {
     // Set the default settings in storage
     await chrome.storage.local.set(settingsToSet);
   } catch (error) {
-    console.error('Error during onInstalled:', error);
+    Logger.error('Error during onInstalled:', error);
   }
 });
 
@@ -271,7 +264,7 @@ chrome.runtime.onInstalled.addListener(async details => {
  * @param {Object} tab - The tab object.
  */
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  console.log('onUpdated', tabId, changeInfo, tab);
+  Logger.info('onUpdated', tabId, changeInfo, tab);
 
   // Validate if the tab is a valid webpage
   if (!tabId || !tab?.url || isRestrictedUrl(tab.url)) return;
@@ -288,7 +281,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
  * @param {Object} activeInfo - Information about the activated tab.
  */
 chrome.tabs.onActivated.addListener(async activeInfo => {
-  console.log('onActivated', activeInfo);
+  Logger.info('onActivated', activeInfo);
 
   const tabId = activeInfo?.tabId;
   if (!tabId) return;
@@ -296,7 +289,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   try {
     const tab = await chrome.tabs.get(tabId);
     if (!tab?.url || isRestrictedUrl(tab.url)) {
-      console.log(`Restricted URL on activation, skipping: ${tab?.url}`);
+      Logger.info(`Restricted URL on activation, skipping: ${tab?.url}`);
       // Set icon to disabled for restricted tabs
       chrome.action.setTitle({
         tabId: tabId,
@@ -304,26 +297,42 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
       });
       chrome.action.setIcon({
         tabId: tabId,
-        path: 'icons/border-patrol-icon-16-disabled.png',
+        path: 'assets/icons/bp-icon-16-disabled.png',
       });
       return;
     }
 
     await handleTabStateChange({ tabId });
   } catch (error) {
-    console.error(`Error in onActivated for tab ${tabId}:`, error);
+    Logger.error(`Error in onActivated for tab ${tabId}:`, error);
     // Disable extention state if there's an error
     chrome.action.setTitle({ tabId: tabId, title: 'Border Patrol - Disabled' });
     chrome.action.setIcon({
       tabId: tabId,
-      path: 'icons/border-patrol-icon-16-disabled.png',
+      path: 'assets/icons/bp-icon-16-disabled.png',
     });
+  }
+});
+
+// Handles clearing cache and storage on tab removal (when closing tabs)
+chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+  Logger.info('onRemoved', tabId, removeInfo);
+
+  // Remove the tab state from the cache
+  delete cachedTabStates[tabId];
+
+  // Optionally clear storage for the tab if needed
+  try {
+    await chrome.storage.local.remove(tabId.toString());
+    Logger.info(`Cleared storage for tab ${tabId}`);
+  } catch (error) {
+    Logger.error(`Error clearing storage for tab ${tabId}:`, error);
   }
 });
 
 // Handles recieving messages from popup and content scripts
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  console.log('Received message:', request, 'from sender:', sender);
+  Logger.info('Received message:', request, 'from sender:', sender);
 
   // Check if the sender has a tab ID (messages from popup don't)
   const tabId = sender?.tab?.id;
@@ -341,8 +350,6 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
       // Receive message to toggle border mode
       if (request.action === 'TOGGLE_BORDER_MODE') {
-        console.log('Received border mode toggle from popup:', request);
-
         const currentBorderState = await getTabState({ tabId: activeTabId });
         const newBorderState = !currentBorderState.borderMode;
         await handleTabStateChange({
@@ -353,8 +360,6 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       }
       // Receive message to toggle inspector mode
       else if (request.action === 'TOGGLE_INSPECTOR_MODE') {
-        console.log('Received inspector mode toggle from popup:', request);
-
         const currentInspectorState = await getTabState({
           tabId: activeTabId,
         });
@@ -367,8 +372,6 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       }
       // Receive message to update border settings
       else if (request.action === 'UPDATE_BORDER_SETTINGS') {
-        console.log('Received border settings update from popup:', request);
-
         // Get new border settings from request
         const { borderSize, borderStyle } = request;
         // Update the settings in storage
@@ -383,22 +386,21 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
               borderSize: borderSize ?? DEFAULT_BORDER_SIZE,
               borderStyle: borderStyle ?? DEFAULT_BORDER_STYLE,
             });
-            console.log(`Sent updated border settings to tab ${activeTabId}`);
           } catch (contentScriptError) {
-            console.error(
+            Logger.error(
               `Error sending updated border settings to tab ${activeTabId}:`,
               contentScriptError
             );
           }
         }
       } else {
-        console.warn('Received unknown message from popup:', request);
+        Logger.warn('Received unknown message from popup:', request);
         return false; // No action matched
       }
 
       return true; // Indicate async handling for popup messages
     } catch (error) {
-      console.error('Error handling popup message:', error);
+      Logger.error('Error handling popup message:', error);
       return false; // An error occurred
     }
   } else {
@@ -441,7 +443,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
 // Handles keyboard shortcut commands
 chrome.commands.onCommand.addListener(async command => {
-  console.log('Command received:', command);
+  Logger.info('Command received:', command);
 
   // Toggle the border for the active tab
   if (command === 'toggle_border_patrol') {
@@ -449,7 +451,7 @@ chrome.commands.onCommand.addListener(async command => {
 
     // Validate if the tab is a valid webpage
     if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) {
-      console.warn('Ignoring command on restricted or invalid tab.');
+      Logger.warn('Ignoring command on restricted or invalid tab.');
       return;
     }
 
@@ -460,7 +462,7 @@ chrome.commands.onCommand.addListener(async command => {
     // Toggle border mode
     const newState = !currentState.borderMode;
 
-    console.log(`Command toggling border mode for tab ${tabId} to ${newState}`);
+    Logger.info(`Toggling border mode for tab ${tabId}:`, newState);
 
     // Handle the state change centrally
     await handleTabStateChange({ tabId, states: { borderMode: newState } });
