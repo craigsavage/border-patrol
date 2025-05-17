@@ -186,14 +186,20 @@
 
     // Display the highlight
     requestAnimationFrame(() => {
-      // Set position and size of the highlight
-      highlight.style.top = `${rect.top + window.scrollY}px`;
-      highlight.style.left = `${rect.left + window.scrollX}px`;
-      highlight.style.width = `${rect.width}px`;
-      highlight.style.height = `${rect.height}px`;
+      if (!highlight) return; // Highlight may have been removed
 
-      highlight.style.display = 'block';
-      highlight.style.pointerEvents = 'none'; // Ensure highlight doesn't block clicks
+      try {
+        // Set position and size of the highlight
+        highlight.style.top = `${rect.top + window.scrollY}px`;
+        highlight.style.left = `${rect.left + window.scrollX}px`;
+        highlight.style.width = `${rect.width}px`;
+        highlight.style.height = `${rect.height}px`;
+
+        highlight.style.display = 'block';
+        highlight.style.pointerEvents = 'none'; // Ensure highlight doesn't block clicks
+      } catch (error) {
+        Logger.error('Error displaying highlight:', error);
+      }
     });
   }
 
@@ -210,8 +216,15 @@
 
     // Display the overlay
     requestAnimationFrame(() => {
-      overlay.style.top = `${top}px`;
-      overlay.style.left = `${left}px`;
+      if (!overlay) return; // Overlay may have been removed
+
+      try {
+        // Set position of the overlay
+        overlay.style.top = `${top}px`;
+        overlay.style.left = `${left}px`;
+      } catch (error) {
+        Logger.error('Error updating overlay position:', error);
+      }
     });
   }
 
@@ -257,9 +270,13 @@
 
   /** Removes event listeners */
   function removeEventListeners() {
-    document.removeEventListener('mouseover', mouseOverHandler);
-    document.removeEventListener('mousemove', mouseMoveHandler);
-    document.removeEventListener('mouseout', mouseOutHandler);
+    try {
+      document.removeEventListener('mouseover', mouseOverHandler);
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseout', mouseOutHandler);
+    } catch (error) {
+      Logger.error('Error removing event listeners:', error);
+    }
   }
 
   // Recieve message to update inspector mode
