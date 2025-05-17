@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lilita+One&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="menu.css" />
+    <script type="module" src="menu.js"></script>
+
+    <title>Border Patrol</title>
+  </head>
+
+  <body>
+    <h1 id="menu-title" class="menu-title">Border Patrol</h1>
+
+    <hr />
+
+    <div class="form-container">
+      <!-- Toggle (Enable/Disable) Borders -->
+      <div class="form-group">
+        <label for="toggleBorders" class="label">Toggle Borders:</label>
+        <input
+          type="checkbox"
+          id="toggleBorders"
+          aria-label="Enable or disable borders"
+        />
+      </div>
+
+      <!-- Toggle (Enable/Disable) Inspector Mode -->
+      <div class="form-group">
+        <label for="toggleInspector" class="label">
+          Toggle Inspector Mode:
+        </label>
+        <input
+          type="checkbox"
+          id="toggleInspector"
+          aria-label="Enable or disable inspector mode"
+        />
+      </div>
+
+      <!-- Border Settings -->
+      <fieldset>
+        <legend aria-label="Border settings">Border Settings</legend>
+
+        <!-- Border Size -->
+        <div>
+          <label for="borderSize" class="label">Size:</label>
+          <input
+            type="range"
+            id="borderSize"
+            min="1"
+            max="3"
+            step="0.5"
+            value="1"
+            aria-label="Border size"
+          />
+        </div>
+
+        <!-- Border Style -->
+        <div>
+          <label for="borderStyle" class="label">Style:</label>
+          <select id="borderStyle" aria-label="Border styleß">
+            <option value="solid">Solid</option>
+            <option value="dashed">Dashed</option>
+            <option value="dotted">Dotted</option>
+            <option value="double">Double</option>
+          </select>
+        </div>
+      </fieldset>
+    </div>
+
+    <hr />
+
+    <footer>
+      <a
+        href="https://github.com/craigsavage/border-patrol"
+        target="_blank"
+        aria-label="Border Patrol on GitHub"
+      >
+        GitHub
+      </a>
+    </footer>
+  </body>
+</html>

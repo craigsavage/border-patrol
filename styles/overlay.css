@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+:root {
+  --bp-blue: #2374ab;
+  --bp-light-gray: #ccc;
+  --bp-gray: #999;
+  --bp-dark-gray: #333;
+
+  --bp-blue-50: #f2f8fd;
+  --bp-blue-100: #e5f0f9;
+  --bp-blue-200: #c5e0f2;
+  --bp-blue-300: #92c7e7;
+  --bp-blue-400: #57a9d9;
+
+  --bp-blush-600: #aa4465;
+  --bp-blush-700: #9d3957;
+}
+
+#bp-inspector-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+#bp-inspector-overlay {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--bp-blue-50);
+  padding: 5px 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 250px;
+  min-width: 150px;
+}
+
+.bp-element-info {
+  font-size: 0.7rem;
+  margin-bottom: 0.1rem;
+}
+
+.bp-branding-info {
+  font-size: 0.6rem;
+  color: var(--bp-blue-400);
+  border-top: 1px dashed var(--bp-blue-50);
+  padding-top: 0.1rem;
+  margin-top: 0.2rem;
+  text-align: right;
+}
+
+#bp-element-highlight {
+  position: absolute;
+  background-color: var(--bp-blush-600);
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 9998;
+}
