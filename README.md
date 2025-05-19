@@ -35,9 +35,9 @@ You can customize this shortcut in your Chrome browser by navigating to `chrome:
 
 ### Contributing
 
-Border Patrol is an open-source project, and contributions are welcome!
+Border Patrol is an open-source project, and contributions are highly valued! If you have an idea for a new feature, find a bug, or want to improve the existing codebase, please contribute!
 
-- **Pull Requests:** Please submit pull requests based on the `dev` branch.
+Please see the [CONTRIBUTING](CONTRIBUTING.md) file for more detailed guidelines on contributing.
 
 ### Feedback and Support 💬
 
