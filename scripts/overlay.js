@@ -168,7 +168,9 @@
     overlay.innerHTML = `
       <div class="bp-element-info">
         <strong>${element.tagName.toLowerCase()}</strong><br>
-        ${Math.round(rect.width)} x ${Math.round(rect.height)} px<br>
+        Dimensions: ${Math.round(rect.width)} x ${Math.round(
+      rect.height
+    )} px<br>
         ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
         ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
         ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
