@@ -11,7 +11,7 @@
 
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
-    isDebug: false,
+    isDebug: true,
     info(...args) {
       if (this.isDebug) console.log('[BORDER PATROL]', ...args);
     },
@@ -164,10 +164,22 @@
     overlayContainer.style.width = `${bodyRect.width}px`;
     overlayContainer.style.height = `${bodyRect.height}px`;
 
+    console.log('Element:', element, 'Style:', computedStyle);
+    console.log('Element Class:', element.className);
+
+    const elementId = element.id ? `#${element.id}` : '';
+    const elementClass = element.className
+      ? `.${element.className.split(' ').join('.')}`
+      : '';
+
+    console.log(elementId, elementClass);
+
     // Update the overlay content with the element details
     overlay.innerHTML = `
       <div class="bp-element-info">
-        <strong>${element.tagName.toLowerCase()}</strong><br>
+        <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
+          ${elementId}
+        </span><br>
         <span class="bp-info-label">Dimensions:</span> ${Math.round(
           rect.width
         )} x ${Math.round(rect.height)} px<br>
