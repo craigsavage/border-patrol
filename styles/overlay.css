@@ -49,6 +49,12 @@
   margin-bottom: 4px;
 }
 
+.bp-element-info .bp-info-label {
+  font-weight: normal;
+  color: var(--bp-gray);
+  margin-right: 4px;
+}
+
 .bp-branding-info {
   font-size: 10px;
   color: var(--bp-blue-400);
