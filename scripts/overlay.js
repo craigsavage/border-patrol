@@ -8,10 +8,11 @@
   let highlight = null;
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
+  const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
 
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
-    isDebug: false,
+    isDebug: true,
     info(...args) {
       if (this.isDebug) console.log('[BORDER PATROL]', ...args);
     },
@@ -164,13 +165,26 @@
     overlayContainer.style.width = `${bodyRect.width}px`;
     overlayContainer.style.height = `${bodyRect.height}px`;
 
+    Logger.info('Element:', element, 'Style:', computedStyle);
+
+    const elementId = element.id ? `#${element.id}` : '';
+    const elementClasses = getElementClassNames(element);
+
     // Update the overlay content with the element details
     overlay.innerHTML = `
       <div class="bp-element-info">
-        <strong>${element.tagName.toLowerCase()}</strong><br>
+        <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
+          ${elementId}
+        </span><br>
+        ${
+          elementClasses
+            ? `<span class="bp-info-label">Classes:</span> ${elementClasses}<br>`
+            : ''
+        }
         <span class="bp-info-label">Dimensions:</span> ${Math.round(
           rect.width
         )} x ${Math.round(rect.height)} px<br>
+        <span class="bp-info-label">Display:</span> ${computedStyle.display}<br>
         ${
           computedStyle.border
             ? `<span class="bp-info-label">Border:</span> ${computedStyle.border}<br>`
@@ -215,6 +229,26 @@
         Logger.error('Error displaying highlight:', error);
       }
     });
+  }
+
+  /**
+   * Retrieves and formats the class names of an element.
+   * Truncates the list if it exceeds the maximum display length.
+   *
+   * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
+   * @returns {string} A formatted string of class names.
+   */
+  function getElementClassNames(element) {
+    const classNames = element.className.split(/\s+/).filter(Boolean);
+    let elementClasses = '';
+    if (classNames.length > 0) {
+      elementClasses = `.${classNames.join(' .')}`;
+      if (elementClasses.length > MAX_CLASS_DISPLAY_LENGTH) {
+        elementClasses =
+          elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
+      }
+    }
+    return elementClasses;
   }
 
   /**

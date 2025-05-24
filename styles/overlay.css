@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 :root {
-  --bp-blue: #2374ab;
   --bp-light-gray: #ccc;
   --bp-gray: #999;
   --bp-dark-gray: #333;
@@ -11,6 +10,12 @@
   --bp-blue-200: #c5e0f2;
   --bp-blue-300: #92c7e7;
   --bp-blue-400: #57a9d9;
+  --bp-blue-500: #328ec5;
+  --bp-blue-600: #2374ab; /* Main Color */
+  --bp-blue-700: #1d5a87;
+  --bp-blue-800: #1c4e70;
+  --bp-blue-900: #1c425e;
+  --bp-blue-950: #132a3e;
 
   --bp-blush-600: #aa4465;
   --bp-blush-700: #9d3957;
@@ -30,7 +35,7 @@
   all: unset;
 
   position: absolute;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   color: var(--bp-blue-50);
   padding: 6px 10px;
   font-family: 'Inter', sans-serif;
@@ -45,8 +50,14 @@
 }
 
 .bp-element-info {
+  font-weight: normal;
   font-size: 12px;
   margin-bottom: 4px;
+}
+
+.bp-element-info .bp-id-value {
+  font-weight: 500;
+  color: var(--bp-blue-300);
 }
 
 .bp-element-info .bp-info-label {
