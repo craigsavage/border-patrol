@@ -8,6 +8,7 @@
   let highlight = null;
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
+  const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
 
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
@@ -164,21 +165,22 @@
     overlayContainer.style.width = `${bodyRect.width}px`;
     overlayContainer.style.height = `${bodyRect.height}px`;
 
-    console.log('Element:', element, 'Style:', computedStyle);
+    Logger.info('Element:', element, 'Style:', computedStyle);
 
     const elementId = element.id ? `#${element.id}` : '';
-
-    const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
 
     // Get the class names of the element. Split by space and filter out empty strings
     const classNames = element.className.split(/\s+/).filter(Boolean);
     let elementClasses = '';
     if (classNames.length > 0) {
-      // Limit the number of class names displayed
-      const limitedClassNames = classNames.slice(0, MAX_CLASS_DISPLAY_LENGTH);
-      elementClasses = `.${limitedClassNames.join(' .')}...`;
+      elementClasses = `.${classNames.join(' .')}`;
+      if (elementClasses.length > MAX_CLASS_DISPLAY_LENGTH) {
+        // Limit the number of class names displayed
+        elementClasses =
+          elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
+      }
     }
-    console.log('Classes:', elementClasses);
+    Logger.info('Classes:', elementClasses);
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
