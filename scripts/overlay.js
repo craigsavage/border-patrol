@@ -180,7 +180,6 @@
           elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
       }
     }
-    Logger.info('Classes:', elementClasses);
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
@@ -188,6 +187,11 @@
         <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
           ${elementId}
         </span><br>
+        ${
+          elementClasses
+            ? `<span class="bp-info-label">Classes:</span> ${elementClasses}<br>`
+            : ''
+        }
         <span class="bp-info-label">Dimensions:</span> ${Math.round(
           rect.width
         )} x ${Math.round(rect.height)} px<br>
