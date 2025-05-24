@@ -168,12 +168,24 @@
     overlay.innerHTML = `
       <div class="bp-element-info">
         <strong>${element.tagName.toLowerCase()}</strong><br>
-        Dimensions: ${Math.round(rect.width)} x ${Math.round(
-      rect.height
-    )} px<br>
-        ${computedStyle.border ? `Border: ${computedStyle.border}<br>` : ''}
-        ${computedStyle.margin ? `Margin: ${computedStyle.margin}<br>` : ''}
-        ${computedStyle.padding ? `Padding: ${computedStyle.padding}` : ''}
+        <span class="bp-info-label">Dimensions:</span> ${Math.round(
+          rect.width
+        )} x ${Math.round(rect.height)} px<br>
+        ${
+          computedStyle.border
+            ? `<span class="bp-info-label">Border:</span> ${computedStyle.border}<br>`
+            : ''
+        }
+        ${
+          computedStyle.margin
+            ? `<span class="bp-info-label">Margin:</span> ${computedStyle.margin}<br>`
+            : ''
+        }
+        ${
+          computedStyle.padding
+            ? `<span class="bp-info-label">Padding:</span> ${computedStyle.padding}`
+            : ''
+        }
       </div>
       <footer class="bp-branding-info">
         <span class="bp-branding">Border Patrol</span>
