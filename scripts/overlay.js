@@ -165,14 +165,20 @@
     overlayContainer.style.height = `${bodyRect.height}px`;
 
     console.log('Element:', element, 'Style:', computedStyle);
-    console.log('Element Class:', element.className);
 
     const elementId = element.id ? `#${element.id}` : '';
-    const elementClass = element.className
-      ? `.${element.className.split(' ').join('.')}`
-      : '';
 
-    console.log(elementId, elementClass);
+    const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
+
+    // Get the class names of the element. Split by space and filter out empty strings
+    const classNames = element.className.split(/\s+/).filter(Boolean);
+    let elementClasses = '';
+    if (classNames.length > 0) {
+      // Limit the number of class names displayed
+      const limitedClassNames = classNames.slice(0, MAX_CLASS_DISPLAY_LENGTH);
+      elementClasses = `.${limitedClassNames.join(' .')}...`;
+    }
+    console.log('Classes:', elementClasses);
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
