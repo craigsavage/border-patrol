@@ -168,18 +168,7 @@
     Logger.info('Element:', element, 'Style:', computedStyle);
 
     const elementId = element.id ? `#${element.id}` : '';
-
-    // Get the class names of the element. Split by space and filter out empty strings
-    const classNames = element.className.split(/\s+/).filter(Boolean);
-    let elementClasses = '';
-    if (classNames.length > 0) {
-      elementClasses = `.${classNames.join(' .')}`;
-      if (elementClasses.length > MAX_CLASS_DISPLAY_LENGTH) {
-        // Limit the number of class names displayed
-        elementClasses =
-          elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
-      }
-    }
+    const elementClasses = getElementClassNames(element);
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
@@ -240,6 +229,26 @@
         Logger.error('Error displaying highlight:', error);
       }
     });
+  }
+
+  /**
+   * Retrieves and formats the class names of an element.
+   * Truncates the list if it exceeds the maximum display length.
+   *
+   * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
+   * @returns {string} A formatted string of class names.
+   */
+  function getElementClassNames(element) {
+    const classNames = element.className.split(/\s+/).filter(Boolean);
+    let elementClasses = '';
+    if (classNames.length > 0) {
+      elementClasses = `.${classNames.join(' .')}`;
+      if (elementClasses.length > MAX_CLASS_DISPLAY_LENGTH) {
+        elementClasses =
+          elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
+      }
+    }
+    return elementClasses;
   }
 
   /**
