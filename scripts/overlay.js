@@ -195,6 +195,7 @@
         <span class="bp-info-label">Dimensions:</span> ${Math.round(
           rect.width
         )} x ${Math.round(rect.height)} px<br>
+        <span class="bp-info-label">Display:</span> ${computedStyle.display}<br>
         ${
           computedStyle.border
             ? `<span class="bp-info-label">Border:</span> ${computedStyle.border}<br>`
