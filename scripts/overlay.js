@@ -167,6 +167,7 @@
 
     Logger.info('Element:', element, 'Style:', computedStyle);
 
+    // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
     const elementClasses = getElementClassNames(element);
 
@@ -239,7 +240,11 @@
    * @returns {string} A formatted string of class names.
    */
   function getElementClassNames(element) {
-    const classNames = element.className.split(/\s+/).filter(Boolean);
+    const classAttribute = element.getAttribute('class');
+    if (!classAttribute) return '';
+
+    // Split class names by whitespace and filter out empty strings
+    const classNames = classAttribute.split(/\s+/).filter(Boolean);
     let elementClasses = '';
     if (classNames.length > 0) {
       elementClasses = `.${classNames.join(' .')}`;
