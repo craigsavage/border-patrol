@@ -22,6 +22,8 @@
 }
 
 #bp-inspector-container {
+  all: unset;
+
   position: fixed;
   top: 0;
   left: 0;
@@ -29,6 +31,14 @@
   height: 100vh;
   pointer-events: none;
   z-index: 10000;
+
+  /* Reset these styles to prevent interference with the overlay */
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 #bp-inspector-overlay {
