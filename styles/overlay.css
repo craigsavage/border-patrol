@@ -21,6 +21,30 @@
   --bp-blush-700: #9d3957;
 }
 
+#bp-inspector-container,
+#bp-inspector-overlay,
+#bp-element-highlight,
+.bp-element-info,
+.bp-branding-info {
+  /* Reset these styles to prevent interference with the overlay */
+  background: none;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+  min-width: unset;
+  min-height: unset;
+  max-width: unset;
+  max-height: unset;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+}
+
 #bp-inspector-container {
   all: unset;
 
@@ -31,14 +55,6 @@
   height: 100vh;
   pointer-events: none;
   z-index: 10000;
-
-  /* Reset these styles to prevent interference with the overlay */
-  background: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
 }
 
 #bp-inspector-overlay {
