@@ -124,8 +124,8 @@
     }
 
     return {
-      top: posY + window.scrollY,
-      left: posX + window.scrollX,
+      top: posY,
+      left: posX,
     };
   }
 
