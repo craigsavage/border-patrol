@@ -165,7 +165,7 @@
     overlayContainer.style.width = `${bodyRect.width}px`;
     overlayContainer.style.height = `${bodyRect.height}px`;
 
-    Logger.info('Element:', element, 'Style:', computedStyle);
+    // Logger.info('Element:', element, 'Style:', computedStyle);
 
     // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
