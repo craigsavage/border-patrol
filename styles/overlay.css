@@ -45,36 +45,45 @@
   bottom: auto;
 }
 
+/* --- Specific Styles for Core Structural Elements --- */
 #bp-inspector-container {
-  all: unset;
-
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 10000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 10000 !important;
 }
 
 #bp-inspector-overlay {
   all: unset;
 
-  position: absolute;
-  background: rgba(0, 0, 0, 0.85);
+  position: absolute !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  background: rgba(0, 0, 0, 0.85) !important;
   color: var(--bp-blue-50);
   padding: 6px 10px;
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   border-radius: 5px;
-  pointer-events: none;
-  z-index: 9999;
+  pointer-events: none !important;
+  z-index: 9999 !important;
   max-width: 250px;
   min-width: 150px;
   line-height: 1.4;
-  box-sizing: border-box;
 }
 
+#bp-element-highlight {
+  position: absolute !important;
+  background-color: var(--bp-blush-600) !important;
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+  z-index: 9998 !important;
+}
+
+/* --- Specific Styles for Inner Element Information --- */
 .bp-element-info {
   font-weight: normal;
   font-size: 12px;
@@ -99,12 +108,4 @@
   padding-top: 4px;
   margin-top: 4px;
   text-align: right;
-}
-
-#bp-element-highlight {
-  position: absolute;
-  background-color: var(--bp-blush-600);
-  opacity: 0.3;
-  pointer-events: none;
-  z-index: 9998;
 }
