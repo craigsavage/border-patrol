@@ -461,12 +461,7 @@ chrome.commands.onCommand.addListener(async command => {
         return;
       }
       tabId = activeTab.id;
-    } catch (error) {
-      Logger.error('Error getting active tab:', error);
-      return;
-    }
 
-    try {
       // Get current state and toggle border mode
       const currentState = await getTabState({ tabId });
       const newState = !currentState.borderMode;
