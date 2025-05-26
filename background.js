@@ -451,7 +451,7 @@ chrome.commands.onCommand.addListener(async command => {
 
   // Toggle the border for the active tab
   if (command === 'toggle_border_patrol') {
-    let tabId = tab.id;
+    let tabId;
 
     try {
       // Get the active tab to determine which tab to toggle
@@ -467,12 +467,9 @@ chrome.commands.onCommand.addListener(async command => {
     }
 
     try {
-      // Get current state
+      // Get current state and toggle border mode
       const currentState = await getTabState({ tabId });
-      // Toggle border mode
       const newState = !currentState.borderMode;
-
-      Logger.info(`Toggling border mode for tab ${tabId}:`, newState);
 
       // Handle the state change centrally
       await handleTabStateChange({ tabId, states: { borderMode: newState } });
