@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-WIP
+### Added
+
+- Enhanced inspector overlay with element ID, classes, display property, and the full BP Blue color palette for improved information and visuals.
+
+### Fixed
+
+- Fixed "No tab with id" errors in `chrome.tabs.onUpdated` and `chrome.commands.onCommand` by adding `try/catch` error handling.
+- Fixed incorrect overlay position calculation, ensuring it remains correctly positioned relative to the viewport.
+- Fixed CSS conflicts with host page styles by resetting inherited styles and using `!important` for core extension styles.
+- Fixed `TypeError: element.className.split` is not a function when inspecting SVG icons by using `getAttribute('class')`.
+- Fixed host page styles indirectly changing the overlay's font size, ensuring consistent sizing and improved visibility.
 
 ## [1.2.1] - 2025-05-19
 
