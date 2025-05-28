@@ -12,7 +12,7 @@
 
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
-    isDebug: true,
+    isDebug: false,
     info(...args) {
       if (this.isDebug) console.log('[BORDER PATROL]', ...args);
     },
