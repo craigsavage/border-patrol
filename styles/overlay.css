@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 :root {
-  --bp-blue: #2374ab;
   --bp-light-gray: #ccc;
   --bp-gray: #999;
   --bp-dark-gray: #333;
@@ -11,53 +10,102 @@
   --bp-blue-200: #c5e0f2;
   --bp-blue-300: #92c7e7;
   --bp-blue-400: #57a9d9;
+  --bp-blue-500: #328ec5;
+  --bp-blue-600: #2374ab; /* Main Color */
+  --bp-blue-700: #1d5a87;
+  --bp-blue-800: #1c4e70;
+  --bp-blue-900: #1c425e;
+  --bp-blue-950: #132a3e;
 
   --bp-blush-600: #aa4465;
   --bp-blush-700: #9d3957;
 }
 
+#bp-inspector-container,
+#bp-inspector-overlay,
+#bp-element-highlight,
+.bp-element-info,
+.bp-branding-info {
+  /* Reset these styles to prevent interference with the overlay */
+  background: none;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+  min-width: unset;
+  min-height: unset;
+  max-width: unset;
+  max-height: unset;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+}
+
+/* --- Specific Styles for Core Structural Elements --- */
 #bp-inspector-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 10000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 10000 !important;
 }
 
 #bp-inspector-overlay {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.75);
+  all: unset;
+
+  position: absolute !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  background: rgba(0, 0, 0, 0.85) !important;
   color: var(--bp-blue-50);
-  padding: 5px 10px;
+  padding: 6px 10px;
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   border-radius: 5px;
-  pointer-events: none;
-  z-index: 9999;
+  pointer-events: none !important;
+  z-index: 9999 !important;
   max-width: 250px;
   min-width: 150px;
-}
-
-.bp-element-info {
-  font-size: 0.7rem;
-  margin-bottom: 0.1rem;
-}
-
-.bp-branding-info {
-  font-size: 0.6rem;
-  color: var(--bp-blue-400);
-  border-top: 1px dashed var(--bp-blue-50);
-  padding-top: 0.1rem;
-  margin-top: 0.2rem;
-  text-align: right;
+  line-height: 1.4;
 }
 
 #bp-element-highlight {
-  position: absolute;
-  background-color: var(--bp-blush-600);
-  opacity: 0.3;
-  pointer-events: none;
-  z-index: 9998;
+  position: absolute !important;
+  background-color: var(--bp-blush-600) !important;
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+  z-index: 9998 !important;
+}
+
+/* --- Specific Styles for Inner Element Information --- */
+.bp-element-info {
+  font-weight: normal;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.bp-element-info .bp-id-value {
+  font-weight: 500;
+  color: var(--bp-blue-300);
+}
+
+.bp-element-info .bp-info-label {
+  font-weight: normal;
+  color: var(--bp-gray);
+  margin-right: 4px;
+}
+
+.bp-branding-info {
+  font-size: 10px;
+  color: var(--bp-blue-400);
+  border-top: 1px dashed var(--bp-blue-50);
+  padding-top: 4px;
+  margin-top: 4px;
+  text-align: right;
 }

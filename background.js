@@ -270,7 +270,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tabId || !tab?.url || isRestrictedUrl(tab.url)) return;
 
   if (changeInfo.status === 'complete') {
-    await handleTabStateChange({ tabId });
+    try {
+      await handleTabStateChange({ tabId });
+    } catch (error) {
+      Logger.error(`Error in onUpdated for tab ${tabId}:`, error);
+    }
   }
 });
 
@@ -447,24 +451,26 @@ chrome.commands.onCommand.addListener(async command => {
 
   // Toggle the border for the active tab
   if (command === 'toggle_border_patrol') {
-    const tab = await getActiveTab();
+    let tabId;
 
-    // Validate if the tab is a valid webpage
-    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) {
-      Logger.warn('Ignoring command on restricted or invalid tab.');
+    try {
+      // Get the active tab to determine which tab to toggle
+      const activeTab = await getActiveTab();
+      if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url)) {
+        Logger.warn('Ignoring command on restricted or invalid tab.');
+        return;
+      }
+      tabId = activeTab.id;
+
+      // Get current state and toggle border mode
+      const currentState = await getTabState({ tabId });
+      const newState = !currentState.borderMode;
+
+      // Handle the state change centrally
+      await handleTabStateChange({ tabId, states: { borderMode: newState } });
+    } catch (error) {
+      Logger.error(`Error toggling border mode for tab ${tabId}:`, error);
       return;
     }
-
-    const tabId = tab.id;
-
-    // Get current state
-    const currentState = await getTabState({ tabId });
-    // Toggle border mode
-    const newState = !currentState.borderMode;
-
-    Logger.info(`Toggling border mode for tab ${tabId}:`, newState);
-
-    // Handle the state change centrally
-    await handleTabStateChange({ tabId, states: { borderMode: newState } });
   }
 });
