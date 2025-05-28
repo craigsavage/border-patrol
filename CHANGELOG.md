@@ -10,80 +10,75 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Fixed "No tab with id" errors in `chrome.tabs.onUpdated` and `chrome.commands.onCommand` by adding `try/catch` error handling.
-- Fixed incorrect overlay position calculation, ensuring it remains correctly positioned relative to the viewport.
-- Fixed CSS conflicts with host page styles by resetting inherited styles and using `!important` for core extension styles.
-- Fixed `TypeError: element.className.split` is not a function when inspecting SVG icons by using `getAttribute('class')`.
-- Fixed host page styles indirectly changing the overlay's font size, ensuring consistent sizing and improved visibility.
+- Resolved issues causing errors when tabs were closed or navigated away, improving stability.
+- Corrected the inspector overlay's position, so it no longer shifts when you scroll.
+- Improved compatibility with various websites by preventing site styles from disrupting the extension's appearance.
+- Resolved an error that occurred when inspecting SVG icons.
+- Ensured the inspector overlay's text size remains consistent across different websites.
 
 ## [1.2.1] - 2025-05-19
 
 ### Added
 
-- `CODE_OF_CONDUCT.md`: Guidelines for community behavior.
-- `SECURITY.md`: Security policies and procedures.
-- `CONTRIBUTING.md`: Contribution guidelines for developers.
-- `LICENSE`: Licensing information for the project.
+- Added community guidelines (Code of Conduct).
+- Added security policies.
+- Added guidelines for contributors.
+- Included project licensing information.
 
 ### Changed
 
-- `README.md`: Updated with new project information, installation instructions, and usage examples.
-- `manifest.json`: Updated extension description to better reflect functionality.
+- Updated `README` with fresh project details and improved instructions.
+- Updated extension description in the manifest file for clarity.
 
 ## [1.2.0] - 2025-05-17
 
 ### Added
 
-- Element Inspector Overlay feature displaying information about hovered elements.
-- Add visual highlighting for hovered elements in inspect mode to enhance user experience.
+- Introduced an Element Inspector Overlay to show details about elements you hover over.
+- Added visual highlighting for hovered elements in inspect mode.
 
 ### Changed
 
-- Restructure files for better code organization and clarity:
-  - Moved `icons/` under assets/ folder.
-  - Moved popup menu files under a `popup/` folder.
-  - Renamed `css/` to `styles/`.
-- Convert popup menu to a module for reusability and reduced code duplication.
-- Improve popup menu robustness by utilizing the `isRestrictedUrl` function.
-- Enable inspector mode per-tab instead of globally.
-- Update cache keys for centralized per-tab management of border and inspector modes.
-- Add `get/set` tab state functions for centralized management.
-- Enhanced overlay with company branding, including company name, improved semantic structure, and updated highlight color.
-- Refactored core codebase for improved readability, reusability, and maintainability, including clearer function naming and better error handling.
-- Updated menu text logo to match original design, applying primary color (`#2374ab`), dashed border, and improving CSS organization.
-- Updated overlay positioning for a smoother visual experience, including continuous `mousemove` updates, throttling for repositioning, and performance improvements.
+- Improved internal file organization for better future development.
+- Refactored the popup menu for more efficient and robust functionality.
+- Made the popup menu more reliable on restricted web pages.
+- Inspector mode can now be enabled per individual tab, not just globally.
+- Improved how border and inspector mode settings are saved and managed per tab.
+- Added centralized functions for managing tab states.
+- Updated the overlay with company branding for a more professional look.
+- Significant internal code improvements for better performance and easier future updates.
+- Refreshed the menu text logo to match the brand's design.
+- Smoother and more responsive overlay positioning when you move your mouse.
 
 ### Removed
 
-- Removed `content_scripts` from manifest as scripts are now handled programmatically.
-- Removed On/Off badge text from the extension icon.
+- Streamlined script injection for better performance.
+- Removed `"On/Off"` text from the extension icon for a cleaner look.
 
 ### Fixed
 
-- Fix issues with the popup menu's UI state not updating correctly.
-- Fix critical issues with connection and state syncing, improving state management reliability and ensuring proper script injection into browser tabs.
-- Fixed borders application on fresh install by applying default borders, improving error handling, and corrected default border style.
-- Fixed keyboard shortcut for toggling borders:
-  - Changed the shortcut to `Alt+Shift+B` to avoid conflicts.
-  - Implemented a `chrome.commands.onCommand` listener in the background script to handle shortcut commands.
-- Fixed inspector mode persistence after extension reload by cleaning up DOM elements and preventing script injection on restricted pages.
-- Fixed inspector mode overlay position on scroll or when the console is open by adjusting position calculations with scroll values and ensuring proper display.
-- Fixed resource management by adding `onRemoved` logic to clean up data for closed tabs.
+- Resolved issues where the popup menu's display wasn't updating correctly.
+- Fixed critical connection and state synchronization issues for more reliable functionality.
+- Borders now apply correctly immediately after installation.
+- Changed the keyboard shortcut for toggling borders to `'Alt+Shift+B'` to avoid conflicts and ensure it works reliably.
+- Inspector mode now correctly deactivates after extension reload or on restricted pages.
+- Corrected inspector overlay position when scrolling or with the console open.
+- Improved resource management by cleaning up data when tabs are closed.
 
 ## [1.1.0] - 2025-03-18
 
 ### Added
 
-- New official brand logo for Border Patrol.
-- Popup menu with options to customize border size and style, with immediate updates on the active tab.
-- Enable/Disable toggle in the extension popup.
-- Element outline colors based on tag group for improved visual debugging.
+- Introduced a new official brand logo for Border Patrol.
+- Added a popup menu to easily customize border size and style, with instant updates.
+- Included an Enable/Disable toggle in the extension popup.
+- Added colored outlines to elements based on their type, making website structure easier to understand.
 
 ### Changed
 
-- Updated icon set to the new official brand logo.
+- Updated all extension icons to the new brand logo.
 
 ### Fixed
 
-- Borders no longer disappear after page reload or tab switch.
-- Borders are now properly removed when the extension is disabled.
+- Resolved an issue where borders would disappear after page reloads or tab switches.
+- Ensured borders are correctly removed when the extension is disabled.
