@@ -1,0 +1,84 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+### Added
+
+- Enhanced inspector overlay with element ID, classes, display property, and the full BP Blue color palette for improved information and visuals.
+
+### Fixed
+
+- Resolved issues causing errors when tabs were closed or navigated away, improving stability.
+- Corrected the inspector overlay's position, so it no longer shifts when you scroll.
+- Improved compatibility with various websites by preventing site styles from disrupting the extension's appearance.
+- Resolved an error that occurred when inspecting SVG icons.
+- Ensured the inspector overlay's text size remains consistent across different websites.
+
+## [1.2.1] - 2025-05-19
+
+### Added
+
+- Added community guidelines (Code of Conduct).
+- Added security policies.
+- Added guidelines for contributors.
+- Included project licensing information.
+
+### Changed
+
+- Updated `README` with fresh project details and improved instructions.
+- Updated extension description in the manifest file for clarity.
+
+## [1.2.0] - 2025-05-17
+
+### Added
+
+- Introduced an Element Inspector Overlay to show details about elements you hover over.
+- Added visual highlighting for hovered elements in inspect mode.
+
+### Changed
+
+- Improved internal file organization for better future development.
+- Refactored the popup menu for more efficient and robust functionality.
+- Made the popup menu more reliable on restricted web pages.
+- Inspector mode can now be enabled per individual tab, not just globally.
+- Improved how border and inspector mode settings are saved and managed per tab.
+- Added centralized functions for managing tab states.
+- Updated the overlay with company branding for a more professional look.
+- Significant internal code improvements for better performance and easier future updates.
+- Refreshed the menu text logo to match the brand's design.
+- Smoother and more responsive overlay positioning when you move your mouse.
+
+### Removed
+
+- Streamlined script injection for better performance.
+- Removed `"On/Off"` text from the extension icon for a cleaner look.
+
+### Fixed
+
+- Resolved issues where the popup menu's display wasn't updating correctly.
+- Fixed critical connection and state synchronization issues for more reliable functionality.
+- Borders now apply correctly immediately after installation.
+- Changed the keyboard shortcut for toggling borders to `'Alt+Shift+B'` to avoid conflicts and ensure it works reliably.
+- Inspector mode now correctly deactivates after extension reload or on restricted pages.
+- Corrected inspector overlay position when scrolling or with the console open.
+- Improved resource management by cleaning up data when tabs are closed.
+
+## [1.1.0] - 2025-03-18
+
+### Added
+
+- Introduced a new official brand logo for Border Patrol.
+- Added a popup menu to easily customize border size and style, with instant updates.
+- Included an Enable/Disable toggle in the extension popup.
+- Added colored outlines to elements based on their type, making website structure easier to understand.
+
+### Changed
+
+- Updated all extension icons to the new brand logo.
+
+### Fixed
+
+- Resolved an issue where borders would disappear after page reloads or tab switches.
+- Ensured borders are correctly removed when the extension is disabled.
