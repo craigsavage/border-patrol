@@ -118,6 +118,41 @@ h1 {
   color: var(--dark-text-color);
 }
 
+.headline {
+  font-size: 3.5em;
+  font-weight: 700;
+  color: var(--dark-text-color);
+  margin-bottom: 0.75em;
+}
+
+.hero-line-1 {
+  display: block;
+  font-size: 5rem;
+  margin-bottom: 0.8rem;
+}
+
+.hero-line-2 {
+  font-size: 3.5rem;
+  border: 3px solid var(--bp-blush-500);
+  padding: 3px 8px;
+}
+
+.highlight {
+  color: var(--bp-green-500);
+  transition: text-shadow 0.3s ease;
+}
+
+.highlight:hover {
+  color: var(--bp-green-600);
+}
+
+.hero-line-2 > .highlight {
+  /* color: var(--bp-blush-500); */
+  border: 3px solid var(--bp-blue-400);
+  padding: 3px 8px;
+  /* text-shadow: 0 0 10px rgba(218, 140, 172, 0.5); */
+}
+
 h2 {
   font-family: 'Inter', sans-serif;
   font-weight: 700;
@@ -213,7 +248,7 @@ header {
 .subheadline {
   font-size: 1.2em;
   color: var(--medium-text-color);
-  margin-bottom: 2em;
+  margin-bottom: 1.5rem;
   font-weight: 400;
 }
 
@@ -236,8 +271,8 @@ header {
 /* Buttons */
 .button {
   display: inline-block;
-  padding: 14px 30px;
-  border-radius: 5px;
+  padding: 12px 30px;
+  border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
   transition: background-color 0.3s ease, color 0.3s ease,
@@ -250,7 +285,7 @@ header {
 
 .primary-button {
   background-color: var(--secondary-accent-color);
-  color: var(--bp-green-50);
+  color: var(--bp-green-100);
 }
 
 .primary-button:hover {
@@ -258,19 +293,12 @@ header {
 }
 
 .secondary-button {
-  background-color: transparent;
-  color: var(--primary-brand-color);
-  border: 2px solid var(--primary-brand-color);
+  background-color: var(--bp-green-100);
+  color: var(--bp-green-500);
 }
 
 .secondary-button:hover {
-  background-color: var(--bp-blue-100);
-  color: var(--primary-brand-color);
-}
-
-.large-button {
-  font-size: 1.2em;
-  padding: 18px 40px;
+  background-color: var(--bp-green-200);
 }
 
 .nav-button {
@@ -282,6 +310,11 @@ header {
 
 .nav-button:hover {
   background-color: var(--bp-blush-700);
+}
+
+.large-button {
+  font-size: 1.2em;
+  padding: 16px 40px;
 }
 
 .note {
