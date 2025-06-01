@@ -33,9 +33,9 @@ body {
 
 /* Title Styles */
 .menu-title {
-  font-family: 'Lilita One', 'Inter Tight', sans-serif;
+  font-family: 'Grandstander', 'Inter', sans-serif;
   font-size: 1.6rem;
-  font-weight: 400;
+  font-weight: 700;
   font-style: normal;
   text-align: center;
   color: var(--bp-blue);

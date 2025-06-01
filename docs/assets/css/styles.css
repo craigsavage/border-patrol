@@ -1,5 +1,5 @@
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Grandstander:ital,wght@0,100..900;1,100..900&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Grandstander:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 /* Brand Color Palette Variables */
 :root {
@@ -47,6 +47,8 @@
   --secondary-accent-color: var(--bp-green-400);
   --tertiary-accent-color: var(--bp-blush-500);
 
+  /* Text Colors */
+  --darkest-text-color: var(--bp-blue-950);
   --dark-text-color: var(--bp-blue-900);
   --medium-text-color: var(--bp-blue-700);
   --light-text-color: var(--bp-blue-500);
@@ -170,18 +172,12 @@ ul {
 }
 
 .nav-title {
-  /* font-family: 'Lilita One', 'Inter Tight', sans-serif; */
-  font-family: 'Anybody', sans-serif;
-  font-family: 'Grandstander', sans-serif;
+  font-family: 'Grandstander', 'Inter', sans-serif;
   font-size: 1.5rem;
-  font-weight: 700;
   font-style: normal;
-  /* font-size: 1.25rem; */
-  /* font-weight: 700; */
-  /* font-variation-settings: 'wdth' 87.5; */
+  font-weight: 700;
   text-align: center;
   color: var(--bp-blue-600);
-  /* border: 3px dashed var(--bp-blue-600); */
   border-radius: 10px;
   padding: 3px 6px;
 }
@@ -207,22 +203,18 @@ header {
   flex: 1;
 }
 
-.hero-logo-container {
+/* .hero-logo-container { 
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
-}
-
-.hero-icon {
-  width: 128px;
-  height: 128px;
-}
+} */
 
 .subheadline {
   font-size: 1.2em;
   color: var(--medium-text-color);
   margin-bottom: 2em;
+  font-weight: 400;
 }
 
 .cta-description {
