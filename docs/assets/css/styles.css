@@ -52,7 +52,7 @@
   --light-text-color: var(--bp-blue-500);
 
   --background-light: var(--bp-blue-50);
-  --background-medium: var(--bp-blue-100);
+  --background-medium: var(--bp-blue-300);
   --background-dark: var(--bp-blue-950);
 
   --card-background: #ffffff;
@@ -86,17 +86,30 @@ body {
   padding: 80px 0;
 }
 
+.section#problem-solution {
+  border-radius: 50px;
+  background: linear-gradient(to bottom, var(--bp-blue-50), var(--bp-blue-500));
+  margin: 3rem;
+}
+
 .section.bg-light {
-  background-color: var(--card-background);
+  background-color: var(--background-light);
+}
+
+.rounded-box {
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Typography */
 h1 {
-  font-family: 'Lilita One', cursive; /* Only H1 in the hero uses Lilita One */
-  font-weight: 400;
-  font-size: 3.5em;
+  font-family: 'Inter', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1rem 0;
   color: var(--dark-text-color);
-  margin-bottom: 0.5em;
 }
 
 h2 {
@@ -137,20 +150,20 @@ ul li::before {
 
 /* Header */
 header {
-  background-color: var(--card-background);
+  background-color: var(--background-light);
   padding: 60px 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); */
 }
 
 .hero {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 40px;
 }
 
 .hero-text {
   flex: 1;
-  padding-right: 40px;
 }
 
 .hero-logo-container {
