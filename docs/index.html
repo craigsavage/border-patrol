@@ -6,6 +6,13 @@
     <title>Border Patrol - Visualize CSS Layouts & Debug with Ease</title>
     <link rel="stylesheet" href="assets/css/styles.css" />
     <link rel="icon" type="image/png" href="../assets/icons/bp-icon-32.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <meta
       name="description"
       content="Stop CSS debugging frustration! Border Patrol visually outlines elements, margins, and padding in your browser. Free & open-source."
@@ -21,6 +28,219 @@
   </head>
 
   <body>
-    <header></header>
+    <header>
+      <div class="container">
+        <div class="hero">
+          <div class="hero-text">
+            <img
+              src="../assets/icons/bp-icon-128.png"
+              alt="Border Patrol Icon"
+              class="hero-icon"
+            />
+            <h1>Stop Guessing, Start Seeing Your CSS</h1>
+            <p class="subheadline">
+              The free Chrome extension to instantly visualize element
+              boundaries, margins, and padding.
+            </p>
+            <div class="cta-buttons">
+              <a
+                href="https://chromewebstore.google.com/detail/fdkdknepjdabfaihhdljlbbcjiahmkkd?utm_source=item-share-cb"
+                class="button primary-button"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Add to Chrome</a
+              >
+              <a
+                href="https://github.com/craigsavage/border-patrol"
+                class="button secondary-button"
+                target="_blank"
+                rel="noopener noreferrer"
+                >View on GitHub</a
+              >
+            </div>
+          </div>
+          <div class="hero-image">
+            <img
+              src="img/bp-screenshot-placeholder.png"
+              alt="Border Patrol Screenshot"
+              style="
+                max-width: 100%;
+                border-radius: 8px;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+              "
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="problem-solution" class="section">
+      <div class="container">
+        <h2>Tired of the CSS Debugging Struggle?</h2>
+        <div class="grid-two-col">
+          <div>
+            <h3>The Problem</h3>
+            <ul class="problem-list">
+              <li class="problem-item">
+                Endless hovering in DevTools inspector
+              </li>
+              <li class="problem-item">
+                Struggling to visualize element spacing
+              </li>
+              <li class="problem-item">Time wasted on layout issues</li>
+              <li class="problem-item">
+                Frustration with complex CSS structures
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3>The Solution: Border Patrol</h3>
+            <p>
+              Border Patrol provides an intuitive visual layer on top of your
+              web pages, instantly highlighting element boundaries, margins, and
+              padding. Say goodbye to guesswork and hello to clear, visual
+              understanding.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section bg-light">
+      <div class="container">
+        <h2>Key Features to Boost Your Workflow</h2>
+        <div class="feature-grid">
+          <div class="feature-item">
+            <i class="fas fa-highlighter icon-feature"></i>
+            <h3>Instant Visual Outlining</h3>
+            <p>
+              See every HTML element with color-coded outlines at the click of a
+              button or with a shortcut.
+            </p>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-box-open icon-feature"></i>
+            <h3>Visualize the Box Model</h3>
+            <p>
+              Clearly understand margin, border, and padding with visual
+              representations around each element.
+            </p>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-mouse-pointer icon-feature"></i>
+            <h3>Detailed Element Inspector</h3>
+            <p>
+              Hover to see tag name, dimensions, and computed box model
+              properties in a real-time overlay.
+            </p>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-sliders-h icon-feature"></i>
+            <h3>Customizable Appearance</h3>
+            <p>
+              Tailor the outlines to your preference by easily adjusting their
+              size (from 1 to 3px) and style (solid, dashed, dotted, double) via
+              the extension's intuitive popup menu.
+            </p>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-keyboard icon-feature"></i>
+            <h3>Quick Toggle with Shortcut</h3>
+            <p>
+              Instantly enable/disable Border Patrol with a customizable
+              keyboard shortcut (<code>Alt</code> + <code>Shift</code> +
+              <code>B</code>).
+            </p>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-code-branch icon-feature"></i>
+            <h3>Free & Open Source</h3>
+            <p>
+              Built by the community, for the community. Contributions are
+              welcome!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="benefits" class="section bg-light">
+      <div class="container">
+        <h2>Unlock the Benefits of Visual CSS Debugging</h2>
+        <div class="grid-two-col reversed">
+          <div>
+            <h3>Faster Debugging</h3>
+            <p>
+              Identify layout issues and spacing problems in seconds,
+              significantly speeding up your development process.
+            </p>
+          </div>
+          <img
+            src="img/benefit-faster.svg"
+            alt="Faster Debugging Illustration"
+            style="max-width: 80%"
+          />
+        </div>
+        <div class="grid-two-col">
+          <img
+            src="img/benefit-intuitive.svg"
+            alt="Intuitive Understanding Illustration"
+            style="max-width: 80%"
+          />
+          <div>
+            <h3>Intuitive Understanding</h3>
+            <p>
+              Gain a clearer visual understanding of the box model and how
+              elements interact on the page.
+            </p>
+          </div>
+        </div>
+        <div class="grid-two-col reversed">
+          <div>
+            <h3>Improved Collaboration</h3>
+            <p>
+              Easily communicate layout issues with designers and other
+              developers using a shared visual reference.
+            </p>
+          </div>
+          <img
+            src="img/benefit-collaboration.svg"
+            alt="Improved Collaboration Illustration"
+            style="max-width: 80%"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section id="call-to-action" class="cta-section">
+      <div class="container">
+        <h2>Ready to Experience Effortless CSS Debugging?</h2>
+        <p>
+          Add Border Patrol to Chrome today and revolutionize the way you work
+          with CSS.
+        </p>
+        <a
+          href="https://chromewebstore.google.com/detail/fdkdknepjdabfaihhdljlbbcjiahmkkd?utm_source=item-share-cb"
+          class="button primary-button large-button"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Get Border Patrol Now</a
+        >
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <p>
+          &copy; 2025 Border Patrol. Developed by Craig Savage.
+          <a
+            href="https://github.com/craigsavage/border-patrol"
+            target="_blank"
+            rel="noopener noreferrer"
+            >View on GitHub</a
+          >
+        </p>
+      </div>
+    </footer>
   </body>
 </html>
