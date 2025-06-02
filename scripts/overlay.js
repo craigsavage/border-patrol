@@ -241,13 +241,11 @@
    */
   function getElementClassNames(element) {
     const classAttribute = element.getAttribute('class');
-    const classString =
-      typeof classAttribute === 'string' ? classAttribute : '';
-    // If no class attribute, return empty string
-    if (!classString) return '';
+    // Handle cases where class attribute is null or not a string
+    if (!classAttribute || typeof classAttribute !== 'string') return '';
 
     // Split class names by whitespace and filter out empty strings
-    const classNames = classString.split(/\s+/).filter(Boolean);
+    const classNames = classAttribute.split(/\s+/).filter(Boolean);
     let elementClasses = '';
     if (classNames.length > 0) {
       elementClasses = `.${classNames.join(' .')}`;
