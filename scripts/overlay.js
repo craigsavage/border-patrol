@@ -241,7 +241,8 @@
    */
   function getElementClassNames(element) {
     const classAttribute = element.getAttribute('class');
-    if (!classAttribute) return '';
+    // Handle cases where class attribute is null or not a string
+    if (!classAttribute || typeof classAttribute !== 'string') return '';
 
     // Split class names by whitespace and filter out empty strings
     const classNames = classAttribute.split(/\s+/).filter(Boolean);
