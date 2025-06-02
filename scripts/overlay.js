@@ -12,7 +12,7 @@
 
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
-    isDebug: false,
+    isDebug: true,
     info(...args) {
       if (this.isDebug) console.log('[BORDER PATROL]', ...args);
     },
@@ -241,10 +241,13 @@
    */
   function getElementClassNames(element) {
     const classAttribute = element.getAttribute('class');
-    if (!classAttribute) return '';
+    const classString =
+      typeof classAttribute === 'string' ? classAttribute : '';
+    // If no class attribute, return empty string
+    if (!classString) return '';
 
     // Split class names by whitespace and filter out empty strings
-    const classNames = classAttribute.split(/\s+/).filter(Boolean);
+    const classNames = classString.split(/\s+/).filter(Boolean);
     let elementClasses = '';
     if (classNames.length > 0) {
       elementClasses = `.${classNames.join(' .')}`;
