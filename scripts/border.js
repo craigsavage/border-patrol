@@ -18,6 +18,20 @@
   };
 
   /**
+   * Checks if an element is part of the Border Patrol Inspector UI.
+   *
+   * @param {Element} element - The element to check.
+   * @returns {boolean} - True if the element is part of the Inspector UI, false otherwise.
+   */
+  function isInspectorUIElement(element) {
+    return (
+      (element.id && element.id === 'bp-inspector-container') ||
+      element.id === 'bp-inspector-overlay' ||
+      element.id === 'bp-element-highlight'
+    );
+  }
+
+  /**
    * Manages applying or removing extension-specific outlines to elements.
    *
    * @param {boolean} isEnabled - Determines whether the outline should be applied.
@@ -78,17 +92,9 @@
       }
 
       // Exclude applying outlines to Border Patrol elements
-      if (
-        element.id &&
-        [
-          'bp-inspector-container',
-          'bp-inspector-overlay',
-          'bp-element-highlight',
-        ].includes(element.id)
-      ) {
-        return;
-      }
+      if (isInspectorUIElement(element)) return;
 
+      // Apply the outline style to the element
       element.style.outline = `${size}px ${style} ${color}`;
     });
   }
