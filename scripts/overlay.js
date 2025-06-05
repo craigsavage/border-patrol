@@ -60,7 +60,7 @@
     // Initialize DOM elements
     overlayContainer = createAndAppend('bp-inspector-container', document.body);
     overlay = createAndAppend('bp-inspector-overlay', overlayContainer);
-    highlight = createAndAppend('bp-element-highlight', document.body);
+    highlight = createAndAppend('bp-element-highlight', overlayContainer);
 
     // Ensure they are hidden initially
     if (overlay) overlay.style.display = 'none';
@@ -219,8 +219,8 @@
 
       try {
         // Set position and size of the highlight
-        highlight.style.top = `${rect.top + window.scrollY}px`;
-        highlight.style.left = `${rect.left + window.scrollX}px`;
+        highlight.style.top = `${rect.top}px`;
+        highlight.style.left = `${rect.left}px`;
         highlight.style.width = `${rect.width}px`;
         highlight.style.height = `${rect.height}px`;
 
@@ -309,14 +309,12 @@
     if (highlight) highlight.style.display = 'none';
   }
 
-  /** Removes all elements from the DOM and resets variables to null */
+  /** Removes all overlay elements from the DOM and resets related variables to null */
   function removeElements() {
-    // Remove all elements
-    if (overlayContainer) overlayContainer.remove();
-    if (overlay) overlay.remove();
-    if (highlight) highlight.remove();
+    // Remove the overlay container from the DOM if it exists
+    overlayContainer?.remove();
 
-    // Reset variables to null
+    // Reset DOM element variables to null
     overlayContainer = null;
     overlay = null;
     highlight = null;
