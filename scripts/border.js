@@ -3,6 +3,9 @@
   let isBorderModeEnabled = false;
   let currentBorderSettings = { size: 1, style: 'solid' };
 
+  // Get the Border Patrol Inspector container
+  let bpInspectorContainer = document.querySelector('#bp-inspector-container');
+
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
     isDebug: false,
@@ -25,9 +28,13 @@
    */
   function isInspectorUIElement(element) {
     return (
-      (element.id && element.id === 'bp-inspector-container') ||
-      element.id === 'bp-inspector-overlay' ||
-      element.id === 'bp-element-highlight'
+      (element.id &&
+        [
+          'bp-inspector-container',
+          'bp-inspector-overlay',
+          'bp-element-highlight',
+        ].includes(element.id)) ||
+      bpInspectorContainer?.contains(element)
     );
   }
 
@@ -77,6 +84,9 @@
         color: 'orange',
       },
     };
+
+    // Update the Border Patrol Inspector container reference
+    bpInspectorContainer = document.querySelector('#bp-inspector-container');
 
     // Apply outline to all elements
     document.querySelectorAll('*').forEach(element => {
