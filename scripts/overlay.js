@@ -309,14 +309,12 @@
     if (highlight) highlight.style.display = 'none';
   }
 
-  /** Removes all elements from the DOM and resets variables to null */
+  /** Removes all overlay elements from the DOM and resets related variables to null */
   function removeElements() {
-    // Remove all elements
-    if (overlayContainer) overlayContainer.remove();
-    if (overlay) overlay.remove();
-    if (highlight) highlight.remove();
+    // Remove the overlay container from the DOM if it exists
+    overlayContainer?.remove();
 
-    // Reset variables to null
+    // Reset DOM element variables to null
     overlayContainer = null;
     overlay = null;
     highlight = null;
