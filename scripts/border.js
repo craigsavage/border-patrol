@@ -27,15 +27,7 @@
    * @returns {boolean} - True if the element is part of the Inspector UI, false otherwise.
    */
   function isInspectorUIElement(element) {
-    return (
-      (element.id &&
-        [
-          'bp-inspector-container',
-          'bp-inspector-overlay',
-          'bp-element-highlight',
-        ].includes(element.id)) ||
-      bpInspectorContainer?.contains(element)
-    );
+    return bpInspectorContainer?.contains(element);
   }
 
   /**
@@ -53,6 +45,10 @@
     // Remove outline if extension is disabled
     if (!isEnabled) {
       document.querySelectorAll('*').forEach(element => {
+        // Skip Border Patrol Inspector UI elements
+        if (isInspectorUIElement(element)) return;
+
+        // Remove outline from all elements
         element.style.outline = 'none';
       });
       return;
