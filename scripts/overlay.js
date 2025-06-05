@@ -60,7 +60,7 @@
     // Initialize DOM elements
     overlayContainer = createAndAppend('bp-inspector-container', document.body);
     overlay = createAndAppend('bp-inspector-overlay', overlayContainer);
-    highlight = createAndAppend('bp-element-highlight', document.body);
+    highlight = createAndAppend('bp-element-highlight', overlayContainer);
 
     // Ensure they are hidden initially
     if (overlay) overlay.style.display = 'none';
@@ -219,8 +219,8 @@
 
       try {
         // Set position and size of the highlight
-        highlight.style.top = `${rect.top + window.scrollY}px`;
-        highlight.style.left = `${rect.left + window.scrollX}px`;
+        highlight.style.top = `${rect.top}px`;
+        highlight.style.left = `${rect.left}px`;
         highlight.style.width = `${rect.width}px`;
         highlight.style.height = `${rect.height}px`;
 
