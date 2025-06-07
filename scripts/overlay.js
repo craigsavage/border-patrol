@@ -185,16 +185,6 @@
     // Get the formatted border information
     const borderInfo = getFormattedBorderInfo(computedStyle);
 
-    const bodyRect = document.body.getBoundingClientRect();
-
-    // Set position and size of the overlay container relative to the body
-    overlayContainer.style.top = `${bodyRect.top}px`;
-    overlayContainer.style.left = `${bodyRect.left}px`;
-    overlayContainer.style.width = `${bodyRect.width}px`;
-    overlayContainer.style.height = `${bodyRect.height}px`;
-
-    // Logger.info('Element:', element, 'Style:', computedStyle);
-
     // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
     const elementClasses = getElementClassNames(element);
