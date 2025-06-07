@@ -130,6 +130,31 @@
   }
 
   /**
+   * Gets the formatted border information from the computed style
+   *
+   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
+   * @returns {string} The formatted border information (width style color) or an empty string if no border is present
+   */
+  function getFormattedBorderInfo(computedStyle) {
+    // Extract border information from computed style
+    const borderWidth = computedStyle.borderWidth || '0px';
+    const borderStyle = computedStyle.borderStyle || 'none';
+    const borderColor = computedStyle.borderColor || 'transparent';
+
+    // Return empty string if any of the border properties indicate no border
+    if (
+      borderWidth === '0px' ||
+      borderStyle === 'none' ||
+      borderColor === 'transparent'
+    ) {
+      return '';
+    }
+
+    // Format the border information
+    return `${borderWidth} ${borderStyle} ${borderColor}`;
+  }
+
+  /**
    * Displays the overlay on mouseover
    *
    * @param {Event} event - The triggered event
@@ -156,6 +181,9 @@
     const computedStyle = window.getComputedStyle(element);
 
     if (!rect || !computedStyle) return;
+
+    // Get the formatted border information
+    const borderInfo = getFormattedBorderInfo(computedStyle);
 
     const bodyRect = document.body.getBoundingClientRect();
 
@@ -187,8 +215,8 @@
         )} x ${Math.round(rect.height)} px<br>
         <span class="bp-info-label">Display:</span> ${computedStyle.display}<br>
         ${
-          computedStyle.border
-            ? `<span class="bp-info-label">Border:</span> ${computedStyle.border}<br>`
+          borderInfo
+            ? `<span class="bp-info-label">Border:</span> ${borderInfo}<br>`
             : ''
         }
         ${
