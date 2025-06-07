@@ -9,6 +9,7 @@
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
+  const OVERLAY_MARGIN = 10; // Margin from cursor
 
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
@@ -31,7 +32,7 @@
    *
    * @param {boolean} isEnabled - The state of the inspector mode
    */
-  async function handleInspectorModeUpdate(isEnabled) {
+  function handleInspectorModeUpdate(isEnabled) {
     Logger.info('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
 
     isInspectorModeEnabled = isEnabled; // Update the inspector mode state cache
@@ -106,7 +107,7 @@
   function getOverlayPosition(event, overlayElement) {
     if (!overlayElement) return { top: 0, left: 0 }; // Default values
 
-    const overlayMargin = 10; // Margin from cursor
+    const overlayMargin = OVERLAY_MARGIN;
     const overlayRect = overlayElement.getBoundingClientRect();
 
     // Calculate position of the overlay relative to the cursor
@@ -159,7 +160,7 @@
    *
    * @param {Event} event - The triggered event
    */
-  async function mouseOverHandler(event) {
+  function mouseOverHandler(event) {
     // Check if inspector mode is enabled
     if (!isInspectorModeEnabled || !overlay || !highlight || !overlayContainer)
       return;
