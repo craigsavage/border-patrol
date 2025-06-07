@@ -107,21 +107,20 @@
   function getOverlayPosition(event, overlayElement) {
     if (!overlayElement) return { top: 0, left: 0 }; // Default values
 
-    const overlayMargin = OVERLAY_MARGIN;
     const overlayRect = overlayElement.getBoundingClientRect();
 
     // Calculate position of the overlay relative to the cursor
-    let posX = event.clientX + overlayMargin;
-    let posY = event.clientY + overlayMargin;
+    let posX = event.clientX + OVERLAY_MARGIN;
+    let posY = event.clientY + OVERLAY_MARGIN;
 
     // Flip left if overlay goes beyond right edge
     if (posX + overlayRect.width > window.innerWidth) {
-      posX = event.clientX - overlayRect.width - overlayMargin;
+      posX = event.clientX - overlayRect.width - OVERLAY_MARGIN;
     }
 
     // Flip up if overlay goes beyond bottom edge
     if (posY + overlayRect.height > window.innerHeight) {
-      posY = event.clientY - overlayRect.height - overlayMargin;
+      posY = event.clientY - overlayRect.height - OVERLAY_MARGIN;
     }
 
     return {
