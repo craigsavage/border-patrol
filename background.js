@@ -115,11 +115,7 @@ async function updateExtensionState(tabId) {
     Logger.error(`Error updating extension state for tab ${tabId}:`, error);
 
     // Fallback to default state
-    await chrome.action.setTitle({
-      title: 'Border Patrol - Error',
-      tabId,
-    });
-
+    await chrome.action.setTitle({ title: 'Border Patrol - Error', tabId });
     await chrome.action.setIcon({
       path: 'assets/icons/bp-icon-16-disabled.png',
       tabId,
