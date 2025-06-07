@@ -3,6 +3,9 @@
   let isBorderModeEnabled = false;
   let currentBorderSettings = { size: 1, style: 'solid' };
 
+  // Get the Border Patrol Inspector container
+  let bpInspectorContainer = document.querySelector('#bp-inspector-container');
+
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
     isDebug: false,
@@ -16,6 +19,16 @@
       console.error('[BORDER PATROL]', ...args);
     },
   };
+
+  /**
+   * Checks if an element is part of the Border Patrol Inspector UI.
+   *
+   * @param {Element} element - The element to check.
+   * @returns {boolean} - True if the element is part of the Inspector UI, false otherwise.
+   */
+  function isInspectorUIElement(element) {
+    return bpInspectorContainer?.contains(element);
+  }
 
   /**
    * Manages applying or removing extension-specific outlines to elements.
@@ -32,6 +45,10 @@
     // Remove outline if extension is disabled
     if (!isEnabled) {
       document.querySelectorAll('*').forEach(element => {
+        // Skip Border Patrol Inspector UI elements
+        if (isInspectorUIElement(element)) return;
+
+        // Remove outline from all elements
         element.style.outline = 'none';
       });
       return;
@@ -64,6 +81,9 @@
       },
     };
 
+    // Update the Border Patrol Inspector container reference
+    bpInspectorContainer = document.querySelector('#bp-inspector-container');
+
     // Apply outline to all elements
     document.querySelectorAll('*').forEach(element => {
       const tag = element.tagName.toLowerCase();
@@ -78,17 +98,9 @@
       }
 
       // Exclude applying outlines to Border Patrol elements
-      if (
-        element.id &&
-        [
-          'bp-inspector-container',
-          'bp-inspector-overlay',
-          'bp-element-highlight',
-        ].includes(element.id)
-      ) {
-        return;
-      }
+      if (isInspectorUIElement(element)) return;
 
+      // Apply the outline style to the element
       element.style.outline = `${size}px ${style} ${color}`;
     });
   }

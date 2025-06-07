@@ -10,7 +10,8 @@ export function isRestrictedUrl(url) {
     'chrome-extension:',
     'about:',
     'edge:',
-    'file:',
+    'edge-extension:',
+    'moz-extension:',
   ];
 
   return (

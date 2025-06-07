@@ -86,27 +86,39 @@ async function setTabState({ tabId, states }) {
  */
 async function updateExtensionState(tabId) {
   try {
-    const tabState = await getTabState({ tabId });
-    const isEnabled = tabState?.borderMode || tabState?.inspectorMode;
+    const tab = await chrome.tabs.get(tabId);
+    if (!tab?.url) return;
 
-    chrome.action.setTitle({
-      tabId: tabId,
-      title: isEnabled ? 'Border Patrol - Enabled' : 'Border Patrol - Disabled',
-    });
-    chrome.action.setIcon({
-      tabId: tabId,
-      path: isEnabled
-        ? 'assets/icons/bp-icon-16.png'
-        : 'assets/icons/bp-icon-16-disabled.png',
-    });
+    const isRestricted = isRestrictedUrl(tab.url);
+    const tabState = await getTabState({ tabId });
+    const isActive = tabState.borderMode || tabState.inspectorMode;
+
+    // Set the extension title
+    const title = isRestricted
+      ? 'Border Patrol - Restricted'
+      : isActive
+      ? 'Border Patrol - Active'
+      : 'Border Patrol - Inactive';
+
+    // Set the extension title
+    await chrome.action.setTitle({ title, tabId });
+
+    // Set the extension icon
+    const iconPath = isRestricted
+      ? 'assets/icons/bp-icon-16-disabled.png'
+      : isActive
+      ? 'assets/icons/bp-icon-16.png'
+      : 'assets/icons/bp-icon-16-disabled.png';
+
+    await chrome.action.setIcon({ path: iconPath, tabId });
   } catch (error) {
     Logger.error(`Error updating extension state for tab ${tabId}:`, error);
 
     // Fallback to default state
-    chrome.action.setTitle({ tabId: tabId, title: 'Border Patrol - Disabled' });
-    chrome.action.setIcon({
-      tabId: tabId,
+    await chrome.action.setTitle({ title: 'Border Patrol - Error', tabId });
+    await chrome.action.setIcon({
       path: 'assets/icons/bp-icon-16-disabled.png',
+      tabId,
     });
   }
 }
