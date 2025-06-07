@@ -9,6 +9,7 @@
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
+  const OVERLAY_MARGIN = 10; // Margin from cursor
 
   // Logger for debugging (copied lightweight logger from helpers.js)
   const Logger = {
@@ -31,7 +32,7 @@
    *
    * @param {boolean} isEnabled - The state of the inspector mode
    */
-  async function handleInspectorModeUpdate(isEnabled) {
+  function handleInspectorModeUpdate(isEnabled) {
     Logger.info('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
 
     isInspectorModeEnabled = isEnabled; // Update the inspector mode state cache
@@ -106,21 +107,20 @@
   function getOverlayPosition(event, overlayElement) {
     if (!overlayElement) return { top: 0, left: 0 }; // Default values
 
-    const overlayMargin = 10; // Margin from cursor
     const overlayRect = overlayElement.getBoundingClientRect();
 
     // Calculate position of the overlay relative to the cursor
-    let posX = event.clientX + overlayMargin;
-    let posY = event.clientY + overlayMargin;
+    let posX = event.clientX + OVERLAY_MARGIN;
+    let posY = event.clientY + OVERLAY_MARGIN;
 
     // Flip left if overlay goes beyond right edge
     if (posX + overlayRect.width > window.innerWidth) {
-      posX = event.clientX - overlayRect.width - overlayMargin;
+      posX = event.clientX - overlayRect.width - OVERLAY_MARGIN;
     }
 
     // Flip up if overlay goes beyond bottom edge
     if (posY + overlayRect.height > window.innerHeight) {
-      posY = event.clientY - overlayRect.height - overlayMargin;
+      posY = event.clientY - overlayRect.height - OVERLAY_MARGIN;
     }
 
     return {
@@ -159,7 +159,7 @@
    *
    * @param {Event} event - The triggered event
    */
-  async function mouseOverHandler(event) {
+  function mouseOverHandler(event) {
     // Check if inspector mode is enabled
     if (!isInspectorModeEnabled || !overlay || !highlight || !overlayContainer)
       return;
@@ -184,16 +184,6 @@
 
     // Get the formatted border information
     const borderInfo = getFormattedBorderInfo(computedStyle);
-
-    const bodyRect = document.body.getBoundingClientRect();
-
-    // Set position and size of the overlay container relative to the body
-    overlayContainer.style.top = `${bodyRect.top}px`;
-    overlayContainer.style.left = `${bodyRect.left}px`;
-    overlayContainer.style.width = `${bodyRect.width}px`;
-    overlayContainer.style.height = `${bodyRect.height}px`;
-
-    // Logger.info('Element:', element, 'Style:', computedStyle);
 
     // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
