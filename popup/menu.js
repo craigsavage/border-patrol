@@ -6,6 +6,20 @@ const toggleInspector = document.querySelector('#toggleInspector');
 const borderSize = document.querySelector('#borderSize');
 const borderStyle = document.querySelector('#borderStyle');
 
+/** Shows the restricted page state in the popup */
+function showRestrictedState() {
+  document.body.classList.add('restricted');
+  document.getElementById('restricted-message').style.display = 'block';
+
+  // Disable all form controls
+  const formControls = document.querySelectorAll(
+    'input, select, button, fieldset'
+  );
+  formControls.forEach(control => {
+    control.disabled = true;
+  });
+}
+
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
   Logger.info('Initializing popup state...');
@@ -16,7 +30,14 @@ async function initializeStates() {
   try {
     // Get the active tab and check if it's valid
     const tab = await getActiveTab();
-    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) return;
+    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) {
+      showRestrictedState();
+      await chrome.action.setTitle({
+        title: 'Border Patrol - Restricted',
+        tabId: tab.id,
+      });
+      return;
+    }
 
     const tabIdString = tab.id?.toString();
 
@@ -36,6 +57,12 @@ async function initializeStates() {
     borderStyle.value = data.borderStyle ?? 'solid';
   } catch (error) {
     Logger.error('Error during initialization:', error);
+    showRestrictedState();
+    await chrome.action.setTitle({
+      title: 'Border Patrol - Error',
+      tabId: tab.id,
+    });
+    return;
   }
 }
 

@@ -29,6 +29,30 @@
 body {
   padding: 1rem;
   width: 16rem;
+  transition: opacity 0.2s ease;
+}
+
+/* Restricted message styles */
+.restricted-message {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+  padding: 12px;
+  margin: 12px 0;
+  border-radius: 4px;
+  display: none;
+}
+
+.restricted-message p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Disabled state for form elements */
+body.restricted .form-container {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 /* Title Styles */
