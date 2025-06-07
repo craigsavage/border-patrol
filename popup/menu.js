@@ -5,20 +5,55 @@ const toggleBorders = document.querySelector('#toggleBorders');
 const toggleInspector = document.querySelector('#toggleInspector');
 const borderSize = document.querySelector('#borderSize');
 const borderStyle = document.querySelector('#borderStyle');
+const restrictedMessage = document.querySelector('#restricted-message');
+
+/**
+ * Toggles the restricted page state in the popup
+ *
+ * @param {boolean} isRestricted - Whether the page is restricted or not
+ */
+function toggleRestrictedState(isRestricted) {
+  document.body.classList.toggle('restricted', isRestricted);
+  restrictedMessage?.style.display = isRestricted ? 'block' : 'none';
+
+  // Toggle form controls
+  const formControls = document.querySelectorAll(
+    'input, select, button, fieldset'
+  );
+  formControls.forEach(control => {
+    control.disabled = isRestricted;
+  });
+}
+
+/** Shows the restricted page state in the popup */
+function showRestrictedState() {
+  toggleRestrictedState(true);
+}
+
+/** Hides the restricted page state and enables form controls */
+function hideRestrictedState() {
+  toggleRestrictedState(false);
+}
 
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
   Logger.info('Initializing popup state...');
 
   // Check if DOM elements exist before accessing
-  if (!toggleBorders || !toggleInspector || !borderSize || !borderStyle) return;
+  if (!toggleBorders || !toggleInspector || !borderSize || !borderStyle || !restrictedMessage) return;
 
   try {
     // Get the active tab and check if it's valid
     const tab = await getActiveTab();
-    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) return;
+    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) {
+      showRestrictedState();
+      return;
+    }
 
-    const tabIdString = tab.id?.toString();
+    // Ensure restricted state is hidden if we're on a valid page
+    hideRestrictedState();
+
+    const tabIdString = tab.id.toString();
 
     // Get state from storage
     const data = await chrome.storage.local.get([
@@ -36,6 +71,8 @@ async function initializeStates() {
     borderStyle.value = data.borderStyle ?? 'solid';
   } catch (error) {
     Logger.error('Error during initialization:', error);
+    showRestrictedState();
+    return;
   }
 }
 
