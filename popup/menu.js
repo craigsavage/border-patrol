@@ -8,39 +8,50 @@ const borderStyle = document.querySelector('#borderStyle');
 const restrictedMessage = document.querySelector('#restricted-message');
 
 /**
- * Toggles the restricted page state in the popup
+ * Toggles the restricted page state in the popup.
+ * This function updates the body class, shows or hides the restricted message,
+ * and disables or enables all form controls except the restricted message itself.
  *
- * @param {boolean} isRestricted - Whether the page is restricted or not
+ * @param {boolean} isRestricted - Whether the page is restricted or not.
+ * @returns {void}
  */
 function toggleRestrictedState(isRestricted) {
   document.body.classList.toggle('restricted', isRestricted);
-  restrictedMessage?.style.display = isRestricted ? 'block' : 'none';
 
-  // Toggle form controls
-  const formControls = document.querySelectorAll(
-    'input, select, button, fieldset'
-  );
-  formControls.forEach(control => {
-    control.disabled = isRestricted;
-  });
+  // Show/hide the restricted message
+  if (restrictedMessage) {
+    restrictedMessage.style.display = isRestricted ? 'block' : 'none';
+  } else {
+    Logger.warn('Restricted message element not found.');
+  }
+
+  // Disable/enable all form controls except the restricted message itself
+  document
+    .querySelectorAll('input, select, button, fieldset')
+    .forEach(control => (control.disabled = isRestricted));
 }
 
-/** Shows the restricted page state in the popup */
-function showRestrictedState() {
-  toggleRestrictedState(true);
-}
+/** Shows the restricted state in the popup. */
+const showRestrictedState = () => toggleRestrictedState(true);
 
-/** Hides the restricted page state and enables form controls */
-function hideRestrictedState() {
-  toggleRestrictedState(false);
-}
+/** Hides the restricted state in the popup. */
+const hideRestrictedState = () => toggleRestrictedState(false);
 
 /** Initializes the toggle switch state and border settings from storage. */
 async function initializeStates() {
   Logger.info('Initializing popup state...');
 
   // Check if DOM elements exist before accessing
-  if (!toggleBorders || !toggleInspector || !borderSize || !borderStyle || !restrictedMessage) return;
+  if (
+    !toggleBorders ||
+    !toggleInspector ||
+    !borderSize ||
+    !borderStyle ||
+    !restrictedMessage
+  ) {
+    Logger.warn('One or more required DOM elements are missing.');
+    return;
+  }
 
   try {
     // Get the active tab and check if it's valid

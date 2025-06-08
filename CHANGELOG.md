@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2025-06-08
+
+### Fixed
+
+- Resolved a critical issue that could cause JavaScript errors in the extension popup, preventing the UI from displaying correctly or initializing properly.
+
 ## [1.2.3] - 2025-06-07
 
 ### Changed
