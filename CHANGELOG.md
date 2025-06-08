@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2025-06-07
+
+### Changed
+
+- Improved the popup interface to clearly indicate when the extension cannot be used on restricted pages and disabled inputs for better user clarity.
+- Enabled Border Patrol to work on local files, supporting local development environments.
+
+### Fixed
+
+- Resolved an error that prevented inspector mode from working on SVG and Path elements.
+- Prevented Border Mode styles from unintentionally affecting the Inspector Overlay, ensuring a cleaner view of the extension's own elements.
+- Improved border information display in the Inspector Overlay to only show relevant details when a border is actually visible.
+- Cleaned up redundant positioning logic and unnecessary async declarations.
+
 ## [1.2.2] - 2025-05-28
 
 ### Added
