@@ -28,9 +28,7 @@ function toggleRestrictedState(isRestricted) {
   // Disable/enable all form controls except the restricted message itself
   document
     .querySelectorAll('input, select, button, fieldset')
-    .forEach(control => {
-      if (control !== restrictedMessage) control.disabled = isRestricted;
-    });
+    .forEach(control => (control.disabled = isRestricted));
 }
 
 /** Shows the restricted state in the popup. */
