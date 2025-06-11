@@ -2,13 +2,14 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
 import copy from 'rollup-plugin-copy';
+import path from 'path';
 
 export default {
   input: {
-    background: 'background.js',
-    'scripts/overlay': 'scripts/overlay.js',
-    'scripts/border': 'scripts/border.js',
-    'popup/menu': 'popup/menu.js'
+    'background': 'src/background.js',
+    'scripts/overlay': 'src/scripts/overlay.js',
+    'scripts/border': 'src/scripts/border.js',
+    'popup/menu': 'src/popup/menu.js'
   },
   output: {
     dir: 'dist',
@@ -26,11 +27,44 @@ export default {
     nodePolyfills(),
     copy({
       targets: [
-        { src: 'popup/*.html', dest: 'dist/popup' },
-        { src: 'popup/*.css', dest: 'dist/popup' },
-        { src: 'styles/*.css', dest: 'dist/styles' },
-        { src: 'assets/**/*', dest: 'dist' },
-        { src: 'manifest.json', dest: 'dist' },
+        // Copy popup HTML files directly to dist/popup
+        { 
+          src: 'src/popup/*.html', 
+          dest: 'dist/popup',
+          rename: (name, extension, fullPath) => {
+            return path.basename(fullPath);
+          }
+        },
+        // Copy popup CSS files directly to dist/popup
+        { 
+          src: 'src/popup/*.css', 
+          dest: 'dist/popup',
+          rename: (name, extension, fullPath) => {
+            return path.basename(fullPath);
+          }
+        },
+        // Copy styles to dist/styles
+        { 
+          src: 'src/styles/*.css', 
+          dest: 'dist/styles',
+          rename: (name, extension, fullPath) => {
+            return path.basename(fullPath);
+          }
+        },
+        // Copy icons to dist/assets/icons
+        { 
+          src: 'src/assets/icons/*.png', 
+          dest: 'dist/assets/icons',
+          rename: (name, extension, fullPath) => {
+            return path.basename(fullPath);
+          }
+        },
+        // Copy manifest to dist
+        { 
+          src: 'src/manifest.json', 
+          dest: 'dist',
+          rename: () => 'manifest.json'
+        },
       ],
       hook: 'writeBundle',
     }),
