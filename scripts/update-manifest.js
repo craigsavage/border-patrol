@@ -12,13 +12,15 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 // Update paths for manifest v3
 const updatedManifest = {
   ...manifest,
-  action: {
-    ...manifest.action,
-    default_popup: manifest.action.default_popup.replace('popup/', 'dist/popup/')
+  // No need to modify default_popup as we're already in the dist directory
+  background: {
+    ...manifest.background,
+    // Ensure the background script path is correct
+    service_worker: 'background.js'
   },
   web_accessible_resources: [
     {
-      resources: ['dist/scripts/*.js', 'dist/styles/*.css'],
+      resources: ['scripts/*.js', 'styles/*.css'],
       matches: ['<all_urls>']
     }
   ]
