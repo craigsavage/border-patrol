@@ -1,3 +1,5 @@
+import { test } from './helpers';
+
 (function () {
   // Cache the border mode state and border settings
   let isBorderModeEnabled = false;
@@ -109,6 +111,7 @@
   chrome.runtime.onMessage.addListener(
     async (request, sender, sendResponse) => {
       Logger.info('Received message to apply outline:', request);
+      test();
 
       // Receive message to update border mode
       if (request.action === 'UPDATE_BORDER_MODE') {

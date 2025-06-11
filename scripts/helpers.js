@@ -52,7 +52,7 @@ const LOG_LABEL = '[BORDER PATROL]';
  * @property {function} warn - Logs a warning message
  */
 export const Logger = {
-  isDebug: false,
+  isDebug: true,
   info(...args) {
     if (this.isDebug) console.log(`%c${LOG_LABEL}`, 'color: #2374ab', ...args);
   },
@@ -65,4 +65,8 @@ export const Logger = {
     // Errors are always logged regardless of debug state
     console.error(`%c${LOG_LABEL}`, 'color: #e74c3c', ...args);
   },
+};
+
+export const test = () => {
+  Logger.info('Test function called');
 };
