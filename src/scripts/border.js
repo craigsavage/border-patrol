@@ -1,5 +1,3 @@
-import { test } from './helpers';
-
 (function () {
   // Cache the border mode state and border settings
   let isBorderModeEnabled = false;
