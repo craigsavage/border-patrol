@@ -7,8 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist",
-    "update:manifest": "node scripts/update-manifest.js",
-    "build": "npm run clean && rollup -c && npm run update:manifest",
+    "build": "npm run clean && rollup -c",
     "dev": "rollup -c -w"
   },
   "repository": {
