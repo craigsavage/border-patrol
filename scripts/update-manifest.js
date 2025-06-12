@@ -17,13 +17,7 @@ const updatedManifest = {
     ...manifest.background,
     // Ensure the background script path is correct
     service_worker: 'background.js'
-  },
-  web_accessible_resources: [
-    {
-      resources: ['scripts/*.js', 'styles/*.css'],
-      matches: ['<all_urls>']
-    }
-  ]
+  }
 };
 
 // Ensure the dist directory exists

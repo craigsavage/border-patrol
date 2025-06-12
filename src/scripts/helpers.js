@@ -67,6 +67,7 @@ export const Logger = {
   },
 };
 
+/** A test function to verify that the script is loaded. */
 export const test = () => {
-  Logger.info('Test function called');
+  console.log('Test function called!');
 };
