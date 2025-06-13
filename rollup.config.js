@@ -1,6 +1,5 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import nodePolyfills from 'rollup-plugin-node-polyfills';
 import copy from 'rollup-plugin-copy';
 import path from 'path';
 
@@ -13,7 +12,6 @@ const commonPlugins = [
   commonjs({
     include: /node_modules/,
   }),
-  nodePolyfills(),
   copy({
     targets: [
       {
