@@ -66,3 +66,8 @@ export const Logger = {
     console.error(`%c${LOG_LABEL}`, 'color: #e74c3c', ...args);
   },
 };
+
+/** A test function to verify that the script is loaded. */
+export const test = () => {
+  console.log('Test function called!');
+};
