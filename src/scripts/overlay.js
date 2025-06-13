@@ -1,3 +1,5 @@
+import { Logger } from './helpers';
+
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
   let throttleTimeout = null;
@@ -9,21 +11,7 @@
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
-  const OVERLAY_MARGIN = 10; // Margin from cursor
-
-  // Logger for debugging (copied lightweight logger from helpers.js)
-  const Logger = {
-    isDebug: false,
-    info(...args) {
-      if (this.isDebug) console.log('[BORDER PATROL]', ...args);
-    },
-    warn(...args) {
-      if (this.isDebug) console.warn('[BORDER PATROL]', ...args);
-    },
-    error(...args) {
-      console.error('[BORDER PATROL]', ...args);
-    },
-  };
+  const OVERLAY_MARGIN = 10; // Margin from cursor position to overlay position
 
   /**
    * Handles the inspector mode update

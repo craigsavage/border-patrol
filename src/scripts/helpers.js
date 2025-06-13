@@ -1,3 +1,5 @@
+const LOG_LABEL = '[BORDER PATROL]';
+
 /**
  * Checks if the provided URL is a restricted URL.
  *
@@ -40,7 +42,6 @@ export async function getActiveTab() {
   }
 }
 
-const LOG_LABEL = '[BORDER PATROL]';
 /**
  * A logger that allows enabling/disabling of logs.
  *
@@ -65,9 +66,4 @@ export const Logger = {
     // Errors are always logged regardless of debug state
     console.error(`%c${LOG_LABEL}`, 'color: #e74c3c', ...args);
   },
-};
-
-/** A test function to verify that the script is loaded. */
-export const test = () => {
-  console.log('Test function called!');
 };
