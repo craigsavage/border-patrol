@@ -1,72 +1,85 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import nodePolyfills from 'rollup-plugin-node-polyfills';
 import copy from 'rollup-plugin-copy';
 import path from 'path';
 
-export default {
-  input: {
-    'background': 'src/background.js',
-    'scripts/overlay': 'src/scripts/overlay.js',
-    'scripts/border': 'src/scripts/border.js',
-    'popup/menu': 'src/popup/menu.js'
+// Common plugins for all builds
+const commonPlugins = [
+  nodeResolve({
+    browser: true,
+    preferBuiltins: true,
+  }),
+  commonjs({
+    include: /node_modules/,
+  }),
+  copy({
+    targets: [
+      {
+        src: 'src/popup/*.html',
+        dest: 'dist/popup',
+        rename: (name, extension, fullPath) => path.basename(fullPath),
+      },
+      {
+        src: 'src/popup/*.css',
+        dest: 'dist/popup',
+        rename: (name, extension, fullPath) => path.basename(fullPath),
+      },
+      {
+        src: 'src/styles/*.css',
+        dest: 'dist/styles',
+        rename: (name, extension, fullPath) => path.basename(fullPath),
+      },
+      {
+        src: 'src/assets/icons/*.png',
+        dest: 'dist/assets/icons',
+        rename: (name, extension, fullPath) => path.basename(fullPath),
+      },
+      {
+        src: 'src/manifest.json',
+        dest: 'dist',
+        rename: () => 'manifest.json',
+      },
+    ],
+    hook: 'writeBundle',
+  }),
+];
+
+// Define entry points with their formats (ES module or IIFE)
+const entryPoints = [
+  {
+    input: 'src/background.js',
+    output: 'background',
+    format: 'es', // ES module
   },
-  output: {
-    dir: 'dist',
-    format: 'es',
-    sourcemap: true,
-    entryFileNames: '[name].js',
-    chunkFileNames: 'chunks/[name]-[hash].js',
+  {
+    input: 'src/scripts/main-content.js',
+    output: 'scripts/main-content',
+    format: 'iife', // IIFE
   },
-  plugins: [
-    nodeResolve({
-      browser: true,
-      preferBuiltins: true,
-    }),
-    commonjs(),
-    nodePolyfills(),
-    copy({
-      targets: [
-        // Copy popup HTML files directly to dist/popup
-        { 
-          src: 'src/popup/*.html', 
-          dest: 'dist/popup',
-          rename: (name, extension, fullPath) => {
-            return path.basename(fullPath);
-          }
-        },
-        // Copy popup CSS files directly to dist/popup
-        { 
-          src: 'src/popup/*.css', 
-          dest: 'dist/popup',
-          rename: (name, extension, fullPath) => {
-            return path.basename(fullPath);
-          }
-        },
-        // Copy styles to dist/styles
-        { 
-          src: 'src/styles/*.css', 
-          dest: 'dist/styles',
-          rename: (name, extension, fullPath) => {
-            return path.basename(fullPath);
-          }
-        },
-        // Copy icons to dist/assets/icons
-        { 
-          src: 'src/assets/icons/*.png', 
-          dest: 'dist/assets/icons',
-          rename: (name, extension, fullPath) => {
-            return path.basename(fullPath);
-          }
-        },
-        // Copy manifest to dist
-        { 
-          src: 'src/manifest.json', 
-          dest: 'dist',
-          rename: () => 'manifest.json'
-        },
-      ],
-      hook: 'writeBundle',
-    }),
-  ],
-};
+  {
+    input: 'src/popup/menu.js',
+    output: 'popup/menu',
+    format: 'es', // ES module
+  },
+];
+
+// Generate a config for each entry point
+export default entryPoints.map(({ input, output, format }) => {
+  const config = {
+    input,
+    output: {
+      file: `dist/${output}.js`,
+      format,
+      sourcemap: true,
+      globals: {},
+    },
+    plugins: commonPlugins,
+  };
+
+  // Add name for IIFE modules (not needed for ES modules)
+  if (format === 'iife') {
+    config.output.name = output.replace(/[\/.-]/g, '_');
+  }
+
+  return config;
+});

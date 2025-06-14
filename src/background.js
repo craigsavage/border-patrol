@@ -158,7 +158,7 @@ async function ensureScriptIsInjected(tabId) {
       // Inject border.js and overlay.js into the active tab
       await chrome.scripting.executeScript({
         target: { tabId },
-        files: ['scripts/border.js', 'scripts/overlay.js'],
+        files: ['scripts/main-content.js'],
       });
 
       Logger.info(`Injected content scripts and CSS into tab ${tabId}`);

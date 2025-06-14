@@ -1,3 +1,5 @@
+import { Logger } from './helpers';
+
 (function () {
   // Cache the border mode state and border settings
   let isBorderModeEnabled = false;
@@ -5,20 +7,6 @@
 
   // Get the Border Patrol Inspector container
   let bpInspectorContainer = document.querySelector('#bp-inspector-container');
-
-  // Logger for debugging (copied lightweight logger from helpers.js)
-  const Logger = {
-    isDebug: false,
-    info(...args) {
-      if (this.isDebug) console.log('[BORDER PATROL]', ...args);
-    },
-    warn(...args) {
-      if (this.isDebug) console.warn('[BORDER PATROL]', ...args);
-    },
-    error(...args) {
-      console.error('[BORDER PATROL]', ...args);
-    },
-  };
 
   /**
    * Checks if an element is part of the Border Patrol Inspector UI.
