@@ -52,13 +52,8 @@ const entryPoints = [
     format: 'es', // ES module
   },
   {
-    input: 'src/scripts/overlay.js',
-    output: 'scripts/overlay',
-    format: 'iife', // IIFE
-  },
-  {
-    input: 'src/scripts/border.js',
-    output: 'scripts/border',
+    input: 'src/scripts/main-content.js',
+    output: 'scripts/main-content',
     format: 'iife', // IIFE
   },
   {
