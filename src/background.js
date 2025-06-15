@@ -3,7 +3,8 @@ import {
   DEFAULT_BORDER_STYLE,
   DEFAULT_TAB_STATE,
 } from './scripts/constants.js';
-import { isRestrictedUrl, getActiveTab, Logger } from './scripts/helpers.js';
+import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
+import Logger from './scripts/utils/logger.js';
 
 // In-memory cache for tab states. This helps reduce repeated calls to storage
 const cachedTabStates = {}; // tabId: { borderMode: boolean, inspectorMode: boolean }

@@ -1,4 +1,5 @@
-import { Logger, getElementClassNames } from './helpers';
+import { getElementClassNames } from './helpers';
+import Logger from './utils/logger';
 
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state

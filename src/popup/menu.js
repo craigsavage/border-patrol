@@ -1,4 +1,5 @@
-import { getActiveTab, isRestrictedUrl, Logger } from '../scripts/helpers.js';
+import { getActiveTab, isRestrictedUrl } from '../scripts/helpers.js';
+import Logger from '../scripts/utils/logger.js';
 
 // Get DOM elements
 const toggleBorders = document.querySelector('#toggleBorders');

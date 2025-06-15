@@ -1,4 +1,4 @@
-import { Logger } from './helpers';
+import Logger from './utils/logger';
 
 (function () {
   // Cache the border mode state and border settings
