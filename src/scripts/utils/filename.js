@@ -9,6 +9,15 @@
  */
 
 export function getTimestampedScreenshotFilename(format = 'png') {
+  // Ensure the format is lowercase and valid
+  const validFormats = ['png', 'jpg', 'jpeg', 'webp'];
+  if (!validFormats.includes(format.toLowerCase())) {
+    throw new Error(
+      `Invalid format: ${format}. Supported formats: ${validFormats.join(', ')}`
+    );
+  }
+
+  // Generate the timestamped filename
   const timestamp = new Date().toISOString().replace(/[:]/g, '-').split('.')[0];
-  return `border_patrol_screenshot_${timestamp}.{format}`;
+  return `border_patrol_screenshot_${timestamp}.${format}`;
 }

@@ -5,6 +5,7 @@ import {
   ICON_PATHS,
 } from './scripts/constants.js';
 import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
+import { getTimestampedScreenshotFilename } from './scripts/utils/filename.js';
 import Logger from './scripts/utils/logger.js';
 
 // In-memory cache for tab states. This helps reduce repeated calls to storage
@@ -233,6 +234,41 @@ async function handleTabStateChange({ tabId, states }) {
 }
 
 /**
+ * Captures a visible tab and downloads the screenshot
+ *
+ * @param {number} windowId - The ID of the window containing the tab to capture
+ * @returns {Promise<void>}
+ */
+async function captureAndDownloadScreenshot(windowId) {
+  const format = 'png';
+  try {
+    // Capture the visible tab
+    const screenshotUrl = await chrome.tabs.captureVisibleTab(windowId, {
+      format,
+    });
+    Logger.info('Screenshot captured successfully:', {
+      windowId,
+      screenshotUrl,
+    });
+
+    // Generate a filename with timestamp
+    const filename = getTimestampedScreenshotFilename(format);
+    Logger.info('Generated filename:', filename);
+
+    // Download the screenshot using the downloads API
+    await chrome.downloads.download({
+      url: screenshotUrl,
+      filename,
+      saveAs: true, // Prompt user to choose location
+      conflictAction: 'uniquify', // Add a number if filename exists
+    });
+  } catch (error) {
+    Logger.error('Error in captureAndDownloadScreenshot:', error);
+    throw error; // Re-throw to be handled by the caller
+  }
+}
+
+/**
  * Executed when the extension is installed or updated.
  * Initializes default settings and potentially clears old per-tab state keys.
  */
@@ -403,24 +439,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       }
       // Handle screenshot request from popup
       else if (request.action === 'CAPTURE_SCREENSHOT') {
-        const format = 'png';
         try {
-          const screenshotUrl = await chrome.tabs.captureVisibleTab(
-            activeTab.windowId,
-            { format }
-          );
-          Logger.info('Screenshot captured successfully:', screenshotUrl);
-
-          const filename = getTimestampedScreenshotFilename(format);
-
-          // Download the screenshot using the downloads API
-          await chrome.downloads.download({
-            url: screenshotUrl,
-            filename: filename,
-            saveAs: false, // Prompt user to choose location
-          });
+          await captureAndDownloadScreenshot(activeTab.windowId);
         } catch (error) {
-          Logger.error('Error capturing screenshot:', error);
+          Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);
           return false; // Indicate no response
         }
         return true; // Indicate async handling
