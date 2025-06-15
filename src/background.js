@@ -409,8 +409,23 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             { format: 'png' }
           );
           Logger.info('Screenshot captured successfully:', screenshotUrl);
+
+          // Generate a filename based on the current timestamp
+          const timestamp = new Date()
+            .toISOString()
+            .replace(/[:]/g, '-')
+            .split('.')[0]; // Remove milliseconds
+          const filename = `border_patrol_screenshot_${timestamp}.png`;
+
+          // Download the screenshot using the downloads API
+          await chrome.downloads.download({
+            url: screenshotUrl,
+            filename: filename,
+            saveAs: false, // Prompt user to choose location
+          });
         } catch (error) {
           Logger.error('Error capturing screenshot:', error);
+          return false; // Indicate no response
         }
         return true; // Indicate async handling
       } else {
