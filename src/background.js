@@ -403,19 +403,15 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       }
       // Handle screenshot request from popup
       else if (request.action === 'CAPTURE_SCREENSHOT') {
+        const format = 'png';
         try {
           const screenshotUrl = await chrome.tabs.captureVisibleTab(
             activeTab.windowId,
-            { format: 'png' }
+            { format }
           );
           Logger.info('Screenshot captured successfully:', screenshotUrl);
 
-          // Generate a filename based on the current timestamp
-          const timestamp = new Date()
-            .toISOString()
-            .replace(/[:]/g, '-')
-            .split('.')[0]; // Remove milliseconds
-          const filename = `border_patrol_screenshot_${timestamp}.png`;
+          const filename = getTimestampedScreenshotFilename(format);
 
           // Download the screenshot using the downloads API
           await chrome.downloads.download({
