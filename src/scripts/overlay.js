@@ -1,3 +1,6 @@
+import { getElementClassNames } from './helpers';
+import Logger from './utils/logger';
+
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
   let throttleTimeout = null;
@@ -9,20 +12,7 @@
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
-
-  // Logger for debugging (copied lightweight logger from helpers.js)
-  const Logger = {
-    isDebug: false,
-    info(...args) {
-      if (this.isDebug) console.log('[BORDER PATROL]', ...args);
-    },
-    warn(...args) {
-      if (this.isDebug) console.warn('[BORDER PATROL]', ...args);
-    },
-    error(...args) {
-      console.error('[BORDER PATROL]', ...args);
-    },
-  };
+  const OVERLAY_MARGIN = 10; // Margin from cursor position to overlay position
 
   /**
    * Handles the inspector mode update
@@ -31,7 +21,7 @@
    *
    * @param {boolean} isEnabled - The state of the inspector mode
    */
-  async function handleInspectorModeUpdate(isEnabled) {
+  function handleInspectorModeUpdate(isEnabled) {
     Logger.info('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
 
     isInspectorModeEnabled = isEnabled; // Update the inspector mode state cache
@@ -60,7 +50,7 @@
     // Initialize DOM elements
     overlayContainer = createAndAppend('bp-inspector-container', document.body);
     overlay = createAndAppend('bp-inspector-overlay', overlayContainer);
-    highlight = createAndAppend('bp-element-highlight', document.body);
+    highlight = createAndAppend('bp-element-highlight', overlayContainer);
 
     // Ensure they are hidden initially
     if (overlay) overlay.style.display = 'none';
@@ -106,21 +96,20 @@
   function getOverlayPosition(event, overlayElement) {
     if (!overlayElement) return { top: 0, left: 0 }; // Default values
 
-    const overlayMargin = 10; // Margin from cursor
     const overlayRect = overlayElement.getBoundingClientRect();
 
     // Calculate position of the overlay relative to the cursor
-    let posX = event.clientX + overlayMargin;
-    let posY = event.clientY + overlayMargin;
+    let posX = event.clientX + OVERLAY_MARGIN;
+    let posY = event.clientY + OVERLAY_MARGIN;
 
     // Flip left if overlay goes beyond right edge
     if (posX + overlayRect.width > window.innerWidth) {
-      posX = event.clientX - overlayRect.width - overlayMargin;
+      posX = event.clientX - overlayRect.width - OVERLAY_MARGIN;
     }
 
     // Flip up if overlay goes beyond bottom edge
     if (posY + overlayRect.height > window.innerHeight) {
-      posY = event.clientY - overlayRect.height - overlayMargin;
+      posY = event.clientY - overlayRect.height - OVERLAY_MARGIN;
     }
 
     return {
@@ -130,11 +119,36 @@
   }
 
   /**
+   * Gets the formatted border information from the computed style
+   *
+   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
+   * @returns {string} The formatted border information (width style color) or an empty string if no border is present
+   */
+  function getFormattedBorderInfo(computedStyle) {
+    // Extract border information from computed style
+    const borderWidth = computedStyle.borderWidth || '0px';
+    const borderStyle = computedStyle.borderStyle || 'none';
+    const borderColor = computedStyle.borderColor || 'transparent';
+
+    // Return empty string if any of the border properties indicate no border
+    if (
+      borderWidth === '0px' ||
+      borderStyle === 'none' ||
+      borderColor === 'transparent'
+    ) {
+      return '';
+    }
+
+    // Format the border information
+    return `${borderWidth} ${borderStyle} ${borderColor}`;
+  }
+
+  /**
    * Displays the overlay on mouseover
    *
    * @param {Event} event - The triggered event
    */
-  async function mouseOverHandler(event) {
+  function mouseOverHandler(event) {
     // Check if inspector mode is enabled
     if (!isInspectorModeEnabled || !overlay || !highlight || !overlayContainer)
       return;
@@ -157,19 +171,15 @@
 
     if (!rect || !computedStyle) return;
 
-    const bodyRect = document.body.getBoundingClientRect();
-
-    // Set position and size of the overlay container relative to the body
-    overlayContainer.style.top = `${bodyRect.top}px`;
-    overlayContainer.style.left = `${bodyRect.left}px`;
-    overlayContainer.style.width = `${bodyRect.width}px`;
-    overlayContainer.style.height = `${bodyRect.height}px`;
-
-    // Logger.info('Element:', element, 'Style:', computedStyle);
+    // Get the formatted border information
+    const borderInfo = getFormattedBorderInfo(computedStyle);
 
     // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
-    const elementClasses = getElementClassNames(element);
+    const elementClasses = getElementClassNames(
+      element,
+      MAX_CLASS_DISPLAY_LENGTH
+    );
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
@@ -187,8 +197,8 @@
         )} x ${Math.round(rect.height)} px<br>
         <span class="bp-info-label">Display:</span> ${computedStyle.display}<br>
         ${
-          computedStyle.border
-            ? `<span class="bp-info-label">Border:</span> ${computedStyle.border}<br>`
+          borderInfo
+            ? `<span class="bp-info-label">Border:</span> ${borderInfo}<br>`
             : ''
         }
         ${
@@ -219,8 +229,8 @@
 
       try {
         // Set position and size of the highlight
-        highlight.style.top = `${rect.top + window.scrollY}px`;
-        highlight.style.left = `${rect.left + window.scrollX}px`;
+        highlight.style.top = `${rect.top}px`;
+        highlight.style.left = `${rect.left}px`;
         highlight.style.width = `${rect.width}px`;
         highlight.style.height = `${rect.height}px`;
 
@@ -230,30 +240,6 @@
         Logger.error('Error displaying highlight:', error);
       }
     });
-  }
-
-  /**
-   * Retrieves and formats the class names of an element.
-   * Truncates the list if it exceeds the maximum display length.
-   *
-   * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
-   * @returns {string} A formatted string of class names.
-   */
-  function getElementClassNames(element) {
-    const classAttribute = element.getAttribute('class');
-    if (!classAttribute) return '';
-
-    // Split class names by whitespace and filter out empty strings
-    const classNames = classAttribute.split(/\s+/).filter(Boolean);
-    let elementClasses = '';
-    if (classNames.length > 0) {
-      elementClasses = `.${classNames.join(' .')}`;
-      if (elementClasses.length > MAX_CLASS_DISPLAY_LENGTH) {
-        elementClasses =
-          elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
-      }
-    }
-    return elementClasses;
   }
 
   /**
@@ -308,14 +294,12 @@
     if (highlight) highlight.style.display = 'none';
   }
 
-  /** Removes all elements from the DOM and resets variables to null */
+  /** Removes all overlay elements from the DOM and resets related variables to null */
   function removeElements() {
-    // Remove all elements
-    if (overlayContainer) overlayContainer.remove();
-    if (overlay) overlay.remove();
-    if (highlight) highlight.remove();
+    // Remove the overlay container from the DOM if it exists
+    overlayContainer?.remove();
 
-    // Reset variables to null
+    // Reset DOM element variables to null
     overlayContainer = null;
     overlay = null;
     highlight = null;
