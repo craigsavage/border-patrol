@@ -129,7 +129,7 @@ a {
   padding: 0 0.5rem;
 }
 
-#screenshotButton {
+#screenshot-button {
   background-color: var(--bp-blue);
   color: var(--bp-blue-50);
   border: none;
@@ -145,18 +145,18 @@ a {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#screenshotButton:hover {
+#screenshot-button:hover {
   background-color: var(--bp-blue-700);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-#screenshotButton:active {
+#screenshot-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#screenshotButton:disabled {
+#screenshot-button:disabled {
   background-color: var(--bp-light-gray);
   cursor: not-allowed;
   transform: none;
@@ -165,7 +165,7 @@ a {
 }
 
 /* Add a camera icon using pseudo-element */
-#screenshotButton::before {
+#screenshot-button::before {
   content: '📸';
   font-size: 1rem;
 }

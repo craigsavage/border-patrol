@@ -2,12 +2,12 @@ import { getActiveTab, isRestrictedUrl } from '../scripts/helpers.js';
 import Logger from '../scripts/utils/logger.js';
 
 // Get DOM elements
-const toggleBorders = document.querySelector('#toggleBorders');
-const toggleInspector = document.querySelector('#toggleInspector');
-const borderSize = document.querySelector('#borderSize');
-const borderStyle = document.querySelector('#borderStyle');
+const toggleBorders = document.querySelector('#toggle-borders');
+const toggleInspector = document.querySelector('#toggle-inspector');
+const borderSize = document.querySelector('#border-size');
+const borderStyle = document.querySelector('#border-style');
 const restrictedMessage = document.querySelector('#restricted-message');
-const screenshotButton = document.querySelector('#screenshotButton');
+const screenshotButton = document.querySelector('#screenshot-button');
 
 /**
  * Toggles the restricted page state in the popup.

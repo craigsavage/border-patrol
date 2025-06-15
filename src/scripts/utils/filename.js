@@ -7,7 +7,6 @@
  * @param {string} [format='png'] - The file format for the screenshot (Defaults to 'png').
  * @returns {string} The timestamped filename for the screenshot.
  */
-
 export function getTimestampedScreenshotFilename(format = 'png') {
   // Ensure the format is lowercase and valid
   const validFormats = ['png', 'jpg', 'jpeg', 'webp'];
