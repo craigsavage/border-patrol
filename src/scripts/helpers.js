@@ -1,4 +1,4 @@
-const LOG_LABEL = '[BORDER PATROL]';
+import Logger from './utils/logger.js';
 
 /**
  * Checks if the provided URL is a restricted URL.
@@ -43,27 +43,27 @@ export async function getActiveTab() {
 }
 
 /**
- * A logger that allows enabling/disabling of logs.
+ * Retrieves and formats the class names of an element.
+ * Truncates the list if it exceeds the maximum display length.
  *
- * @constant
- * @type {Object}
- * @property {boolean} isDebug - Enables or disables debug logging
- * @property {function} info - Logs an informational message
- * @property {function} error - Logs an error message
- * @property {function} warn - Logs a warning message
+ * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
+ * @param {number} [maxLength=50] - The maximum length of the class names string.
+ * @returns {string} A formatted string of class names.
  */
-export const Logger = {
-  isDebug: false,
-  info(...args) {
-    if (this.isDebug) console.log(`%c${LOG_LABEL}`, 'color: #2374ab', ...args);
-  },
-  warn(...args) {
-    if (this.isDebug) {
-      console.warn(`%c${LOG_LABEL}`, 'color: #f1c40f', ...args);
+export function getElementClassNames(element, maxLength = 50) {
+  const classAttribute = element.getAttribute('class');
+  // Handle cases where class attribute is null or not a string
+  if (!classAttribute || typeof classAttribute !== 'string') return '';
+
+  // Split class names by whitespace and filter out empty strings
+  const classNames = classAttribute.split(/\s+/).filter(Boolean);
+  let elementClasses = '';
+  if (classNames.length > 0) {
+    elementClasses = `.${classNames.join(' .')}`;
+    if (elementClasses.length > maxLength) {
+      elementClasses = elementClasses.substring(0, maxLength - 3) + '...';
     }
-  },
-  error(...args) {
-    // Errors are always logged regardless of debug state
-    console.error(`%c${LOG_LABEL}`, 'color: #e74c3c', ...args);
-  },
-};
+  }
+
+  return elementClasses;
+}

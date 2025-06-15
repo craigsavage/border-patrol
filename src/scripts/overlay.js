@@ -1,4 +1,5 @@
-import { Logger } from './helpers';
+import { getElementClassNames } from './helpers';
+import Logger from './utils/logger';
 
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
@@ -175,7 +176,10 @@ import { Logger } from './helpers';
 
     // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
-    const elementClasses = getElementClassNames(element);
+    const elementClasses = getElementClassNames(
+      element,
+      MAX_CLASS_DISPLAY_LENGTH
+    );
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
@@ -236,31 +240,6 @@ import { Logger } from './helpers';
         Logger.error('Error displaying highlight:', error);
       }
     });
-  }
-
-  /**
-   * Retrieves and formats the class names of an element.
-   * Truncates the list if it exceeds the maximum display length.
-   *
-   * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
-   * @returns {string} A formatted string of class names.
-   */
-  function getElementClassNames(element) {
-    const classAttribute = element.getAttribute('class');
-    // Handle cases where class attribute is null or not a string
-    if (!classAttribute || typeof classAttribute !== 'string') return '';
-
-    // Split class names by whitespace and filter out empty strings
-    const classNames = classAttribute.split(/\s+/).filter(Boolean);
-    let elementClasses = '';
-    if (classNames.length > 0) {
-      elementClasses = `.${classNames.join(' .')}`;
-      if (elementClasses.length > MAX_CLASS_DISPLAY_LENGTH) {
-        elementClasses =
-          elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
-      }
-    }
-    return elementClasses;
   }
 
   /**
