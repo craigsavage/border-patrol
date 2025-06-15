@@ -47,10 +47,10 @@ export async function getActiveTab() {
  * Truncates the list if it exceeds the maximum display length.
  *
  * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
- * @param {number} [maxLength=100] - The maximum length of the class names string.
+ * @param {number} [maxLength=50] - The maximum length of the class names string.
  * @returns {string} A formatted string of class names.
  */
-export function getElementClassNames(element, maxLength = 100) {
+export function getElementClassNames(element, maxLength = 50) {
   const classAttribute = element.getAttribute('class');
   // Handle cases where class attribute is null or not a string
   if (!classAttribute || typeof classAttribute !== 'string') return '';
