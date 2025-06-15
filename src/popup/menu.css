@@ -121,6 +121,55 @@ a {
   color: var(--bp-gray);
 }
 
+/* Screenshot Section */
+.screenshot-container {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 1rem;
+  padding: 0 0.5rem;
+}
+
+#screenshotButton {
+  background-color: var(--bp-blue);
+  color: var(--bp-blue-50);
+  border: none;
+  border-radius: 5px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#screenshotButton:hover {
+  background-color: var(--bp-blue-700);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#screenshotButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#screenshotButton:disabled {
+  background-color: var(--bp-light-gray);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+/* Add a camera icon using pseudo-element */
+#screenshotButton::before {
+  content: '📸';
+  font-size: 1rem;
+}
+
 /* Separator */
 hr {
   margin: 0.8rem 0;
