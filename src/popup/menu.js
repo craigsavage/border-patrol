@@ -2,11 +2,12 @@ import { getActiveTab, isRestrictedUrl } from '../scripts/helpers.js';
 import Logger from '../scripts/utils/logger.js';
 
 // Get DOM elements
-const toggleBorders = document.querySelector('#toggleBorders');
-const toggleInspector = document.querySelector('#toggleInspector');
-const borderSize = document.querySelector('#borderSize');
-const borderStyle = document.querySelector('#borderStyle');
+const toggleBorders = document.querySelector('#toggle-borders');
+const toggleInspector = document.querySelector('#toggle-inspector');
+const borderSize = document.querySelector('#border-size');
+const borderStyle = document.querySelector('#border-style');
 const restrictedMessage = document.querySelector('#restricted-message');
+const screenshotButton = document.querySelector('#screenshot-button');
 
 /**
  * Toggles the restricted page state in the popup.
@@ -48,7 +49,8 @@ async function initializeStates() {
     !toggleInspector ||
     !borderSize ||
     !borderStyle ||
-    !restrictedMessage
+    !restrictedMessage ||
+    !screenshotButton
   ) {
     Logger.warn('One or more required DOM elements are missing.');
     return;
@@ -110,6 +112,12 @@ function updateBorderSettings() {
   });
 }
 
+/** Handles the screenshot request */
+function handleScreenshotRequest() {
+  // Send message to background script to capture screenshot
+  chrome.runtime.sendMessage({ action: 'CAPTURE_SCREENSHOT' });
+}
+
 // Run initialization when popup loads
 document.addEventListener('DOMContentLoaded', initializeStates);
 
@@ -118,3 +126,4 @@ toggleBorders?.addEventListener('change', toggleBorderMode);
 toggleInspector?.addEventListener('change', toggleInspectorMode);
 borderSize?.addEventListener('input', updateBorderSettings);
 borderStyle?.addEventListener('change', updateBorderSettings);
+screenshotButton?.addEventListener('click', handleScreenshotRequest);

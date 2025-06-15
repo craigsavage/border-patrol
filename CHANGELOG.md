@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added Rollup bundler to Border Patrol to improve build process and performance.
+- Popup now includes a "Take Screenshot" button to capture and download the current tab as an image.
 
 ## [1.2.4] - 2025-06-08
 
