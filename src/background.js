@@ -350,6 +350,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
       // Use the active tab's ID for processing popup messages
       const activeTabId = activeTab.id;
+      Logger.info(
+        `Handling popup message for active tab ${activeTabId}:`,
+        activeTab
+      );
 
       // Receive message to toggle border mode
       if (request.action === 'TOGGLE_BORDER_MODE') {
@@ -396,11 +400,23 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             );
           }
         }
+      }
+      // Handle screenshot request from popup
+      else if (request.action === 'CAPTURE_SCREENSHOT') {
+        try {
+          const screenshotUrl = await chrome.tabs.captureVisibleTab(
+            activeTab.windowId,
+            { format: 'png' }
+          );
+          Logger.info('Screenshot captured successfully:', screenshotUrl);
+        } catch (error) {
+          Logger.error('Error capturing screenshot:', error);
+        }
+        return true; // Indicate async handling
       } else {
         Logger.warn('Received unknown message from popup:', request);
         return false; // No action matched
       }
-
       return true; // Indicate async handling for popup messages
     } catch (error) {
       Logger.error('Error handling popup message:', error);
