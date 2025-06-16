@@ -355,23 +355,32 @@ header {
 
 .feature-item {
   background-color: var(--card-background);
-  padding: 30px;
-  border-radius: 8px;
+  padding: 30px 25px;
+  border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   text-align: center;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
   border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .feature-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--bp-blue-300);
 }
 
-.feature-item img {
-  max-width: 60px;
-  height: auto;
+.feature-emoji {
+  font-size: 2.5rem;
   margin-bottom: 15px;
+  transition: transform 0.3s ease;
+  line-height: 1;
+}
+
+.feature-item:hover .feature-emoji {
+  transform: scale(1.1);
 }
 
 .feature-item h3 {
