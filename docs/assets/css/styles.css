@@ -93,13 +93,135 @@ body {
 }
 
 .section#problem-solution {
-  border-radius: 50px;
-  background: linear-gradient(to bottom, var(--bp-blue-50), var(--bp-blue-400));
-  margin: 3rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 20px;
+  margin: 4rem auto;
+  max-width: 1200px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
-.section.bg-light {
-  background-color: var(--background-light);
+.problem-solution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.problem-card,
+.solution-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.problem-card:hover,
+.solution-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-header i {
+  font-size: 1.5rem;
+  margin-right: 0.75rem;
+  color: var(--bp-blue-600);
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--bp-blue-900);
+}
+
+.problem-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.problem-list li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bp-blue-50);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.problem-list li:hover {
+  background: var(--bp-blue-100);
+  transform: translateX(5px);
+}
+
+.problem-list .icon-list {
+  margin-right: 0.75rem;
+  color: var(--bp-blue-500);
+  min-width: 24px;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.solution-content {
+  padding: 0.5rem 0;
+}
+
+.highlight-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--bp-blue-800);
+  margin-bottom: 1.5rem;
+}
+
+.solution-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.solution-features li {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--bp-blue-700);
+}
+
+.solution-features i {
+  color: var(--bp-green-500);
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.section-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+
+.section-subtitle {
+  display: block;
+  color: var(--bp-blue-600);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.section-intro {
+  font-size: 1.2rem;
+  color: var(--bp-blue-700);
+  margin-top: 1rem;
+  line-height: 1.6;
 }
 
 .rounded-box {
