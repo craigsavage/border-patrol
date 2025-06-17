@@ -333,7 +333,7 @@ ul {
   margin: 3rem 0;
 }
 
-.benefit-card {
+.card {
   background: white;
   border-radius: 12px;
   padding: 2.5rem 2rem;
@@ -345,11 +345,13 @@ ul {
   height: 100%;
 }
 
-.benefit-card:hover {
+.card:hover {
   transform: translateY(-8px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   border-color: var(--bp-blue-200);
 }
+
+/* .benefit-card inherits all .card styles */
 
 .benefit-icon {
   font-size: 2.5rem;
@@ -644,30 +646,12 @@ header {
   margin-top: 3em;
 }
 
-.feature-item {
-  background-color: var(--card-background);
-  padding: 30px 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  text-align: center;
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.feature-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  border-color: var(--bp-blue-300);
-}
+/* .feature-item inherits all .card styles */
 
 .feature-emoji {
   font-size: 2.5rem;
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
   transition: transform 0.3s ease;
-  line-height: 1;
 }
 
 .feature-item:hover .feature-emoji {
@@ -675,8 +659,37 @@ header {
 }
 
 .feature-item h3 {
-  font-size: 1.5em;
-  margin-bottom: 0.5em;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: var(--bp-blue-900);
+  position: relative;
+  padding-bottom: 0.75rem;
+  width: 100%;
+  text-align: left;
+}
+
+.feature-item h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--bp-blue-400), var(--bp-green-400));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.feature-item:hover h3::after {
+  width: 70px;
+}
+
+.feature-item p {
+  color: var(--bp-blue-700);
+  line-height: 1.7;
+  margin-top: auto;
+  text-align: left;
+  width: 100%;
 }
 
 /* Call to Action Section */
