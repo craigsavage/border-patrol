@@ -391,8 +391,62 @@ ul {
   margin-top: auto;
 }
 
+/* In Action Section */
+#in-action {
+  background-color: #f8fafc;
+  padding: 6rem 0;
+  position: relative;
+}
+
+.screenshot-container {
+  max-width: 1000px;
+  margin: 3rem auto 2rem;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.screenshot {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.5s ease;
+  transform-origin: center center;
+}
+
+.screenshot-caption {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+  color: var(--bp-blue-700);
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+/* Hover Effects */
+.screenshot-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.screenshot-container:hover .screenshot {
+  transform: scale(1.02);
+}
+
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
+  #in-action {
+    padding: 4rem 0;
+  }
+  
+  .screenshot-container {
+    max-width: 90%;
+  }
+  
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -410,6 +464,16 @@ ul {
 
   .benefit-card {
     padding: 2rem 1.5rem;
+  }
+  
+  .screenshot-caption {
+    padding: 0 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .screenshot-badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }
 
