@@ -117,7 +117,7 @@ legend {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--bp-light-gray);
   transition: .3s;
   border-radius: 16px;
 }
@@ -129,7 +129,7 @@ legend {
   width: 12px;
   left: 2px;
   bottom: 2px;
-  background-color: white;
+  background-color: var(--bp-blue-50);
   transition: .3s;
   border-radius: 50%;
 }

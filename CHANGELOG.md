@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Redesigned the Border Patrol logo with the 'Grandstander' font for a modern, distinctive look.
+- Updated popup checkboxes to modern toggle switches with smooth animations and consistent styling.
 
 ## [1.2.4] - 2025-06-08
 
