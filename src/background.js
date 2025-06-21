@@ -2,8 +2,11 @@ import {
   DEFAULT_BORDER_SIZE,
   DEFAULT_BORDER_STYLE,
   DEFAULT_TAB_STATE,
+  ICON_PATHS,
 } from './scripts/constants.js';
-import { isRestrictedUrl, getActiveTab, Logger } from './scripts/helpers.js';
+import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
+import { getTimestampedScreenshotFilename } from './scripts/utils/filename.js';
+import Logger from './scripts/utils/logger.js';
 
 // In-memory cache for tab states. This helps reduce repeated calls to storage
 const cachedTabStates = {}; // tabId: { borderMode: boolean, inspectorMode: boolean }
@@ -101,25 +104,19 @@ async function updateExtensionState(tabId) {
       : 'Border Patrol - Inactive';
 
     // Set the extension title
-    await chrome.action.setTitle({ title, tabId });
+    await chrome.action.setTitle({ tabId, title });
 
     // Set the extension icon
-    const iconPath = isRestricted
-      ? 'assets/icons/bp-icon-16-disabled.png'
-      : isActive
-      ? 'assets/icons/bp-icon-16.png'
-      : 'assets/icons/bp-icon-16-disabled.png';
+    const iconPath =
+      isRestricted || !isActive ? ICON_PATHS.iconDisabled : ICON_PATHS.icon16;
 
-    await chrome.action.setIcon({ path: iconPath, tabId });
+    await chrome.action.setIcon({ tabId, path: iconPath });
   } catch (error) {
     Logger.error(`Error updating extension state for tab ${tabId}:`, error);
 
     // Fallback to default state
-    await chrome.action.setTitle({ title: 'Border Patrol - Error', tabId });
-    await chrome.action.setIcon({
-      path: 'assets/icons/bp-icon-16-disabled.png',
-      tabId,
-    });
+    await chrome.action.setTitle({ tabId, title: 'Border Patrol - Error' });
+    await chrome.action.setIcon({ tabId, path: ICON_PATHS.iconDisabled });
   }
 }
 
@@ -158,7 +155,7 @@ async function ensureScriptIsInjected(tabId) {
       // Inject border.js and overlay.js into the active tab
       await chrome.scripting.executeScript({
         target: { tabId },
-        files: ['scripts/border.js', 'scripts/overlay.js'],
+        files: ['scripts/main-content.js'],
       });
 
       Logger.info(`Injected content scripts and CSS into tab ${tabId}`);
@@ -237,6 +234,41 @@ async function handleTabStateChange({ tabId, states }) {
 }
 
 /**
+ * Captures a visible tab and downloads the screenshot
+ *
+ * @param {number} windowId - The ID of the window containing the tab to capture
+ * @returns {Promise<void>}
+ */
+async function captureAndDownloadScreenshot(windowId) {
+  const format = 'png';
+  try {
+    // Capture the visible tab
+    const screenshotUrl = await chrome.tabs.captureVisibleTab(windowId, {
+      format,
+    });
+    Logger.info('Screenshot captured successfully:', {
+      windowId,
+      screenshotUrl,
+    });
+
+    // Generate a filename with timestamp
+    const filename = getTimestampedScreenshotFilename(format);
+    Logger.info('Generated filename:', filename);
+
+    // Download the screenshot using the downloads API
+    await chrome.downloads.download({
+      url: screenshotUrl,
+      filename,
+      saveAs: true, // Prompt user to choose location
+      conflictAction: 'uniquify', // Add a number if filename exists
+    });
+  } catch (error) {
+    Logger.error('Error in captureAndDownloadScreenshot:', error);
+    throw error; // Re-throw to be handled by the caller
+  }
+}
+
+/**
  * Executed when the extension is installed or updated.
  * Initializes default settings and potentially clears old per-tab state keys.
  */
@@ -307,14 +339,8 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
     if (!tab?.url || isRestrictedUrl(tab.url)) {
       Logger.info(`Restricted URL on activation, skipping: ${tab?.url}`);
       // Set icon to disabled for restricted tabs
-      chrome.action.setTitle({
-        tabId: tabId,
-        title: 'Border Patrol - Restricted',
-      });
-      chrome.action.setIcon({
-        tabId: tabId,
-        path: 'assets/icons/bp-icon-16-disabled.png',
-      });
+      chrome.action.setTitle({ tabId, title: 'Border Patrol - Restricted' });
+      chrome.action.setIcon({ tabId, path: ICON_PATHS.iconDisabled });
       return;
     }
 
@@ -322,11 +348,8 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
   } catch (error) {
     Logger.error(`Error in onActivated for tab ${tabId}:`, error);
     // Disable extention state if there's an error
-    chrome.action.setTitle({ tabId: tabId, title: 'Border Patrol - Disabled' });
-    chrome.action.setIcon({
-      tabId: tabId,
-      path: 'assets/icons/bp-icon-16-disabled.png',
-    });
+    chrome.action.setTitle({ tabId, title: 'Border Patrol - Disabled' });
+    chrome.action.setIcon({ tabId, path: ICON_PATHS.iconDisabled });
   }
 });
 
@@ -363,6 +386,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
       // Use the active tab's ID for processing popup messages
       const activeTabId = activeTab.id;
+      Logger.info(
+        `Handling popup message for active tab ${activeTabId}:`,
+        activeTab
+      );
 
       // Receive message to toggle border mode
       if (request.action === 'TOGGLE_BORDER_MODE') {
@@ -409,11 +436,20 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             );
           }
         }
+      }
+      // Handle screenshot request from popup
+      else if (request.action === 'CAPTURE_SCREENSHOT') {
+        try {
+          await captureAndDownloadScreenshot(activeTab.windowId);
+        } catch (error) {
+          Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);
+          return false; // Indicate no response
+        }
+        return true; // Indicate async handling
       } else {
         Logger.warn('Received unknown message from popup:', request);
         return false; // No action matched
       }
-
       return true; // Indicate async handling for popup messages
     } catch (error) {
       Logger.error('Error handling popup message:', error);

@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2025-06-21
+
+### Added
+
+- Added Rollup bundler to Border Patrol to improve build process and performance.
+- Popup now includes a "Take Screenshot" button to capture and download the current tab as an image.
+- Launched a comprehensive landing page featuring an intuitive layout, enhanced visuals, and clear feature explanations to improve user onboarding and engagement.
+
+### Changed
+
+- Redesigned the Border Patrol logo with the 'Grandstander' font for a modern, distinctive look.
+- Updated popup checkboxes to modern toggle switches with smooth animations and consistent styling.
+
+### Fixed
+
+- Border formatting issue causing multiple border info to be shown inline.
+
 ## [1.2.4] - 2025-06-08
 
 ### Fixed

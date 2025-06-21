@@ -1,3 +1,7 @@
+import { getElementClassNames } from './helpers';
+import Logger from './utils/logger';
+import { toSentenceCase } from './utils/string-utils';
+
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
   let throttleTimeout = null;
@@ -9,21 +13,7 @@
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
-  const OVERLAY_MARGIN = 10; // Margin from cursor
-
-  // Logger for debugging (copied lightweight logger from helpers.js)
-  const Logger = {
-    isDebug: false,
-    info(...args) {
-      if (this.isDebug) console.log('[BORDER PATROL]', ...args);
-    },
-    warn(...args) {
-      if (this.isDebug) console.warn('[BORDER PATROL]', ...args);
-    },
-    error(...args) {
-      console.error('[BORDER PATROL]', ...args);
-    },
-  };
+  const OVERLAY_MARGIN = 10; // Margin from cursor position to overlay position
 
   /**
    * Handles the inspector mode update
@@ -136,22 +126,74 @@
    * @returns {string} The formatted border information (width style color) or an empty string if no border is present
    */
   function getFormattedBorderInfo(computedStyle) {
-    // Extract border information from computed style
-    const borderWidth = computedStyle.borderWidth || '0px';
-    const borderStyle = computedStyle.borderStyle || 'none';
-    const borderColor = computedStyle.borderColor || 'transparent';
+    const borders = {
+      top: {
+        width: computedStyle.borderTopWidth,
+        style: computedStyle.borderTopStyle,
+        color: computedStyle.borderTopColor,
+      },
+      right: {
+        width: computedStyle.borderRightWidth,
+        style: computedStyle.borderRightStyle,
+        color: computedStyle.borderRightColor,
+      },
+      bottom: {
+        width: computedStyle.borderBottomWidth,
+        style: computedStyle.borderBottomStyle,
+        color: computedStyle.borderBottomColor,
+      },
+      left: {
+        width: computedStyle.borderLeftWidth,
+        style: computedStyle.borderLeftStyle,
+        color: computedStyle.borderLeftColor,
+      },
+    };
 
-    // Return empty string if any of the border properties indicate no border
-    if (
-      borderWidth === '0px' ||
-      borderStyle === 'none' ||
-      borderColor === 'transparent'
-    ) {
-      return '';
+    // Check if all borders are zero width, none style, or transparent color
+    const allBordersZero = Object.values(borders).every(border => {
+      return (
+        border.width === '0px' ||
+        border.style === 'none' ||
+        border.color === 'transparent'
+      );
+    });
+
+    if (allBordersZero) return '';
+
+    // Check if all borders have the same width, style, and color
+    const allBordersSame = Object.values(borders).every(border => {
+      return (
+        border.width === borders.top.width &&
+        border.style === borders.top.style &&
+        border.color === borders.top.color
+      );
+    });
+
+    // Return the top border information if all borders are the same
+    if (allBordersSame) {
+      return `${borders.top.width} ${borders.top.style} ${borders.top.color}`;
     }
-
-    // Format the border information
-    return `${borderWidth} ${borderStyle} ${borderColor}`;
+    // If borders are not the same, return a formatted string for each border
+    return (
+      '<br>' +
+      Object.entries(borders)
+        .map(([side, border]) => {
+          // Skip if border is zero width, none style, or transparent color
+          if (
+            border.width === '0px' ||
+            border.style === 'none' ||
+            border.color === 'transparent'
+          ) {
+            return '';
+          }
+          // Format the border information for each side
+          return `${toSentenceCase(side)}: ${border.width} ${border.style} ${
+            border.color
+          }`;
+        })
+        .filter(info => info) // Filter out empty strings
+        .join('<br>')
+    );
   }
 
   /**
@@ -187,7 +229,10 @@
 
     // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
-    const elementClasses = getElementClassNames(element);
+    const elementClasses = getElementClassNames(
+      element,
+      MAX_CLASS_DISPLAY_LENGTH
+    );
 
     // Update the overlay content with the element details
     overlay.innerHTML = `
@@ -248,31 +293,6 @@
         Logger.error('Error displaying highlight:', error);
       }
     });
-  }
-
-  /**
-   * Retrieves and formats the class names of an element.
-   * Truncates the list if it exceeds the maximum display length.
-   *
-   * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
-   * @returns {string} A formatted string of class names.
-   */
-  function getElementClassNames(element) {
-    const classAttribute = element.getAttribute('class');
-    // Handle cases where class attribute is null or not a string
-    if (!classAttribute || typeof classAttribute !== 'string') return '';
-
-    // Split class names by whitespace and filter out empty strings
-    const classNames = classAttribute.split(/\s+/).filter(Boolean);
-    let elementClasses = '';
-    if (classNames.length > 0) {
-      elementClasses = `.${classNames.join(' .')}`;
-      if (elementClasses.length > MAX_CLASS_DISPLAY_LENGTH) {
-        elementClasses =
-          elementClasses.substring(0, MAX_CLASS_DISPLAY_LENGTH - 3) + '...';
-      }
-    }
-    return elementClasses;
   }
 
   /**
