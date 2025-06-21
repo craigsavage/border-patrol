@@ -1,5 +1,6 @@
 import { getElementClassNames } from './helpers';
 import Logger from './utils/logger';
+import { toSentenceCase } from './utils/string-utils';
 
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
@@ -173,23 +174,26 @@ import Logger from './utils/logger';
       return `${borders.top.width} ${borders.top.style} ${borders.top.color}`;
     }
     // If borders are not the same, return a formatted string for each border
-    return Object.entries(borders)
-      .map(([side, border]) => {
-        // Skip if border is zero width, none style, or transparent color
-        if (
-          border.width === '0px' ||
-          border.style === 'none' ||
-          border.color === 'transparent'
-        ) {
-          return '';
-        }
-        // Format the border information for each side
-        return `${side.charAt(0).toUpperCase() + side.slice(1)}: ${
-          border.width
-        } ${border.style} ${border.color}`;
-      })
-      .filter(info => info) // Filter out empty strings
-      .join(', '); // Join with a comma
+    return (
+      '<br>' +
+      Object.entries(borders)
+        .map(([side, border]) => {
+          // Skip if border is zero width, none style, or transparent color
+          if (
+            border.width === '0px' ||
+            border.style === 'none' ||
+            border.color === 'transparent'
+          ) {
+            return '';
+          }
+          // Format the border information for each side
+          return `${toSentenceCase(side)}: ${border.width} ${border.style} ${
+            border.color
+          }`;
+        })
+        .filter(info => info) // Filter out empty strings
+        .join('<br>')
+    );
   }
 
   /**
