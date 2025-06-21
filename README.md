@@ -7,17 +7,16 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 ## ✨ Key Features
 
 - **Instant Visual Outlining:** Apply color-coded outlines to _every_ HTML element on a page with a single click or shortcut. See nested structures and element boundaries at a glance.
-- **Visualize the Box Model:** Clearly see the critical CSS box model properties: margins, borders, and padding, helping you understand element spacing and dimensions.
-- **Detailed Element Inspector:** Activate Inspector Mode and simply hover over any element on the page to view a real-time overlay displaying its tag name, precise dimensions (width x height), and computed border, margin, and padding styles.
-- **Customizable Appearance:** Tailor the outlines to your preference by easily adjusting their size (from 1 to 3px) and style (solid, dashed, dotted, double) via the extension's intuitive popup menu.
-- **Quick Access:** Toggle Border Patrol on or off instantly with a customizable keyboard shortcut (`Alt` + `Shift` + `B` by default) or via the browser action popup.
-- **Open Source:** Border Patrol is open-source, built with transparency and welcoming contributions from the community.
+- **Visualize the Box Model:** Clearly visualize element boundaries, margins, and padding, helping you understand element spacing and dimensions.
+- **Detailed Element Inspector:** Activate Inspector Mode and simply hover over any element on the page to view a real-time overlay displaying its tag name, precise dimensions (`width` x `height`), and computed border, margin, and padding styles.
+- **Customizable Appearance:** Tailor the outlines to your preference by easily adjusting their size (from `1px` to `3px`) and style (`solid, dashed, dotted, double`) via the extension's intuitive popup menu.
+- **Screenshot Capture:** Easily capture and download screenshots of the current page with your outlined elements, perfect for documentation, bug reports, or sharing layout feedback with your team.
 
 ### 📸 Screenshots / Demo
 
-|                                               Border Mode                                               |                                               Inspector Mode                                                |
-| :-----------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------: |
-| ![Border Mode Example](https://github.com/user-attachments/assets/9f4be5bf-344b-4ce1-999c-c7078b1b807c) | ![Inspector Moder Example](https://github.com/user-attachments/assets/c72c259b-8638-4ad0-a12b-0d2938d92679) |
+|                                               Border Mode                                               |                                               Inspector Mode                                               |
+| :-----------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------: |
+| ![Border Mode Example](https://github.com/user-attachments/assets/9f4be5bf-344b-4ce1-999c-c7078b1b807c) | ![Inspector Mode Example](https://github.com/user-attachments/assets/c72c259b-8638-4ad0-a12b-0d2938d92679) |
 
 ### How to Use
 
@@ -29,19 +28,21 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 
 ### Keyboard Shortcut
 
+Toggle Border Patrol ON or OFF instantly with a customizable keyboard shortcut.
+
 - Toggle Border Outlines: `Alt` + `Shift` + `B` (Default)
 
 You can customize this shortcut in your Chrome browser by navigating to `chrome://extensions/shortcuts`.
 
 ### Contributing
 
-Border Patrol is an open-source project, and contributions are highly valued! If you have an idea for a new feature, find a bug, or want to improve the existing codebase, please contribute!
+Border Patrol is an open-source project that thrives on community contributions, embracing transparency and collaboration. We welcome and value contributions, whether it's a new feature idea, bug fix, or code improvement, to continually enhance the project.
 
 Please see the [CONTRIBUTING](CONTRIBUTING.md) file for more detailed guidelines on contributing.
 
 ### Feedback and Support 💬
 
-For bug reports, feature requests, or general feedback, please an issue on the [Border Patrol GitHub Issues page](https://github.com/craigsavage/border-patrol/issues).
+For bug reports, feature requests, or general feedback, please open an issue on the [Border Patrol GitHub Issues page](https://github.com/craigsavage/border-patrol/issues).
 
 ### License
 
