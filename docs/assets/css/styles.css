@@ -692,6 +692,30 @@ footer a:hover {
   text-decoration: underline;
 }
 
+/* Changelog Styles */
+main ul {
+  list-style-type: disc;
+  margin-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+main ul li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+main h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--bp-blue-800);
+}
+
+main h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--bp-blue-700);
+}
+
 /* Responsive Design */
 @media (max-width: 960px) {
   .container {
