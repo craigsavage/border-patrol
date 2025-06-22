@@ -282,10 +282,15 @@ ul {
   align-items: center;
 }
 
-.nav-brand {
+.nav-brand a {
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.nav-brand a:hover {
+  text-decoration: none;
 }
 
 .nav-logo {
@@ -437,8 +442,6 @@ ul {
 .screenshot-container:hover .screenshot {
   transform: scale(1.02);
 }
-
-
 
 /* Header */
 header {
@@ -728,11 +731,11 @@ footer a:hover {
   #in-action {
     padding: 4rem 0;
   }
-  
+
   .screenshot-container {
     max-width: 90%;
   }
-  
+
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -751,7 +754,7 @@ footer a:hover {
   .benefit-card {
     padding: 2rem 1.5rem;
   }
-  
+
   .screenshot-caption {
     padding: 0 1.5rem;
     font-size: 1rem;
