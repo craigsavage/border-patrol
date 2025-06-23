@@ -282,10 +282,15 @@ ul {
   align-items: center;
 }
 
-.nav-brand {
+.nav-brand a {
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.nav-brand a:hover {
+  text-decoration: none;
 }
 
 .nav-logo {
@@ -437,8 +442,6 @@ ul {
 .screenshot-container:hover .screenshot {
   transform: scale(1.02);
 }
-
-
 
 /* Header */
 header {
@@ -689,6 +692,30 @@ footer a:hover {
   text-decoration: underline;
 }
 
+/* Changelog Styles */
+main ul {
+  list-style-type: disc;
+  margin-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+main ul li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+main h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--bp-blue-800);
+}
+
+main h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--bp-blue-700);
+}
+
 /* Responsive Design */
 @media (max-width: 960px) {
   .container {
@@ -728,11 +755,11 @@ footer a:hover {
   #in-action {
     padding: 4rem 0;
   }
-  
+
   .screenshot-container {
     max-width: 90%;
   }
-  
+
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -751,7 +778,7 @@ footer a:hover {
   .benefit-card {
     padding: 2rem 1.5rem;
   }
-  
+
   .screenshot-caption {
     padding: 0 1.5rem;
     font-size: 1rem;

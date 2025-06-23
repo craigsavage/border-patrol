@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [UNRELEASED]
+
+### Added
+
+- Added the CHANGELOG to the landing page website, making it easier for users to stay informed about the latest features and improvements.
+
 ## [1.3.0] - 2025-06-21
 
 ### Added
