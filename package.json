@@ -7,6 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist",
+    "version-sync": "node scripts/version-sync.js",
+    "prebuild": "npm run version-sync",
     "build": "npm run clean && rollup -c",
     "dev": "rollup -c -w"
   },
@@ -15,7 +17,7 @@
     "url": "git+https://github.com/craigsavage/border-patrol.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Craig Savage",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/craigsavage/border-patrol/issues"
