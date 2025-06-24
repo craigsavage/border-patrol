@@ -15,6 +15,19 @@ const packageJsonPath = path.join(rootDir, 'package.json');
 const manifestPath = path.join(rootDir, 'src', 'manifest.json');
 const menuHtmlPath = path.join(rootDir, 'src', 'popup', 'menu.html');
 
+// Check if all required files exist, otherwise throw an error
+const requiredFiles = [
+  { path: packageJsonPath, name: 'package.json' },
+  { path: manifestPath, name: 'manifest.json' },
+  { path: menuHtmlPath, name: 'menu.html' },
+];
+
+for (const file of requiredFiles) {
+  if (!fs.existsSync(file.path)) {
+    throw new Error(`Required file not found: ${file.name} (${file.path})`);
+  }
+}
+
 // Read the current version from package.json
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 const version = packageJson.version;
