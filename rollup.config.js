@@ -35,6 +35,11 @@ const commonPlugins = [
         rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
+        src: 'src/assets/img/*.svg',
+        dest: 'dist/assets/img',
+        rename: (name, extension, fullPath) => path.basename(fullPath),
+      },
+      {
         src: 'src/manifest.json',
         dest: 'dist',
         rename: () => 'manifest.json',
