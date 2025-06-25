@@ -112,7 +112,14 @@ async function updateExtensionState(tabId) {
 
     await chrome.action.setIcon({ tabId, path: iconPath });
   } catch (error) {
-    Logger.error(`Error updating extension state for tab ${tabId}:`, error);
+    if (
+      error.message.includes('No tab with id') ||
+      error.message.includes('Frame with ID 0 is showing error page')
+    ) {
+      Logger.warn(`Tab ${tabId} has been closed or is invalid.`);
+    } else {
+      Logger.error(`Error updating extension state for tab ${tabId}:`, error);
+    }
 
     // Fallback to default state
     await chrome.action.setTitle({ tabId, title: 'Border Patrol - Error' });
@@ -129,40 +136,42 @@ async function updateExtensionState(tabId) {
 async function ensureScriptIsInjected(tabId) {
   if (!tabId) return;
 
+  // Check if the tab is a valid webpage
+  const tab = await chrome.tabs.get(tabId);
+  if (!tab?.url || isRestrictedUrl(tab.url)) return;
+
   try {
-    // Check if the tab is a valid webpage
-    const tab = await chrome.tabs.get(tabId);
-    if (!tab?.url || isRestrictedUrl(tab.url)) return;
-
-    try {
-      // Check if scripts are already injected by sending a ping
-      await chrome.tabs.sendMessage(tabId, { action: 'PING' });
-      // If we get a response, scripts are already injected
-      Logger.info(`Scripts already injected in tab ${tabId}.`);
-      return;
-    } catch (error) {
-      Logger.info(`Scripts likely not injected in tab ${tabId}.`);
-      // Continue with injection
-    }
-
-    try {
-      // Inject overlay styles into the active tab
-      await chrome.scripting.insertCSS({
-        target: { tabId },
-        files: ['styles/overlay.css'],
-      });
-
-      // Inject border.js and overlay.js into the active tab
-      await chrome.scripting.executeScript({
-        target: { tabId },
-        files: ['scripts/main-content.js'],
-      });
-
-      Logger.info(`Injected content scripts and CSS into tab ${tabId}`);
-    } catch (error) {
-      Logger.error(`Error injecting scripts or CSS into tab ${tabId}:`, error);
-    }
+    // Check if scripts are already injected by sending a ping
+    await chrome.tabs.sendMessage(tabId, { action: 'PING' });
+    // If we get a response, scripts are already injected
+    Logger.info(`Scripts already injected in tab ${tabId}.`);
+    return;
   } catch (error) {
+    Logger.info(`Scripts likely not injected in tab ${tabId}.`);
+    // Continue with injection
+  }
+
+  try {
+    // Inject overlay styles into the active tab
+    await chrome.scripting.insertCSS({
+      target: { tabId },
+      files: ['styles/overlay.css'],
+    });
+
+    // Inject border.js and overlay.js into the active tab
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['scripts/main-content.js'],
+    });
+
+    Logger.info(`Injected content scripts and CSS into tab ${tabId}`);
+  } catch (error) {
+    if (
+      error.message.includes('No tab with id') ||
+      error.message.includes('Frame with ID 0 is showing error page')
+    ) {
+      return; // Tab has been closed
+    }
     Logger.error(`Error injecting scripts or CSS into tab ${tabId}:`, error);
   }
 }
@@ -317,6 +326,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     try {
       await handleTabStateChange({ tabId });
     } catch (error) {
+      if (
+        error.message.includes('No tab with id') ||
+        error.message.includes('Frame with ID 0 is showing error page')
+      ) {
+        return; // Tab has been closed
+      }
       Logger.error(`Error in onUpdated for tab ${tabId}:`, error);
     }
   }
@@ -346,7 +361,14 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
 
     await handleTabStateChange({ tabId });
   } catch (error) {
-    Logger.error(`Error in onActivated for tab ${tabId}:`, error);
+    if (
+      error.message.includes('No tab with id') ||
+      error.message.includes('Frame with ID 0 is showing error page')
+    ) {
+      Logger.warn(`Tab ${tabId} has been closed or is invalid.`);
+    } else {
+      Logger.error(`Error in onActivated for tab ${tabId}:`, error);
+    }
     // Disable extention state if there's an error
     chrome.action.setTitle({ tabId, title: 'Border Patrol - Disabled' });
     chrome.action.setIcon({ tabId, path: ICON_PATHS.iconDisabled });
