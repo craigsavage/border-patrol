@@ -4,7 +4,7 @@ import {
   DEFAULT_TAB_STATE,
   ICON_PATHS,
 } from './scripts/constants.js';
-import { isRestrictedUrl, getActiveTab } from './scripts/helpers.js';
+import { isRestrictedUrl, getActiveTab, hasPermission } from './scripts/helpers.js';
 import { getTimestampedScreenshotFilename } from './scripts/utils/filename.js';
 import Logger from './scripts/utils/logger.js';
 
@@ -462,12 +462,26 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       // Handle screenshot request from popup
       else if (request.action === 'CAPTURE_SCREENSHOT') {
         try {
+          // Check if we have the downloads permission
+          const hasDownloadPermission = await hasPermission('downloads');
+
+          if (!hasDownloadPermission) {
+            Logger.warn('Attempted to take screenshot without download permission');
+            return false;
+          }
+
+          // Check if the active tab is a valid target
+          if (!activeTab || !activeTab.windowId) {
+            Logger.error('No active tab available for screenshot');
+            return false;
+          }
+
           await captureAndDownloadScreenshot(activeTab.windowId);
+          return true; // Success
         } catch (error) {
           Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);
-          return false; // Indicate no response
+          return false; // Indicate failure
         }
-        return true; // Indicate async handling
       } else {
         Logger.warn('Received unknown message from popup:', request);
         return false; // No action matched

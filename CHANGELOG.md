@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Added the CHANGELOG to the landing page website, making it easier for users to stay informed about the latest features and improvements.
 - Implemented a script to automate the synchronization of version numbers across multiple files.
+- Added feedback for users when attempting to take a screenshot without the necessary downloads permission.
 
 ### Changed
 
