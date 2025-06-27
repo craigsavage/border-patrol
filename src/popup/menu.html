@@ -87,7 +87,17 @@
 
       <!-- Screenshot -->
       <div class="screenshot-container">
-        <button id="screenshot-button" aria-label="Take a screenshot">
+        <div id="screenshot-permission-warning" class="restricted-message">
+          <p>Download permission required for screenshots</p>
+          <button id="grant-permission-button" class="permission-button">
+            Grant Permission
+          </button>
+        </div>
+        <button
+          id="screenshot-button"
+          aria-label="Take a screenshot"
+          class="screenshot-button"
+        >
           Take Screenshot
         </button>
       </div>

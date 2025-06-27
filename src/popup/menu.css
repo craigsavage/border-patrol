@@ -28,7 +28,7 @@
 
 body {
   padding: 1rem;
-  width: 16rem;
+  width: 17rem;
   transition: opacity 0.2s ease;
 }
 
@@ -182,27 +182,79 @@ a {
   color: var(--bp-gray);
 }
 
+/* Warning/Error Messages */
+.restricted-message {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+  padding: 12px;
+  margin: 12px 0;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.restricted-message p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+/* Permission button within warning message */
+.restricted-message .permission-button {
+  background-color: #ffc107;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.restricted-message .permission-button:hover {
+  background-color: #e0a800;
+  transform: translateY(-1px);
+}
+
+.restricted-message .permission-button:active {
+  transform: translateY(0);
+}
+
 /* Screenshot Section */
 .screenshot-container {
   display: flex;
-  justify-content: center;
-  margin: 1rem 0 1rem;
-  padding: 0 0.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 1rem 0;
+  gap: 12px;
+  position: relative;
+  padding: 0;
+}
+
+#screenshot-permission-warning {
+  display: none;
 }
 
 #screenshot-button {
+  padding: 0.75rem 1.25rem;
   background-color: var(--bp-blue);
-  color: var(--bp-blue-50);
+  color: white;
   border: none;
-  border-radius: 5px;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.8rem;
-  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
   transition: all 0.2s ease;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
