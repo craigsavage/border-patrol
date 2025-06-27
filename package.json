@@ -1,12 +1,14 @@
 {
   "type": "module",
   "name": "border-patrol",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Are you tired of digging through complex CSS and hovering endlessly in DevTools just to figure out element boundaries, margins, and padding? **Border Patrol** is the free and open-source Chrome extension built to solve that frustration!",
   "main": "src/background.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist",
+    "version-sync": "node scripts/version-sync.js",
+    "prebuild": "npm run version-sync",
     "build": "npm run clean && rollup -c",
     "dev": "rollup -c -w"
   },
@@ -15,7 +17,7 @@
     "url": "git+https://github.com/craigsavage/border-patrol.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Craig Savage",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/craigsavage/border-patrol/issues"

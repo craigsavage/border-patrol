@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2025-06-27
+
+### Added
+
+- Added the CHANGELOG to the landing page website, making it easier for users to stay informed about the latest features and improvements.
+- Implemented a script to automate the synchronization of version numbers across multiple files.
+- Added feedback for users when attempting to take a screenshot without the necessary downloads permission.
+
+### Changed
+
+- Updated popup menu to display the version number and include a link to the website, replacing the previous GitHub link.
+
+### Fixed
+
+- Improved error handling for tab lifecycle events and restricted pages.
+
 ## [1.3.0] - 2025-06-21
 
 ### Added

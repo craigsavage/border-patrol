@@ -87,7 +87,17 @@
 
       <!-- Screenshot -->
       <div class="screenshot-container">
-        <button id="screenshot-button" aria-label="Take a screenshot">
+        <div id="screenshot-permission-warning" class="restricted-message">
+          <p>Download permission required for screenshots</p>
+          <button id="grant-permission-button" class="permission-button">
+            Grant Permission
+          </button>
+        </div>
+        <button
+          id="screenshot-button"
+          aria-label="Take a screenshot"
+          class="screenshot-button"
+        >
           Take Screenshot
         </button>
       </div>
@@ -97,11 +107,14 @@
 
     <footer>
       <a
-        href="https://github.com/craigsavage/border-patrol"
+        href="https://craigsavage.github.io/border-patrol/"
         target="_blank"
-        aria-label="Border Patrol on GitHub"
+        aria-label="Border Patrol Website"
+        class="footer-link"
       >
-        GitHub
+        <p class="footer-text">
+          Border Patrol <span class="version">v1.3.1</span>
+        </p>
       </a>
     </footer>
   </body>

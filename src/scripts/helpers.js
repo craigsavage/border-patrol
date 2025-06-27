@@ -43,6 +43,24 @@ export async function getActiveTab() {
 }
 
 /**
+ * Checks if the extension has the specified permission.
+ *
+ * @param {string|string[]} permissions - The permission or array of permissions to check.
+ * @returns {Promise<boolean>} A promise that resolves to true if all permissions are granted.
+ */
+export async function hasPermission(permissions) {
+  const perms = Array.isArray(permissions) ? permissions : [permissions];
+
+  try {
+    // Check if the permissions are already granted
+    return await chrome.permissions.contains({ permissions: perms });
+  } catch (error) {
+    Logger.error('Error checking permissions:', error);
+    return false;
+  }
+}
+
+/**
  * Retrieves and formats the class names of an element.
  * Truncates the list if it exceeds the maximum display length.
  *
