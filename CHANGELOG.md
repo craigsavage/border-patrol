@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [UNRELEASED]
+## [1.3.1] - 2025-06-27
 
 ### Added
 
@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
 
 - Updated popup menu to display the version number and include a link to the website, replacing the previous GitHub link.
 
-## Fixed
+### Fixed
 
 - Improved error handling for tab lifecycle events and restricted pages.
 
