@@ -8,6 +8,35 @@ import Logger from './utils/logger';
   // Get the Border Patrol Inspector container
   let bpInspectorContainer = document.querySelector('#bp-inspector-container');
 
+  let observer = null; // Declare the MutationObserver instance
+
+  // Define element groups with their tags and colors
+  const elementGroups = {
+    containers: {
+      tags: ['div', 'section', 'article', 'header', 'footer', 'main'],
+      color: 'blue',
+    },
+    tables: {
+      tags: ['table', 'tr', 'td', 'th'],
+      color: 'skyblue',
+    },
+    text: {
+      tags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'],
+      color: 'green',
+    },
+    media: {
+      tags: ['img', 'picture', 'audio', 'video'],
+      color: 'purple',
+    },
+    interactive: {
+      tags: ['a', 'form', 'input', 'textarea', 'select', 'button'],
+      color: 'orange',
+    },
+  };
+
+  // Default color for elements not in any group
+  const defaultColor = 'red';
+
   /**
    * Checks if an element is part of the Border Patrol Inspector UI.
    *
@@ -19,6 +48,32 @@ import Logger from './utils/logger';
   }
 
   /**
+   * Applies an outline to a given element based on its group and specified size and style.
+   *
+   * @param {Element} element - The DOM element to apply the outline to.
+   * @param {number} size - The size of the outline in pixels.
+   * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
+   */
+  function applyOutlineToElement(element, size, style) {
+    // Exclude applying outlines to Border Patrol elements
+    if (isInspectorUIElement(element)) return;
+
+    const tag = element.tagName.toLowerCase();
+    let color = defaultColor;
+
+    // Determine element's group and apply corresponding color
+    for (const { tags, color: groupColor } of Object.values(elementGroups)) {
+      if (tags.includes(tag)) {
+        color = groupColor;
+        break; // Stop searching once a match is found
+      }
+    }
+
+    // Apply the outline style to the element
+    element.style.outline = `${size}px ${style} ${color}`;
+  }
+
+  /**
    * Manages applying or removing extension-specific outlines to elements.
    *
    * @param {boolean} isEnabled - Determines whether the outline should be applied.
@@ -27,7 +82,7 @@ import Logger from './utils/logger';
    */
   async function manageElementOutlines(isEnabled, size, style) {
     Logger.info(
-      `Applying outline - Enabled: ${isEnabled}, Size: ${size}, Style: ${style}`
+      `Managing element outlines: isEnabled=${isEnabled}, size=${size}, style=${style}`
     );
 
     // Remove outline if extension is disabled
@@ -42,54 +97,12 @@ import Logger from './utils/logger';
       return;
     }
 
-    // Define default color (fallback if tag not found)
-    const defaultColor = 'red';
-
-    // Define element groups with their tags and colors
-    const elementGroups = {
-      containers: {
-        tags: ['div', 'section', 'article', 'header', 'footer', 'main'],
-        color: 'blue',
-      },
-      tables: {
-        tags: ['table', 'tr', 'td', 'th'],
-        color: 'skyblue',
-      },
-      text: {
-        tags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'],
-        color: 'green',
-      },
-      media: {
-        tags: ['img', 'picture', 'audio', 'video'],
-        color: 'purple',
-      },
-      interactive: {
-        tags: ['a', 'form', 'input', 'textarea', 'select', 'button'],
-        color: 'orange',
-      },
-    };
-
     // Update the Border Patrol Inspector container reference
     bpInspectorContainer = document.querySelector('#bp-inspector-container');
 
-    // Apply outline to all elements
+    // Apply outline to all elements in the document
     document.querySelectorAll('*').forEach(element => {
-      const tag = element.tagName.toLowerCase();
-      let color = defaultColor;
-
-      // Determine element's group and apply corresponding color
-      for (const { tags, color: groupColor } of Object.values(elementGroups)) {
-        if (tags.includes(tag)) {
-          color = groupColor;
-          break; // Stop searching once a match is found
-        }
-      }
-
-      // Exclude applying outlines to Border Patrol elements
-      if (isInspectorUIElement(element)) return;
-
-      // Apply the outline style to the element
-      element.style.outline = `${size}px ${style} ${color}`;
+      applyOutlineToElement(element, size, style);
     });
   }
 
