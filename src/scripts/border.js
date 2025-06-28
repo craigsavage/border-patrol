@@ -73,6 +73,61 @@ import Logger from './utils/logger';
     element.style.outline = `${size}px ${style} ${color}`;
   }
 
+  function handleMutations(mutations) {
+    if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
+    Logger.info('Handling DOM mutations for border updates.');
+
+    mutations.forEach(mutation => {
+      if (mutation.type === 'childList') {
+        // Handle added nodes
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            applyOutlineToElement(
+              node,
+              currentBorderSettings.size,
+              currentBorderSettings.style
+            );
+          }
+        });
+      } else if (mutation.type === 'attributes') {
+        // Handle attribute changes (e.g., class changes)
+        if (mutation.target.nodeType === Node.ELEMENT_NODE) {
+          applyOutlineToElement(
+            mutation.target,
+            currentBorderSettings.size,
+            currentBorderSettings.style
+          );
+        }
+      }
+    });
+  }
+
+  /**
+   * Starts observing the DOM for changes to apply or remove outlines dynamically.
+   * This function sets up a MutationObserver to watch for changes in the document body.
+   * It listens for child additions/removals and attribute changes to apply outlines
+   * to newly added elements or those that change their attributes.
+   */
+  function startObservingDOM() {
+    if (!observer) {
+      observer = new MutationObserver(handleMutations);
+    }
+    // Disconnect any existing observation before starting a new one
+    observer.disconnect();
+
+    Logger.info('Starting DOM observation for border updates.');
+    // Start observing the document body for childList changes and subtree modifications
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  /** Stops observing the DOM for border updates. */
+  function stopObservingDOM() {
+    if (observer) {
+      Logger.info('Stopping DOM observation for border updates.');
+      observer.disconnect();
+    }
+  }
+
   /**
    * Manages applying or removing extension-specific outlines to elements.
    *
@@ -87,6 +142,8 @@ import Logger from './utils/logger';
 
     // Remove outline if extension is disabled
     if (!isEnabled) {
+      Logger.info('Borders are disabled. Removing outlines from all elements.');
+      stopObservingDOM(); // Stop observing the DOM to prevent unnecessary updates
       document.querySelectorAll('*').forEach(element => {
         // Skip Border Patrol Inspector UI elements
         if (isInspectorUIElement(element)) return;
@@ -104,6 +161,9 @@ import Logger from './utils/logger';
     document.querySelectorAll('*').forEach(element => {
       applyOutlineToElement(element, size, style);
     });
+
+    // Start observing for new elements only if borders are enabled
+    startObservingDOM();
   }
 
   // Receive message to apply outline to all elements
