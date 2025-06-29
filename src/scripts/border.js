@@ -56,14 +56,14 @@ import Logger from './utils/logger';
    * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
    */
   function applyOutlineToElement(element, size, style) {
-    // Exclude applying outlines to Border Patrol elements
-    if (isInspectorUIElement(element)) return;
-
     // Ensure the element is a valid DOM element
     if (!(element instanceof Element)) {
       Logger.warn('Skipping outline application: Not an element instance.');
       return; // Skip if not an element instance
     }
+
+    // Exclude applying outlines to Border Patrol elements
+    if (isInspectorUIElement(element)) return;
 
     const tag = element.tagName.toLowerCase();
     let color = defaultColor;
@@ -90,6 +90,9 @@ import Logger from './utils/logger';
   function handleMutations(mutations) {
     if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
     Logger.debug('Handling DOM mutations for border updates.');
+
+    // Update the Border Patrol Inspector container reference
+    bpInspectorContainer = document.querySelector('#bp-inspector-container');
 
     mutations.forEach(mutation => {
       if (mutation.type === 'childList') {
@@ -157,16 +160,30 @@ import Logger from './utils/logger';
     observer.disconnect();
 
     Logger.info('Starting DOM observation for border updates.');
+
+    // Define the configuration for the MutationObserver
+    const config = {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style'], // Only watch specific attributes
+    };
+
     // Start observing the document body for childList changes and subtree modifications
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, config);
   }
 
-  /** Stops observing the DOM for border updates. */
+  /** Stops observing the DOM for changes. */
   function stopObservingDOM() {
-    if (observer) {
-      Logger.info('Stopping DOM observation for border updates.');
+    if (!observer) return;
+
+    try {
       observer.disconnect();
+    } catch (err) {
+      Logger.debug('Failed to disconnect the observer:', err);
     }
+
+    observer = null; // Clear the observer reference to prevent memory leaks
   }
 
   /**
