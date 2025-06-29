@@ -44,6 +44,7 @@ import Logger from './utils/logger';
    * @returns {boolean} - True if the element is part of the Inspector UI, false otherwise.
    */
   function isInspectorUIElement(element) {
+    if (!bpInspectorContainer) return false;
     return bpInspectorContainer?.contains(element);
   }
 
@@ -73,13 +74,20 @@ import Logger from './utils/logger';
     element.style.outline = `${size}px ${style} ${color}`;
   }
 
+  /**
+   * Handles mutations in the DOM to apply or update outlines on elements.
+   * This function is triggered whenever there are changes to the DOM, such as
+   * added nodes or attribute changes, and applies the appropriate outlines.
+   *
+   * @param {MutationRecord[]} mutations - Array of mutations observed in the DOM.
+   */
   function handleMutations(mutations) {
     if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
-    Logger.info('Handling DOM mutations for border updates.');
+    Logger.debug('Handling DOM mutations for border updates.');
 
     mutations.forEach(mutation => {
       if (mutation.type === 'childList') {
-        // Handle added nodes
+        // Iterate over newly added nodes
         mutation.addedNodes.forEach(node => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             // Skip Border Patrol Inspector UI elements
@@ -108,11 +116,22 @@ import Logger from './utils/logger';
       } else if (mutation.type === 'attributes') {
         // Handle attribute changes (e.g., class changes)
         if (mutation.target.nodeType === Node.ELEMENT_NODE) {
+          if (isInspectorUIElement(mutation.target)) return;
           applyOutlineToElement(
             mutation.target,
             currentBorderSettings.size,
             currentBorderSettings.style
           );
+
+          // Also apply outline to all child elements of the mutated target
+          mutation.target.querySelectorAll('*').forEach(child => {
+            if (isInspectorUIElement(child)) return;
+            applyOutlineToElement(
+              child,
+              currentBorderSettings.size,
+              currentBorderSettings.style
+            );
+          });
         }
       }
     });

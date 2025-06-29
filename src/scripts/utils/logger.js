@@ -15,6 +15,10 @@ const Logger = {
   info(...args) {
     if (this.isDebug) console.log(`%c${LOG_LABEL}`, 'color: #2374ab', ...args);
   },
+  debug(...args) {
+    if (this.isDebug)
+      console.debug(`%c${LOG_LABEL}`, 'color: #2ecc71', ...args);
+  },
   warn(...args) {
     if (this.isDebug) {
       console.warn(`%c${LOG_LABEL}`, 'color: #f1c40f', ...args);
