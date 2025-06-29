@@ -16,9 +16,16 @@
     "type": "git",
     "url": "git+https://github.com/craigsavage/border-patrol.git"
   },
-  "keywords": [],
+  "keywords": [
+    "border",
+    "patrol",
+    "css",
+    "debugging",
+    "devtools",
+    "chrome-extension"
+  ],
   "author": "Craig Savage",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/craigsavage/border-patrol/issues"
   },
