@@ -94,17 +94,11 @@ import Logger from './utils/logger';
         mutation.addedNodes.forEach(node => {
           if (node.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
 
-          // Skip Border Patrol Inspector UI elements
-          if (isInspectorUIElement(node)) return;
-
           // Apply outline to the newly added node
           applyOutlineToElement(node, outlineSize, outlineStyle);
 
           // Apply outline to all child elements of the newly added node
           node.querySelectorAll('*').forEach(child => {
-            // Skip Border Patrol Inspector UI elements
-            if (isInspectorUIElement(child)) return;
-
             applyOutlineToElement(child, outlineSize, outlineStyle);
           });
         });
