@@ -109,19 +109,14 @@ import Logger from './utils/logger';
           });
         });
       } else if (mutation.type === 'attributes') {
-        // Handle attribute changes (e.g., class changes)
+        // Handle attribute changes (e.g., class, style)
+        // Apply outline ONLY to the target element whose attribute changed.
+        // Its children's outlines are independent and should not be re-scanned.
         const targetElement = mutation.target;
         if (targetElement.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
         if (isInspectorUIElement(targetElement)) return;
 
         applyOutlineToElement(targetElement, outlineSize, outlineStyle);
-
-        // Also apply outline to all child elements of the mutated target
-        targetElement.querySelectorAll('*').forEach(child => {
-          if (isInspectorUIElement(child)) return;
-
-          applyOutlineToElement(child, outlineSize, outlineStyle);
-        });
       }
     });
   }
@@ -129,8 +124,7 @@ import Logger from './utils/logger';
   /**
    * Starts observing the DOM for changes to apply or remove outlines dynamically.
    * This function sets up a MutationObserver to watch for changes in the document body.
-   * It listens for child additions/removals and attribute changes to apply outlines
-   * to newly added elements or those that change their attributes.
+   * It listens for child list changes, attribute changes, and subtree modifications.
    */
   function startObservingDOM() {
     if (!observer) {
