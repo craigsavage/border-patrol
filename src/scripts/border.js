@@ -44,7 +44,7 @@ import Logger from './utils/logger';
    * @returns {boolean} - True if the element is part of the Inspector UI, false otherwise.
    */
   function isInspectorUIElement(element) {
-    if (!bpInspectorContainer) return false;
+    if (!bpInspectorContainer || !element) return false;
     return bpInspectorContainer?.contains(element);
   }
 
@@ -58,6 +58,12 @@ import Logger from './utils/logger';
   function applyOutlineToElement(element, size, style) {
     // Exclude applying outlines to Border Patrol elements
     if (isInspectorUIElement(element)) return;
+
+    // Ensure the element is a valid DOM element
+    if (!(element instanceof Element)) {
+      Logger.warn('Skipping outline application: Not an element instance.');
+      return; // Skip if not an element instance
+    }
 
     const tag = element.tagName.toLowerCase();
     let color = defaultColor;
