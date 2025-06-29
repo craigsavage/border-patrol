@@ -8,14 +8,150 @@ import Logger from './utils/logger';
   // Get the Border Patrol Inspector container
   let bpInspectorContainer = document.querySelector('#bp-inspector-container');
 
+  let observer = null; // Declare the MutationObserver instance
+
+  // Define element groups with their tags and colors
+  const elementGroups = {
+    containers: {
+      tags: ['div', 'section', 'article', 'header', 'footer', 'main'],
+      color: 'blue',
+    },
+    tables: {
+      tags: ['table', 'tr', 'td', 'th'],
+      color: 'skyblue',
+    },
+    text: {
+      tags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'],
+      color: 'green',
+    },
+    media: {
+      tags: ['img', 'picture', 'audio', 'video'],
+      color: 'purple',
+    },
+    interactive: {
+      tags: ['a', 'form', 'input', 'textarea', 'select', 'button'],
+      color: 'orange',
+    },
+  };
+
+  // Default color for elements not in any group
+  const defaultColor = 'red';
+
   /**
-   * Checks if an element is part of the Border Patrol Inspector UI.
+   * Determines if the given element is part of the Border Patrol Inspector UI.
    *
-   * @param {Element} element - The element to check.
-   * @returns {boolean} - True if the element is part of the Inspector UI, false otherwise.
+   * @param {Element} element - The element to be checked.
+   * @returns {boolean} True if the element is part of the Inspector UI, otherwise false.
    */
   function isInspectorUIElement(element) {
-    return bpInspectorContainer?.contains(element);
+    if (!bpInspectorContainer || !element) return false;
+    return bpInspectorContainer.contains(element);
+  }
+
+  /**
+   * Applies an outline to a given element based on its group and specified size and style.
+   *
+   * @param {Element} element - The DOM element to apply the outline to.
+   * @param {number} outlineSize - The size of the outline in pixels.
+   * @param {string} outlineStyle - The style of the outline (e.g., 'solid', 'dashed', etc.).
+   */
+  function applyOutlineToElement(element, outlineSize, outlineStyle) {
+    // Ensure the element is a valid DOM element
+    if (!(element instanceof Element)) {
+      return; // Skip if not an element instance
+    }
+
+    // Exclude applying outlines to Border Patrol elements
+    if (isInspectorUIElement(element)) return;
+
+    const elementTag = element.tagName.toLowerCase();
+    let outlineColor = defaultColor;
+
+    // Determine element's group and apply corresponding color
+    for (const { tags, color: groupColor } of Object.values(elementGroups)) {
+      if (tags.includes(elementTag)) {
+        outlineColor = groupColor;
+        break; // Stop searching once a match is found
+      }
+    }
+
+    // Apply the outline style to the element
+    element.style.outline = `${outlineSize}px ${outlineStyle} ${outlineColor}`;
+  }
+
+  /**
+   * Handles mutations in the DOM to apply or update outlines on elements.
+   *
+   * @param {MutationRecord[]} mutations - Array of mutations observed in the DOM.
+   */
+  function handleMutations(mutationsList) {
+    if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
+    const { size: outlineSize, style: outlineStyle } = currentBorderSettings;
+
+    mutationsList.forEach(mutation => {
+      if (mutation.type === 'childList') {
+        // Iterate over newly added nodes
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
+
+          // Apply outline to the newly added node
+          applyOutlineToElement(node, outlineSize, outlineStyle);
+
+          // Apply outline to all child elements of the newly added node
+          node.querySelectorAll('*').forEach(child => {
+            applyOutlineToElement(child, outlineSize, outlineStyle);
+          });
+        });
+      } else if (mutation.type === 'attributes') {
+        // Handle attribute changes (e.g., class, style)
+        // Apply outline ONLY to the target element whose attribute changed.
+        // Its children's outlines are independent and should not be re-scanned.
+        const targetElement = mutation.target;
+        if (targetElement.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
+        if (isInspectorUIElement(targetElement)) return;
+
+        applyOutlineToElement(targetElement, outlineSize, outlineStyle);
+      }
+    });
+  }
+
+  /**
+   * Starts observing the DOM for changes to apply or remove outlines dynamically.
+   * This function sets up a MutationObserver to watch for changes in the document body.
+   * It listens for child list changes, attribute changes, and subtree modifications.
+   */
+  function startObservingDOM() {
+    if (!observer) {
+      observer = new MutationObserver(handleMutations);
+    }
+    // Disconnect any existing observation before starting a new one
+    observer.disconnect();
+
+    Logger.info('Starting DOM observation for border updates.');
+
+    // Define the configuration for the MutationObserver
+    const config = {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style'], // Only watch specific attributes
+    };
+
+    // Start observing the document body for childList changes and subtree modifications
+    observer.observe(document.body, config);
+  }
+
+  /** Stops observing the DOM for changes. */
+  function stopObservingDOM() {
+    if (!observer) return;
+
+    try {
+      observer.disconnect();
+    } catch (err) {
+      Logger.debug('Failed to disconnect the observer:', err);
+    }
+
+    observer = null; // Clear the observer reference to prevent memory leaks
   }
 
   /**
@@ -27,11 +163,13 @@ import Logger from './utils/logger';
    */
   async function manageElementOutlines(isEnabled, size, style) {
     Logger.info(
-      `Applying outline - Enabled: ${isEnabled}, Size: ${size}, Style: ${style}`
+      `Managing element outlines: isEnabled=${isEnabled}, size=${size}, style=${style}`
     );
 
     // Remove outline if extension is disabled
     if (!isEnabled) {
+      Logger.info('Borders are disabled. Removing outlines from all elements.');
+      stopObservingDOM(); // Stop observing the DOM to prevent unnecessary updates
       document.querySelectorAll('*').forEach(element => {
         // Skip Border Patrol Inspector UI elements
         if (isInspectorUIElement(element)) return;
@@ -42,55 +180,16 @@ import Logger from './utils/logger';
       return;
     }
 
-    // Define default color (fallback if tag not found)
-    const defaultColor = 'red';
-
-    // Define element groups with their tags and colors
-    const elementGroups = {
-      containers: {
-        tags: ['div', 'section', 'article', 'header', 'footer', 'main'],
-        color: 'blue',
-      },
-      tables: {
-        tags: ['table', 'tr', 'td', 'th'],
-        color: 'skyblue',
-      },
-      text: {
-        tags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'],
-        color: 'green',
-      },
-      media: {
-        tags: ['img', 'picture', 'audio', 'video'],
-        color: 'purple',
-      },
-      interactive: {
-        tags: ['a', 'form', 'input', 'textarea', 'select', 'button'],
-        color: 'orange',
-      },
-    };
-
     // Update the Border Patrol Inspector container reference
     bpInspectorContainer = document.querySelector('#bp-inspector-container');
 
-    // Apply outline to all elements
+    // Apply outline to all elements in the document
     document.querySelectorAll('*').forEach(element => {
-      const tag = element.tagName.toLowerCase();
-      let color = defaultColor;
-
-      // Determine element's group and apply corresponding color
-      for (const { tags, color: groupColor } of Object.values(elementGroups)) {
-        if (tags.includes(tag)) {
-          color = groupColor;
-          break; // Stop searching once a match is found
-        }
-      }
-
-      // Exclude applying outlines to Border Patrol elements
-      if (isInspectorUIElement(element)) return;
-
-      // Apply the outline style to the element
-      element.style.outline = `${size}px ${style} ${color}`;
+      applyOutlineToElement(element, size, style);
     });
+
+    // Start observing for new elements only if borders are enabled
+    startObservingDOM();
   }
 
   // Receive message to apply outline to all elements

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2025-06-29
+
+### Fixed
+
+- Border outlines are now applied to dynamically added elements.
+
 ## [1.3.1] - 2025-06-27
 
 ### Added
