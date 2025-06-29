@@ -81,66 +81,47 @@ import Logger from './utils/logger';
 
   /**
    * Handles mutations in the DOM to apply or update outlines on elements.
-   * This function is triggered whenever there are changes to the DOM, such as
-   * added nodes or attribute changes, and applies the appropriate outlines.
    *
    * @param {MutationRecord[]} mutations - Array of mutations observed in the DOM.
    */
-  function handleMutations(mutations) {
+  function handleMutations(mutationsList) {
     if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
-    Logger.debug('Handling DOM mutations for border updates.');
+    const { size: outlineSize, style: outlineStyle } = currentBorderSettings;
 
-    // Update the Border Patrol Inspector container reference
-    bpInspectorContainer = document.querySelector('#bp-inspector-container');
-
-    mutations.forEach(mutation => {
+    mutationsList.forEach(mutation => {
       if (mutation.type === 'childList') {
         // Iterate over newly added nodes
         mutation.addedNodes.forEach(node => {
-          if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
+
+          // Skip Border Patrol Inspector UI elements
+          if (isInspectorUIElement(node)) return;
+
+          // Apply outline to the newly added node
+          applyOutlineToElement(node, outlineSize, outlineStyle);
+
+          // Apply outline to all child elements of the newly added node
+          node.querySelectorAll('*').forEach(child => {
             // Skip Border Patrol Inspector UI elements
-            if (isInspectorUIElement(node)) return;
+            if (isInspectorUIElement(child)) return;
 
-            // Apply outline to the newly added node
-            applyOutlineToElement(
-              node,
-              currentBorderSettings.size,
-              currentBorderSettings.style
-            );
-
-            // Apply outline to all child elements of the newly added node
-            node.querySelectorAll('*').forEach(child => {
-              // Skip Border Patrol Inspector UI elements
-              if (isInspectorUIElement(child)) return;
-
-              applyOutlineToElement(
-                child,
-                currentBorderSettings.size,
-                currentBorderSettings.style
-              );
-            });
-          }
+            applyOutlineToElement(child, outlineSize, outlineStyle);
+          });
         });
       } else if (mutation.type === 'attributes') {
         // Handle attribute changes (e.g., class changes)
-        if (mutation.target.nodeType === Node.ELEMENT_NODE) {
-          if (isInspectorUIElement(mutation.target)) return;
-          applyOutlineToElement(
-            mutation.target,
-            currentBorderSettings.size,
-            currentBorderSettings.style
-          );
+        const targetElement = mutation.target;
+        if (targetElement.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
+        if (isInspectorUIElement(targetElement)) return;
 
-          // Also apply outline to all child elements of the mutated target
-          mutation.target.querySelectorAll('*').forEach(child => {
-            if (isInspectorUIElement(child)) return;
-            applyOutlineToElement(
-              child,
-              currentBorderSettings.size,
-              currentBorderSettings.style
-            );
-          });
-        }
+        applyOutlineToElement(targetElement, outlineSize, outlineStyle);
+
+        // Also apply outline to all child elements of the mutated target
+        targetElement.querySelectorAll('*').forEach(child => {
+          if (isInspectorUIElement(child)) return;
+
+          applyOutlineToElement(child, outlineSize, outlineStyle);
+        });
       }
     });
   }
