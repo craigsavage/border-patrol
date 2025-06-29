@@ -38,46 +38,45 @@ import Logger from './utils/logger';
   const defaultColor = 'red';
 
   /**
-   * Checks if an element is part of the Border Patrol Inspector UI.
+   * Determines if the given element is part of the Border Patrol Inspector UI.
    *
-   * @param {Element} element - The element to check.
-   * @returns {boolean} - True if the element is part of the Inspector UI, false otherwise.
+   * @param {Element} element - The element to be checked.
+   * @returns {boolean} True if the element is part of the Inspector UI, otherwise false.
    */
   function isInspectorUIElement(element) {
     if (!bpInspectorContainer || !element) return false;
-    return bpInspectorContainer?.contains(element);
+    return bpInspectorContainer.contains(element);
   }
 
   /**
    * Applies an outline to a given element based on its group and specified size and style.
    *
    * @param {Element} element - The DOM element to apply the outline to.
-   * @param {number} size - The size of the outline in pixels.
-   * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
+   * @param {number} outlineSize - The size of the outline in pixels.
+   * @param {string} outlineStyle - The style of the outline (e.g., 'solid', 'dashed', etc.).
    */
-  function applyOutlineToElement(element, size, style) {
+  function applyOutlineToElement(element, outlineSize, outlineStyle) {
     // Ensure the element is a valid DOM element
     if (!(element instanceof Element)) {
-      Logger.warn('Skipping outline application: Not an element instance.');
       return; // Skip if not an element instance
     }
 
     // Exclude applying outlines to Border Patrol elements
     if (isInspectorUIElement(element)) return;
 
-    const tag = element.tagName.toLowerCase();
-    let color = defaultColor;
+    const elementTag = element.tagName.toLowerCase();
+    let outlineColor = defaultColor;
 
     // Determine element's group and apply corresponding color
     for (const { tags, color: groupColor } of Object.values(elementGroups)) {
-      if (tags.includes(tag)) {
-        color = groupColor;
+      if (tags.includes(elementTag)) {
+        outlineColor = groupColor;
         break; // Stop searching once a match is found
       }
     }
 
     // Apply the outline style to the element
-    element.style.outline = `${size}px ${style} ${color}`;
+    element.style.outline = `${outlineSize}px ${outlineStyle} ${outlineColor}`;
   }
 
   /**
