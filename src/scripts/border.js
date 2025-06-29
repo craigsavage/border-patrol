@@ -82,11 +82,27 @@ import Logger from './utils/logger';
         // Handle added nodes
         mutation.addedNodes.forEach(node => {
           if (node.nodeType === Node.ELEMENT_NODE) {
+            // Skip Border Patrol Inspector UI elements
+            if (isInspectorUIElement(node)) return;
+
+            // Apply outline to the newly added node
             applyOutlineToElement(
               node,
               currentBorderSettings.size,
               currentBorderSettings.style
             );
+
+            // Apply outline to all child elements of the newly added node
+            node.querySelectorAll('*').forEach(child => {
+              // Skip Border Patrol Inspector UI elements
+              if (isInspectorUIElement(child)) return;
+
+              applyOutlineToElement(
+                child,
+                currentBorderSettings.size,
+                currentBorderSettings.style
+              );
+            });
           }
         });
       } else if (mutation.type === 'attributes') {
