@@ -103,12 +103,14 @@ import { toSentenceCase } from './utils/string-utils';
    * @param {string} id - The id of the element
    * @param {Object} parent - The parent element
    * @param {string} tagName - The tag name of the element
+   * @param {string} classNames - The class names of the element
    * @returns {Object} The created element
    */
-  function createAndAppend(id, parent, tagName = 'div') {
+  function createAndAppend(id, parent, tagName = 'div', classNames = '') {
     if (!id || !parent || !tagName) return null;
     const element = document.createElement(tagName);
     element.id = id;
+    element.className = classNames;
     parent.appendChild(element);
     return element;
   }
@@ -230,7 +232,7 @@ import { toSentenceCase } from './utils/string-utils';
    * @returns {number} The numeric value in pixels, or 0 if not a number
    */
   function getPxValue(prop, computedStyle) {
-    parseFloat(computedStyle.getPropertyValue(prop)) || 0;
+    return parseFloat(computedStyle.getPropertyValue(prop)) || 0;
   }
 
   /**
