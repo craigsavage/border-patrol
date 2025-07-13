@@ -53,7 +53,18 @@
   width: 100vw !important;
   height: 100vh !important;
   pointer-events: none !important;
-  z-index: 10000 !important;
+  z-index: 1000000 !important;
+}
+
+/* Base styles for all box model visualization layers */
+#bp-margin-box,
+#bp-border-box,
+#bp-padding-box,
+#bp-content-box {
+  position: absolute !important;
+  pointer-events: none !important;
+  display: none;
+  box-sizing: border-box; /* Important for correct sizing if any internal borders/paddings were applied (though we use background-color) */
 }
 
 #bp-inspector-overlay {
@@ -69,18 +80,17 @@
   font-size: 12px;
   border-radius: 5px;
   pointer-events: none !important;
-  z-index: 9999 !important;
+  z-index: 1000002 !important;
   max-width: 250px;
   min-width: 150px;
   line-height: 1.4;
 }
 
-#bp-element-highlight {
+.bp-element-highlight {
   position: absolute !important;
-  background-color: var(--bp-blush-600) !important;
   opacity: 0.3 !important;
   pointer-events: none !important;
-  z-index: 9998 !important;
+  z-index: 1000001 !important;
 }
 
 /* --- Specific Styles for Inner Element Information --- */
