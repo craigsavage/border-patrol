@@ -61,14 +61,32 @@ import { toSentenceCase } from './utils/string-utils';
     }
 
     // Initialize DOM elements
-    overlayContainer = createAndAppend('bp-inspector-container', document.body);
-    overlay = createAndAppend('bp-inspector-overlay', overlayContainer);
+    overlayContainer = createAndAppend({
+      id: 'bp-inspector-container',
+      parent: document.body,
+    });
+    overlay = createAndAppend({
+      id: 'bp-inspector-overlay',
+      parent: overlayContainer,
+    });
 
     // Create box model elements
-    marginBox = createAndAppend('bp-margin-box', overlayContainer);
-    borderBox = createAndAppend('bp-border-box', overlayContainer);
-    paddingBox = createAndAppend('bp-padding-box', overlayContainer);
-    contentBox = createAndAppend('bp-content-box', overlayContainer);
+    marginBox = createAndAppend({
+      id: 'bp-margin-box',
+      parent: overlayContainer,
+    });
+    borderBox = createAndAppend({
+      id: 'bp-border-box',
+      parent: overlayContainer,
+    });
+    paddingBox = createAndAppend({
+      id: 'bp-padding-box',
+      parent: overlayContainer,
+    });
+    contentBox = createAndAppend({
+      id: 'bp-content-box',
+      parent: overlayContainer,
+    });
 
     // Ensure all elements are hidden initially
     [overlay, marginBox, borderBox, paddingBox, contentBox].forEach(element => {
@@ -100,13 +118,14 @@ import { toSentenceCase } from './utils/string-utils';
   /**
    * Creates and appends an element to a parent element
    *
-   * @param {string} id - The id of the element
-   * @param {Object} parent - The parent element
-   * @param {string} tagName - The tag name of the element
-   * @param {string} classNames - The class names of the element
-   * @returns {Object} The created element
+   * @param {Object} options - The options object
+   * @param {string} options.id - The id of the element
+   * @param {HTMLElement} options.parent - The parent element to append to
+   * @param {string} [options.tagName='div'] - The tag name of the element
+   * @param {string} [options.classNames=''] - The class names of the element
+   * @returns {HTMLElement|null} The created element or null if required params are missing
    */
-  function createAndAppend(id, parent, tagName = 'div', classNames = '') {
+  function createAndAppend({ id, parent, tagName = 'div', classNames = '' }) {
     if (!id || !parent || !tagName) return null;
     const element = document.createElement(tagName);
     element.id = id;
