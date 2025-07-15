@@ -23,7 +23,6 @@
 
 #bp-inspector-container,
 #bp-inspector-overlay,
-#bp-element-highlight,
 .bp-element-info,
 .bp-branding-info {
   /* Reset these styles to prevent interference with the overlay */
@@ -65,6 +64,7 @@
   pointer-events: none !important;
   display: none;
   box-sizing: border-box; /* Important for correct sizing if any internal borders/paddings were applied (though we use background-color) */
+  z-index: 1000001 !important;
 }
 
 #bp-inspector-overlay {
@@ -84,13 +84,6 @@
   max-width: 250px;
   min-width: 150px;
   line-height: 1.4;
-}
-
-.bp-element-highlight {
-  position: absolute !important;
-  opacity: 0.3 !important;
-  pointer-events: none !important;
-  z-index: 1000001 !important;
 }
 
 /* --- Specific Styles for Inner Element Information --- */
