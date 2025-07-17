@@ -31,9 +31,17 @@
   },
   "homepage": "https://github.com/craigsavage/border-patrol#readme",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.3",
+    "@babel/preset-react": "^7.27.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup": "^3.29.4",
-    "rollup-plugin-copy": "^3.4.0"
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-postcss": "^4.0.2"
+  },
+  "dependencies": {
+    "antd": "^5.26.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }
