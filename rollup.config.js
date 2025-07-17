@@ -1,16 +1,30 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import path from 'path';
+import postcss from 'rollup-plugin-postcss';
 
 // Common plugins for all builds
 const commonPlugins = [
   nodeResolve({
     browser: true,
-    preferBuiltins: true,
+    preferBuiltins: false,
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
   commonjs({
     include: /node_modules/,
+  }),
+  babel({
+    babelHelpers: 'bundled',
+    exclude: 'node_modules/**',
+    presets: ['@babel/preset-react'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  }),
+  postcss({
+    extensions: ['.css'],
+    extract: true,
+    minimize: true,
   }),
   copy({
     targets: [
@@ -64,7 +78,7 @@ const entryPoints = [
   {
     input: 'src/popup/menu.js',
     output: 'popup/menu',
-    format: 'es', // ES module
+    format: 'iife', // IIFE
   },
 ];
 
