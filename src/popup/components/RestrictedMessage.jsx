@@ -1,14 +1,14 @@
-import {Alert} from 'antd';
+import { Alert } from 'antd';
 
-export default function RestrictedMessage({isVisible}) {
+export default function RestrictedMessage({ isVisible }) {
   if (!isVisible) return null;
-        
+
   return (
     <div style={{ marginBottom: '16px' }}>
       <Alert
-        message="Restricted Page"
-        description="This page is restricted."
-        type="warning"
+        message='Restricted Page'
+        description='This page is restricted.'
+        type='warning'
       />
     </div>
   );
