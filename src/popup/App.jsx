@@ -8,6 +8,7 @@ import {
 import Logger from '../scripts/utils/logger.js';
 
 // Components
+import Header from './components/Header.jsx';
 import RestrictedMessage from './components/RestrictedMessage';
 import FeatureToggle from './components/FeatureToggle';
 import BorderSettings from './components/BorderSettings';
@@ -156,22 +157,21 @@ export default function App() {
 
   return (
     <div style={{ padding: '16px', width: '280px' }}>
-      <Title level={3} style={{ textAlign: 'center', marginBottom: '16px' }}>
-        Border Patrol
-      </Title>
+      <Header />
+      <Divider />
       <RestrictedMessage isVisible={isRestricted} />
       {!isRestricted && (
         <Space direction='vertical' size='middle' style={{ width: '100%' }}>
           <FeatureToggle
-            label='Toggle Borders'
-            id='toggle-borders'
+            label='Border Mode'
+            id='border-mode'
             checked={borderMode}
             onChange={handleToggleBorderMode}
             ariaLabel='Enable or disable borders'
           />
           <FeatureToggle
-            label='Toggle Inspector Mode'
-            id='toggle-inspector'
+            label='Inspector Mode'
+            id='inspector-mode'
             checked={inspectorMode}
             onChange={handleToggleInspectorMode}
             ariaLabel='Enable or disable inspector mode'
