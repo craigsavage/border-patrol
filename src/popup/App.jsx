@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Typography, Space, Divider } from 'antd';
+import { Space, Divider } from 'antd';
 import {
   getActiveTab,
   isRestrictedUrl,
@@ -14,8 +14,6 @@ import FeatureToggle from './components/FeatureToggle';
 import BorderSettings from './components/BorderSettings';
 import ScreenshotSection from './components/ScreenshotSection';
 import Footer from './components/Footer';
-
-const { Title } = Typography;
 
 export default function App() {
   const [isRestricted, setIsRestricted] = useState(false);
@@ -156,33 +154,35 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ padding: '16px', width: '280px' }}>
+    <div style={{ padding: '16px', width: '272px' }}>
       <Header />
-      <Divider />
+      <Divider size='middle' />
       <RestrictedMessage isVisible={isRestricted} />
       {!isRestricted && (
-        <Space direction='vertical' size='middle' style={{ width: '100%' }}>
-          <FeatureToggle
-            label='Border Mode'
-            id='border-mode'
-            checked={borderMode}
-            onChange={handleToggleBorderMode}
-            ariaLabel='Enable or disable borders'
-          />
-          <FeatureToggle
-            label='Inspector Mode'
-            id='inspector-mode'
-            checked={inspectorMode}
-            onChange={handleToggleInspectorMode}
-            ariaLabel='Enable or disable inspector mode'
-          />
-          <Divider />
+        <Space direction='vertical' size='small' style={{ width: '100%' }}>
+          <Space direction='vertical' size='middle' style={{ width: '100%' }}>
+            <FeatureToggle
+              label='Border Mode'
+              id='border-mode'
+              checked={borderMode}
+              onChange={handleToggleBorderMode}
+              ariaLabel='Enable or disable borders'
+            />
+            <FeatureToggle
+              label='Inspector Mode'
+              id='inspector-mode'
+              checked={inspectorMode}
+              onChange={handleToggleInspectorMode}
+              ariaLabel='Enable or disable inspector mode'
+            />
+          </Space>
+          <Divider size='middle' />
           <BorderSettings
             borderSize={borderSize}
             borderStyle={borderStyle}
             onUpdate={handleUpdateBorderSettings}
           />
-          <Divider />
+          <Divider size='small' />
           <ScreenshotSection
             hasPermission={hasDownloadPermission}
             onRequestPermission={requestDownloadPermission}
@@ -190,7 +190,7 @@ export default function App() {
           />
         </Space>
       )}
-      <Divider />
+      <Divider size='middle' />
       <Footer />
     </div>
   );

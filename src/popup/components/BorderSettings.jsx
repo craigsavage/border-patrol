@@ -1,7 +1,5 @@
 import { Form, Slider, Select, Card } from 'antd';
 
-const { Option } = Select;
-
 export default function BorderSettings({ borderSize, borderStyle, onUpdate }) {
   const handleSizeChange = value => {
     onUpdate(value, borderStyle);
@@ -14,7 +12,11 @@ export default function BorderSettings({ borderSize, borderStyle, onUpdate }) {
   return (
     <Card title='Border Settings' size='small' style={{ width: '100%' }}>
       <Form layout='vertical' name='borderSettings'>
-        <Form.Item label='Size' name='borderSize'>
+        <Form.Item
+          label='Size'
+          name='borderSize'
+          style={{ marginBottom: '4px' }}
+        >
           <Slider
             min={1}
             max={3}
@@ -26,18 +28,24 @@ export default function BorderSettings({ borderSize, borderStyle, onUpdate }) {
           />
         </Form.Item>
 
-        <Form.Item label='Style' name='borderStyle'>
+        <Form.Item
+          label='Style'
+          name='borderStyle'
+          style={{ marginBottom: '4px' }}
+        >
           <Select
             value={borderStyle}
             onChange={handleStyleChange}
             aria-label='Border style'
             style={{ width: '100%' }}
-          >
-            <Option value='solid'>Solid</Option>
-            <Option value='dashed'>Dashed</Option>
-            <Option value='dotted'>Dotted</Option>
-            <Option value='double'>Double</Option>
-          </Select>
+            size='small'
+            options={[
+              { value: 'solid', label: 'Solid' },
+              { value: 'dashed', label: 'Dashed' },
+              { value: 'dotted', label: 'Dotted' },
+              { value: 'double', label: 'Double' },
+            ]}
+          />
         </Form.Item>
       </Form>
     </Card>

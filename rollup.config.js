@@ -5,6 +5,7 @@ import copy from 'rollup-plugin-copy';
 import path from 'path';
 import postcss from 'rollup-plugin-postcss';
 import replace from '@rollup/plugin-replace';
+import terser from '@rollup/plugin-terser';
 
 // Common plugins for all builds
 const commonPlugins = [
@@ -17,15 +18,11 @@ const commonPlugins = [
     preferBuiltins: false,
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
-  commonjs({
-    include: /node_modules/,
-  }),
+  commonjs({ include: /node_modules/ }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
-    presets: [
-      ['@babel/preset-react', { runtime: 'automatic' }]
-    ],
+    presets: [['@babel/preset-react', { runtime: 'automatic' }]],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
   postcss({
@@ -68,6 +65,7 @@ const commonPlugins = [
     ],
     hook: 'writeBundle',
   }),
+  terser(),
 ];
 
 // Define entry points with their formats (ES module or IIFE)
