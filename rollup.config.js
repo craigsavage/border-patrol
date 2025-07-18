@@ -4,9 +4,14 @@ import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import path from 'path';
 import postcss from 'rollup-plugin-postcss';
+import replace from '@rollup/plugin-replace';
 
 // Common plugins for all builds
 const commonPlugins = [
+  replace({
+    'process.env.NODE_ENV': JSON.stringify('development'),
+    preventAssignment: true,
+  }),
   nodeResolve({
     browser: true,
     preferBuiltins: false,
@@ -18,7 +23,9 @@ const commonPlugins = [
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
-    presets: ['@babel/preset-react'],
+    presets: [
+      ['@babel/preset-react', { runtime: 'automatic' }]
+    ],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
   postcss({
