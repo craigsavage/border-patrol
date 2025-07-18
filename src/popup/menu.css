@@ -21,3 +21,8 @@
 * {
   font-family: 'Inter', sans-serif;
 }
+
+#root {
+  padding: 16px;
+  width: 256px;
+}

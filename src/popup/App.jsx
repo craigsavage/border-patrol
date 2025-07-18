@@ -154,7 +154,7 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ padding: '16px', width: '272px' }}>
+    <>
       <Header />
       <Divider size='middle' />
       <RestrictedMessage isVisible={isRestricted} />
@@ -176,7 +176,7 @@ export default function App() {
               ariaLabel='Enable or disable inspector mode'
             />
           </Space>
-          <Divider size='middle' />
+          <Divider size='small' />
           <BorderSettings
             borderSize={borderSize}
             borderStyle={borderStyle}
@@ -192,6 +192,6 @@ export default function App() {
       )}
       <Divider size='middle' />
       <Footer />
-    </div>
+    </>
   );
 }

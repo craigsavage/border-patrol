@@ -12,11 +12,7 @@ export default function BorderSettings({ borderSize, borderStyle, onUpdate }) {
   return (
     <Card title='Border Settings' size='small' style={{ width: '100%' }}>
       <Form layout='vertical' name='borderSettings'>
-        <Form.Item
-          label='Size'
-          name='borderSize'
-          style={{ marginBottom: '4px' }}
-        >
+        <Form.Item label='Size' style={{ marginBottom: '4px' }}>
           <Slider
             min={1}
             max={3}
@@ -28,11 +24,7 @@ export default function BorderSettings({ borderSize, borderStyle, onUpdate }) {
           />
         </Form.Item>
 
-        <Form.Item
-          label='Style'
-          name='borderStyle'
-          style={{ marginBottom: '4px' }}
-        >
+        <Form.Item label='Style' style={{ marginBottom: '4px' }}>
           <Select
             value={borderStyle}
             onChange={handleStyleChange}
