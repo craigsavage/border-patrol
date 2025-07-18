@@ -1,4 +1,3 @@
-// src/popup/hooks/useExtensionSettings.js
 import { useState, useEffect } from 'react';
 import { getActiveTab, isRestrictedUrl } from '../../scripts/helpers.js';
 import Logger from '../../scripts/utils/logger.js';
@@ -25,8 +24,13 @@ export function useExtensionSettings() {
   const [borderStyle, setBorderStyle] = useState('solid');
   const [tabId, setTabId] = useState(null);
 
-  // --- Handlers for sending messages to background script ---
-
+  /**
+   * Toggles the border mode on or off.
+   * Sends a message to the background script to handle the state toggle.
+   *
+   * @param {boolean} checked - The new state of the border mode toggle.
+   * @returns {Promise<void>} - Resolves when the state is toggled.
+   */
   const handleToggleBorderMode = async checked => {
     setBorderMode(checked);
     if (tabId) {
@@ -40,6 +44,13 @@ export function useExtensionSettings() {
     }
   };
 
+  /**
+   * Toggles the inspector mode on or off.
+   * Sends a message to the background script to handle the state toggle.
+   *
+   * @param {boolean} checked - The new state of the inspector mode toggle.
+   * @returns {Promise<void>} - Resolves when the state is toggled.
+   */
   const handleToggleInspectorMode = async checked => {
     setInspectorMode(checked);
     if (tabId) {
@@ -53,6 +64,13 @@ export function useExtensionSettings() {
     }
   };
 
+  /**
+   * Updates the border settings.
+   * Sends a message to the background script with the new settings.
+   *
+   * @param {number} size - The new border size to apply.
+   * @param {string} style - The new border style to apply.
+   */
   const handleUpdateBorderSettings = async (size, style) => {
     setBorderSize(size);
     setBorderStyle(style);

@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import { Button, Space, Alert } from 'antd';
 
+/**
+ * A component that handles screenshot capture permission and capture process.
+ *
+ * It checks if the user has granted download permission.
+ * If permission is not granted, it requests permission from the user first.
+ * If permission is granted, it captures the screenshot.
+ * It displays success or error notifications after the capture process.
+ *
+ * @param {Object} props - The component props.
+ * @param {boolean} props.hasPermission - Indicates if the user has download permission.
+ * @param {Function} props.onRequestPermission - Function to request download permission.
+ * @param {Function} props.onCaptureScreenshot - Function to handle the screenshot capture process.
+ * @returns {JSX.Element} A button to capture screenshot and notifications for the result.
+ */
 export default function ScreenshotSection({
   hasPermission,
   onRequestPermission,
@@ -9,7 +23,21 @@ export default function ScreenshotSection({
   const [isCapturing, setIsCapturing] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  /**
+   * Handles the screenshot capture process.
+   * It checks for download permission, and if granted, it captures the screenshot.
+   * If permission is not granted, it requests permission from the user first.
+   *
+   * @returns {Promise<void>} Resolves when the screenshot is captured or an error occurs.
+   */
   const handleTakeScreenshot = async () => {
+    if (!onRequestPermission || !onCaptureScreenshot) {
+      console.error(
+        'onRequestPermission or onCaptureScreenshot is null or undefined'
+      );
+      return;
+    }
+
     if (!hasPermission) {
       const granted = await onRequestPermission();
       if (!granted) {
@@ -25,21 +53,29 @@ export default function ScreenshotSection({
     setIsCapturing(true);
     setNotification({ message: 'Capturing...', type: 'info' });
 
-    const success = await onCaptureScreenshot();
+    try {
+      const success = await onCaptureScreenshot();
 
-    if (success) {
-      setNotification({ message: 'Screenshot captured!', type: 'success' });
-    } else {
+      if (success) {
+        setNotification({ message: 'Screenshot captured!', type: 'success' });
+      } else {
+        setNotification({
+          message: 'Failed to capture screenshot',
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleTakeScreenshot:', error);
       setNotification({
-        message: 'Failed to capture screenshot',
+        message: 'Internal error occurred',
         type: 'error',
       });
+    } finally {
+      setTimeout(() => {
+        setIsCapturing(false);
+        setNotification(null);
+      }, 2000); // Clear message after 2 seconds
     }
-
-    setTimeout(() => {
-      setIsCapturing(false);
-      setNotification(null);
-    }, 2000); // Clear message after 2 seconds
   };
 
   return (
