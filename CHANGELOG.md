@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - UNRELEASED
+
+### Changed
+
+- Refactored Popup component to use React for improved maintainability and scalability.
+- Updated Popup UI to utilize Ant Design, providing a more modern and consistent user experience.
+
 ## [1.3.2] - 2025-06-29
 
 ### Fixed

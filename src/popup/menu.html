@@ -13,109 +13,11 @@
     />
 
     <link rel="stylesheet" href="menu.css" />
-    <script type="module" src="menu.js"></script>
 
     <title>Border Patrol</title>
   </head>
-
   <body>
-    <h1 id="menu-title" class="menu-title">Border Patrol</h1>
-    <div id="restricted-message" class="restricted-message">
-      <p>Border Patrol cannot be used on this page.</p>
-    </div>
-
-    <hr />
-
-    <div class="form-container">
-      <!-- Toggle (Enable/Disable) Borders -->
-      <div class="form-group">
-        <label for="toggle-borders" class="label">Toggle Borders</label>
-        <label class="switch">
-          <input
-            type="checkbox"
-            id="toggle-borders"
-            aria-label="Enable or disable borders"
-          />
-          <span class="slider round"></span>
-        </label>
-      </div>
-
-      <!-- Toggle (Enable/Disable) Inspector Mode -->
-      <div class="form-group">
-        <label for="toggle-inspector" class="label">
-          Toggle Inspector Mode
-        </label>
-        <label class="switch">
-          <input
-            type="checkbox"
-            id="toggle-inspector"
-            aria-label="Enable or disable inspector mode"
-          />
-          <span class="slider round"></span>
-        </label>
-      </div>
-
-      <!-- Border Settings -->
-      <fieldset>
-        <legend aria-label="Border settings">Border Settings</legend>
-
-        <!-- Border Size -->
-        <div>
-          <label for="border-size" class="label">Size:</label>
-          <input
-            type="range"
-            id="border-size"
-            min="1"
-            max="3"
-            step="0.5"
-            value="1"
-            aria-label="Border size"
-          />
-        </div>
-
-        <!-- Border Style -->
-        <div>
-          <label for="border-style" class="label">Style:</label>
-          <select id="border-style" aria-label="Border style">
-            <option value="solid">Solid</option>
-            <option value="dashed">Dashed</option>
-            <option value="dotted">Dotted</option>
-            <option value="double">Double</option>
-          </select>
-        </div>
-      </fieldset>
-
-      <!-- Screenshot -->
-      <div class="screenshot-container">
-        <div id="screenshot-permission-warning" class="restricted-message">
-          <p>Download permission required for screenshots</p>
-          <button id="grant-permission-button" class="permission-button">
-            Grant Permission
-          </button>
-        </div>
-        <button
-          id="screenshot-button"
-          aria-label="Take a screenshot"
-          class="screenshot-button"
-        >
-          Take Screenshot
-        </button>
-      </div>
-    </div>
-
-    <hr />
-
-    <footer>
-      <a
-        href="https://craigsavage.github.io/border-patrol/"
-        target="_blank"
-        aria-label="Border Patrol Website"
-        class="footer-link"
-      >
-        <p class="footer-text">
-          Border Patrol <span class="version">v1.3.2</span>
-        </p>
-      </a>
-    </footer>
+    <div id="root"></div>
+    <script src="menu.js"></script>
   </body>
 </html>
