@@ -16,15 +16,14 @@ const headerStyle = {
 };
 
 /**
- * Header component for the popup.
- * Displays the title of the extension.
+ * Displays the header title for the popup.
  *
  * @returns {JSX.Element} A header with the title "Border Patrol".
  */
 export default function Header() {
   return (
     <header>
-      <Title level={1} className='menu-title-custom' style={headerStyle}>
+      <Title level={1} style={headerStyle}>
         Border Patrol
       </Title>
     </header>
