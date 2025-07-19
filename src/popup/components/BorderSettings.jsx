@@ -1,10 +1,31 @@
 import { Form, Slider, Select, Card } from 'antd';
 
+/**
+ * Component for border settings.
+ * Allows users to adjust the border size and style.
+ *
+ * @param {Object} props - The component props.
+ * @param {number} props.borderSize - The current size of the border.
+ * @param {string} props.borderStyle - The current style of the border.
+ * @param {Function} props.onUpdate - Function to call when border settings are updated.
+ * @returns {JSX.Element} A form with sliders and selects for border settings.
+ */
 export default function BorderSettings({ borderSize, borderStyle, onUpdate }) {
+  /**
+   * Handles the change event for the border size input.
+   * Calls the onUpdate callback with the new size value and the current border style.
+   *
+   * @param {number|string} value - The new size value selected by the user.
+   */
   const handleSizeChange = value => {
     onUpdate(value, borderStyle);
   };
 
+  /**
+   * Handles the change event for the border style select.
+   * Calls the onUpdate callback with the current border size and the new style value.
+   * @param {string} value - The new style value selected by the user.
+   */
   const handleStyleChange = value => {
     onUpdate(borderSize, value);
   };

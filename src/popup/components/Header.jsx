@@ -15,6 +15,12 @@ const headerStyle = {
   margin: 0,
 };
 
+/**
+ * Header component for the popup.
+ * Displays the title of the extension.
+ *
+ * @returns {JSX.Element} A header with the title "Border Patrol".
+ */
 export default function Header() {
   return (
     <header>

@@ -7,6 +7,12 @@ const footerStyle = {
   textAlign: 'center',
 };
 
+/**
+ * Footer component for the popup.
+ * Displays the Border Patrol website link and version number.
+ *
+ * @returns {JSX.Element} A footer with a link to the Border Patrol website and version number.
+ */
 export default function Footer() {
   return (
     <footer style={footerStyle}>
