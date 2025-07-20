@@ -7,18 +7,44 @@ import postcss from 'rollup-plugin-postcss';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 
+/**
+ * Custom warning handler for Rollup.
+ *
+ * @param {Object} warning - The warning object from Rollup.
+ * @param {Function} warn - The default warning handler.
+ * @returns {void}
+ */
+const onwarn = (warning, warn) => {
+  // Suppress "use client" warnings from antd
+  if (
+    warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
+    warning.message.includes(`"use client"`)
+  ) {
+    return;
+  }
+  // Suppress "this" being rewritten warnings from Ant Design's __rest helper
+  if (
+    warning.code === 'THIS_IS_UNDEFINED' &&
+    /node_modules\/antd\/es\//.test(warning.loc?.file || '') &&
+    warning.message.includes(`"this" has been rewritten to "undefined"`)
+  ) {
+    return;
+  }
+  warn(warning);
+};
+
+// Determine if we are in production mode
+const isProduction = process.env.NODE_ENV === 'production';
+console.log(`Building for ${isProduction ? 'production' : 'development'}...`);
+
 // Common plugins for all builds
 const commonPlugins = [
   replace({
-    'process.env.NODE_ENV': JSON.stringify('production'),
+    'process.env.NODE_ENV': JSON.stringify(
+      process.env.NODE_ENV || 'production'
+    ),
     preventAssignment: true,
   }),
-  nodeResolve({
-    browser: true,
-    preferBuiltins: false,
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
-  }),
-  commonjs({ include: /node_modules/ }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
@@ -30,6 +56,12 @@ const commonPlugins = [
     extract: true,
     minimize: true,
   }),
+  nodeResolve({
+    browser: true,
+    preferBuiltins: false,
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.css'],
+  }),
+  commonjs({ include: /node_modules/ }),
   copy({
     targets: [
       {
@@ -91,16 +123,17 @@ const entryPoints = [
 export default entryPoints.map(({ input, output, format }) => {
   const config = {
     input,
+    onwarn,
     output: {
       file: `dist/${output}.js`,
       format,
-      sourcemap: true,
+      sourcemap: !isProduction,
       globals: {},
     },
     plugins: commonPlugins,
   };
 
-  // Add name for IIFE modules (not needed for ES modules)
+  // Add additional plugins for IIFE format
   if (format === 'iife') {
     config.output.name = output.replace(/[\/.-]/g, '_');
   }
