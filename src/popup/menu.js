@@ -1,6 +1,12 @@
+import Logger from '../scripts/utils/logger.js';
 import { createRoot } from 'react-dom/client';
-import App from './App';
 import 'antd/dist/reset.css';
 
-const reactRoot = createRoot(document.getElementById('root'));
-reactRoot.render(<App />);
+import App from './App';
+
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  createRoot(rootElement).render(<App />);
+} else {
+  Logger.error('Root element not found for popup!');
+}

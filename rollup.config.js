@@ -22,14 +22,6 @@ const onwarn = (warning, warn) => {
   ) {
     return;
   }
-  // Suppress "this" being rewritten warnings from Ant Design's __rest helper
-  if (
-    warning.code === 'THIS_IS_UNDEFINED' &&
-    /node_modules\/antd\/es\//.test(warning.loc?.file || '') &&
-    warning.message.includes(`"this" has been rewritten to "undefined"`)
-  ) {
-    return;
-  }
   warn(warning);
 };
 
@@ -45,60 +37,64 @@ const commonPlugins = [
     ),
     preventAssignment: true,
   }),
+  postcss({
+    extensions: ['.css'],
+    extract: true,
+    minimize: isProduction,
+    sourceMap: !isProduction,
+    include: [
+      '**/*.css',
+      'node_modules/antd/es/**/style/css',
+      'node_modules/antd/dist/antd.css',
+    ],
+  }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
     presets: [['@babel/preset-react', { runtime: 'automatic' }]],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
-  postcss({
-    extensions: ['.css'],
-    extract: true,
-    minimize: true,
-  }),
   nodeResolve({
     browser: true,
     preferBuiltins: false,
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.css'],
+    moduleDirectories: ['node_modules'],
   }),
-  commonjs({ include: /node_modules/ }),
+  commonjs({
+    include: /node_modules/,
+    ignoreGlobal: false,
+  }),
   copy({
     targets: [
       {
         src: 'src/popup/*.html',
         dest: 'dist/popup',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/popup/*.css',
         dest: 'dist/popup',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/styles/*.css',
         dest: 'dist/styles',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/assets/icons/*.png',
         dest: 'dist/assets/icons',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/assets/img/*.svg',
         dest: 'dist/assets/img',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/manifest.json',
         dest: 'dist',
-        rename: () => 'manifest.json',
       },
     ],
     hook: 'writeBundle',
   }),
-  terser(),
-];
+  isProduction && terser(), // Minify in production mode
+].filter(Boolean);
 
 // Define entry points with their formats (ES module or IIFE)
 const entryPoints = [
@@ -124,6 +120,7 @@ export default entryPoints.map(({ input, output, format }) => {
   const config = {
     input,
     onwarn,
+    context: 'window',
     output: {
       file: `dist/${output}.js`,
       format,
