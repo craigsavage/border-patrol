@@ -10,7 +10,7 @@ import terser from '@rollup/plugin-terser';
 // Common plugins for all builds
 const commonPlugins = [
   replace({
-    'process.env.NODE_ENV': JSON.stringify('development'),
+    'process.env.NODE_ENV': JSON.stringify('production'),
     preventAssignment: true,
   }),
   nodeResolve({
