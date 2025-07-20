@@ -7,66 +7,94 @@ import postcss from 'rollup-plugin-postcss';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 
+/**
+ * Custom warning handler for Rollup.
+ *
+ * @param {Object} warning - The warning object from Rollup.
+ * @param {Function} warn - The default warning handler.
+ * @returns {void}
+ */
+const onwarn = (warning, warn) => {
+  // Suppress "use client" warnings from antd
+  if (
+    warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
+    warning.message.includes(`"use client"`)
+  ) {
+    return;
+  }
+  warn(warning);
+};
+
+// Determine if we are in production mode
+const isProduction = process.env.NODE_ENV === 'production';
+console.log(`Building for ${isProduction ? 'production' : 'development'}...`);
+
 // Common plugins for all builds
 const commonPlugins = [
   replace({
-    'process.env.NODE_ENV': JSON.stringify('development'),
+    'process.env.NODE_ENV': JSON.stringify(
+      process.env.NODE_ENV || 'production'
+    ),
     preventAssignment: true,
   }),
-  nodeResolve({
-    browser: true,
-    preferBuiltins: false,
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  postcss({
+    extensions: ['.css'],
+    extract: true,
+    minimize: isProduction,
+    sourceMap: !isProduction,
+    include: [
+      '**/*.css',
+      'node_modules/antd/es/**/style/css',
+      'node_modules/antd/dist/antd.css',
+    ],
   }),
-  commonjs({ include: /node_modules/ }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
     presets: [['@babel/preset-react', { runtime: 'automatic' }]],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
-  postcss({
-    extensions: ['.css'],
-    extract: true,
-    minimize: true,
+  nodeResolve({
+    browser: true,
+    preferBuiltins: false,
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.css'],
+    moduleDirectories: ['node_modules'],
+  }),
+  commonjs({
+    include: /node_modules/,
+    ignoreGlobal: false,
   }),
   copy({
     targets: [
       {
         src: 'src/popup/*.html',
         dest: 'dist/popup',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/popup/*.css',
         dest: 'dist/popup',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/styles/*.css',
         dest: 'dist/styles',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/assets/icons/*.png',
         dest: 'dist/assets/icons',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/assets/img/*.svg',
         dest: 'dist/assets/img',
-        rename: (name, extension, fullPath) => path.basename(fullPath),
       },
       {
         src: 'src/manifest.json',
         dest: 'dist',
-        rename: () => 'manifest.json',
       },
     ],
     hook: 'writeBundle',
   }),
-  terser(),
-];
+  isProduction && terser(), // Minify in production mode
+].filter(Boolean);
 
 // Define entry points with their formats (ES module or IIFE)
 const entryPoints = [
@@ -91,16 +119,18 @@ const entryPoints = [
 export default entryPoints.map(({ input, output, format }) => {
   const config = {
     input,
+    onwarn,
+    context: 'window',
     output: {
       file: `dist/${output}.js`,
       format,
-      sourcemap: true,
+      sourcemap: !isProduction,
       globals: {},
     },
     plugins: commonPlugins,
   };
 
-  // Add name for IIFE modules (not needed for ES modules)
+  // Add additional plugins for IIFE format
   if (format === 'iife') {
     config.output.name = output.replace(/[\/.-]/g, '_');
   }
