@@ -2,10 +2,10 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
-import path from 'path';
 import postcss from 'rollup-plugin-postcss';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 /**
  * Custom warning handler for Rollup.
@@ -93,7 +93,14 @@ const commonPlugins = [
     ],
     hook: 'writeBundle',
   }),
-  isProduction && terser(), // Minify in production mode
+  isProduction && terser(),
+  isProduction &&
+    visualizer({
+      filename: 'bundle-report.html',
+      open: true, // Automatically open the report in your browser
+      gzipSize: true,
+      brotliSize: true,
+    }),
 ].filter(Boolean);
 
 // Define entry points with their formats (ES module or IIFE)
