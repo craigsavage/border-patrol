@@ -1,10 +1,11 @@
-import { Typography } from 'antd';
+import { Layout, Typography } from 'antd';
 
 const { Link } = Typography;
 
 const footerStyle = {
   fontSize: '0.8rem',
   textAlign: 'center',
+  padding: 0,
 };
 
 /**
@@ -13,9 +14,9 @@ const footerStyle = {
  *
  * @returns {JSX.Element} A footer with a link to the Border Patrol website and version number.
  */
-export default function Footer() {
+export default function AppFooter() {
   return (
-    <footer style={footerStyle}>
+    <Layout.Footer style={footerStyle}>
       <Link
         href='https://craigsavage.github.io/border-patrol/'
         target='_blank'
@@ -24,6 +25,6 @@ export default function Footer() {
       >
         Border Patrol <span className='version'>v1.3.2</span>
       </Link>
-    </footer>
+    </Layout.Footer>
   );
 }
