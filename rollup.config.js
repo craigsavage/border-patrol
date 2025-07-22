@@ -97,7 +97,7 @@ const commonPlugins = [
   isProduction &&
     visualizer({
       filename: 'bundle-report.html',
-      open: true, // Automatically open the report in your browser
+      open: false,
       gzipSize: true,
       brotliSize: true,
     }),
