@@ -5,7 +5,16 @@ const { Link } = Typography;
 
 const footerStyle = {
   fontSize: '0.8rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
   textAlign: 'center',
+};
+
+const iconStyle = {
+  color: 'var(--bp-gray)',
+  fontSize: '1.1rem',
+  cursor: 'pointer',
 };
 
 /**
@@ -17,6 +26,7 @@ const footerStyle = {
 export default function Footer({ isDarkMode, onToggleDarkMode }) {
   return (
     <Layout.Footer style={footerStyle}>
+      <span style={{ flex: 1 }}></span>
       <Link
         href='https://craigsavage.github.io/border-patrol/'
         target='_blank'
@@ -25,11 +35,19 @@ export default function Footer({ isDarkMode, onToggleDarkMode }) {
       >
         Border Patrol <span className='version'>v1.3.2</span>
       </Link>
-      {isDarkMode ? (
-        <SunFilled onClick={() => onToggleDarkMode(false)} />
-      ) : (
-        <MoonFilled onClick={() => onToggleDarkMode(true)} />
-      )}
+      <span style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+        {isDarkMode ? (
+          <SunFilled
+            style={iconStyle}
+            onClick={() => onToggleDarkMode(false)}
+          />
+        ) : (
+          <MoonFilled
+            style={iconStyle}
+            onClick={() => onToggleDarkMode(true)}
+          />
+        )}
+      </span>
     </Layout.Footer>
   );
 }
