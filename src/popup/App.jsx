@@ -57,7 +57,8 @@ export default function App() {
         },
         components: {
           Layout: {
-            headerBg: 'transparent', // Transparent header background
+            headerBg: 'transparent',
+            footerPadding: 0,
           },
         },
       }}
@@ -65,13 +66,6 @@ export default function App() {
       <Layout style={{ padding: '16px', width: '100%' }}>
         <Header />
         <Divider size='middle' />
-        <FeatureToggle
-          label='Dark Mode'
-          id='dark-mode-toggle'
-          checked={isDarkMode}
-          onChange={handleToggleDarkMode}
-          ariaLabel='Toggle dark mode'
-        />
 
         <RestrictedMessage isVisible={isRestricted} />
 
@@ -113,7 +107,10 @@ export default function App() {
         )}
 
         <Divider size='middle' />
-        <Footer />
+        <Footer
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={handleToggleDarkMode}
+        />
       </Layout>
     </ConfigProvider>
   );

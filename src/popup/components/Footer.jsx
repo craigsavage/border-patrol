@@ -1,11 +1,11 @@
 import { Layout, Typography } from 'antd';
+import { MoonFilled, SunFilled } from '@ant-design/icons';
 
 const { Link } = Typography;
 
 const footerStyle = {
   fontSize: '0.8rem',
   textAlign: 'center',
-  padding: 0,
 };
 
 /**
@@ -14,7 +14,7 @@ const footerStyle = {
  *
  * @returns {JSX.Element} A footer with a link to the Border Patrol website and version number.
  */
-export default function AppFooter() {
+export default function Footer({ isDarkMode, onToggleDarkMode }) {
   return (
     <Layout.Footer style={footerStyle}>
       <Link
@@ -25,6 +25,11 @@ export default function AppFooter() {
       >
         Border Patrol <span className='version'>v1.3.2</span>
       </Link>
+      {isDarkMode ? (
+        <SunFilled onClick={() => onToggleDarkMode(false)} />
+      ) : (
+        <MoonFilled onClick={() => onToggleDarkMode(true)} />
+      )}
     </Layout.Footer>
   );
 }

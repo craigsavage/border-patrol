@@ -8,7 +8,7 @@ const { Title } = Typography;
  *
  * @returns {JSX.Element} A header with the title "Border Patrol".
  */
-export default function AppHeader() {
+export default function Header() {
   const { token } = useToken();
 
   const headerStyle = {
@@ -25,7 +25,7 @@ export default function AppHeader() {
   };
 
   return (
-    <Layout.Header style={{ padding: 0, height: 'auto' }}>
+    <Layout.Header style={{ padding: 0 }}>
       <Title level={1} style={headerStyle}>
         Border Patrol
       </Title>
