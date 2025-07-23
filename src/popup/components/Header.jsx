@@ -11,7 +11,7 @@ const { Title } = Typography;
 export default function Header() {
   const { token } = useToken();
 
-  const headerStyle = {
+  const titleStyle = {
     fontFamily: 'Grandstander, Inter, sans-serif',
     fontSize: '1.6rem',
     fontWeight: 700,
@@ -25,8 +25,8 @@ export default function Header() {
   };
 
   return (
-    <Layout.Header style={{ padding: 0 }}>
-      <Title level={1} style={headerStyle}>
+    <Layout.Header>
+      <Title level={1} style={titleStyle}>
         Border Patrol
       </Title>
     </Layout.Header>
