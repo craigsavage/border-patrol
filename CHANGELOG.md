@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [1.4.0] - UNRELEASED
 
+### Added
+
+- Added dark mode support to the extension popup UI
+
 ### Changed
 
 - Refactored Popup component to use React for improved maintainability and scalability.
