@@ -58,6 +58,7 @@ export default function App() {
         components: {
           Layout: {
             headerBg: 'transparent',
+            headerHeight: 'auto',
             headerPadding: 0,
             footerPadding: 0,
           },
