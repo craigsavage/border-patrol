@@ -1,22 +1,4 @@
-:root {
-  --bp-blue: #2374ab;
-  --bp-light-gray: #ccc;
-  --bp-gray: #999;
-  --bp-dark-gray: #333;
-
-  /* Primary Blue Color Palette */
-  --bp-blue-50: #f2f8fd;
-  --bp-blue-100: #e5f0f9;
-  --bp-blue-200: #c5e0f2;
-  --bp-blue-300: #92c7e7;
-  --bp-blue-400: #57a9d9;
-  --bp-blue-500: #328ec5;
-  --bp-blue-600: #2374ab; /* Main Color */
-  --bp-blue-700: #1d5a87;
-  --bp-blue-800: #1c4e70;
-  --bp-blue-900: #1c425e;
-  --bp-blue-950: #132a3e;
-}
+@import url('../styles/_base.css');
 
 * {
   font-family: 'Inter', sans-serif;
