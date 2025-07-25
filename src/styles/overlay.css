@@ -1,25 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
-:root {
-  --bp-light-gray: #ccc;
-  --bp-gray: #999;
-  --bp-dark-gray: #333;
-
-  --bp-blue-50: #f2f8fd;
-  --bp-blue-100: #e5f0f9;
-  --bp-blue-200: #c5e0f2;
-  --bp-blue-300: #92c7e7;
-  --bp-blue-400: #57a9d9;
-  --bp-blue-500: #328ec5;
-  --bp-blue-600: #2374ab; /* Main Color */
-  --bp-blue-700: #1d5a87;
-  --bp-blue-800: #1c4e70;
-  --bp-blue-900: #1c425e;
-  --bp-blue-950: #132a3e;
-
-  --bp-blush-600: #aa4465;
-  --bp-blush-700: #9d3957;
-}
+@import url('./_fonts.css');
+@import url('./_base.css');
 
 #bp-inspector-container,
 #bp-inspector-overlay,

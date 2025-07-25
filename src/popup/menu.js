@@ -1,5 +1,6 @@
-import Logger from '../scripts/utils/logger.js';
 import { createRoot } from 'react-dom/client';
+import Logger from '../scripts/utils/logger.js';
+
 import 'antd/dist/reset.css';
 
 import App from './App';

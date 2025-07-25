@@ -12,7 +12,7 @@ export default function Header() {
   const { token } = useToken();
 
   const titleStyle = {
-    fontFamily: 'Grandstander, Inter, sans-serif',
+    fontFamily: '"Grandstander", "Inter", Arial, sans-serif',
     fontSize: '1.6rem',
     fontWeight: 700,
     fontStyle: 'normal',
