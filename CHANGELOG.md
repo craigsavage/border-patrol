@@ -6,10 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Added dark mode support to the extension popup UI
+- Added dark mode support to the extension's popup UI.
 
 ### Changed
 
+- Now highlights all box model areas (margin, border, padding, content) for enhanced CSS layout visualization.
 - Refactored Popup component to use React for improved maintainability and scalability.
 - Updated Popup UI to utilize Ant Design, providing a more modern and consistent user experience.
 - Self-host font assets for faster load times, improved reliability, and enhanced privacy.
