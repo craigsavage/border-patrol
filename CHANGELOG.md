@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Refactored Popup component to use React for improved maintainability and scalability.
 - Updated Popup UI to utilize Ant Design, providing a more modern and consistent user experience.
 - Self-host font assets for faster load times, improved reliability, and enhanced privacy.
+- App version now directly injected from `package.json` into the UI's footer at build time, ensuring consistent display.
 
 ## [1.3.2] - 2025-06-29
 

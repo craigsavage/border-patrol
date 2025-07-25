@@ -6,6 +6,9 @@ import postcss from 'rollup-plugin-postcss';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { readFileSync } from 'fs';
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 /**
  * Custom warning handler for Rollup.
@@ -32,10 +35,14 @@ console.log(`Building for ${isProduction ? 'production' : 'development'}...`);
 // Common plugins for all builds
 const commonPlugins = [
   replace({
+    preventAssignment: true,
+    include: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
     'process.env.NODE_ENV': JSON.stringify(
       process.env.NODE_ENV || 'production'
     ),
-    preventAssignment: true,
+    __BP_APP_VERSION__: pkg.version
+      ? JSON.stringify('v' + pkg.version)
+      : JSON.stringify(''),
   }),
   postcss({
     extensions: ['.css'],

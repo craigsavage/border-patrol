@@ -17,6 +17,9 @@ const iconStyle = {
   cursor: 'pointer',
 };
 
+// Placeholder for version, will be replaced during build
+const version = __BP_APP_VERSION__;
+
 /**
  * Footer component for the popup.
  * Displays the Border Patrol website link and version number.
@@ -33,7 +36,7 @@ export default function Footer({ isDarkMode, onToggleDarkMode }) {
         aria-label='Border Patrol Website'
         style={{ color: 'var(--bp-gray)' }}
       >
-        Border Patrol <span className='version'>v1.3.2</span>
+        Border Patrol <span className='version'>{version}</span>
       </Link>
       <span style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
         {isDarkMode ? (

@@ -13,13 +13,11 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.join(__dirname, '..');
 const packageJsonPath = path.join(rootDir, 'package.json');
 const manifestPath = path.join(rootDir, 'src', 'manifest.json');
-const menuHtmlPath = path.join(rootDir, 'src', 'popup', 'menu.html');
 
 // Check if all required files exist, otherwise throw an error
 const requiredFiles = [
   { path: packageJsonPath, name: 'package.json' },
   { path: manifestPath, name: 'manifest.json' },
-  { path: menuHtmlPath, name: 'menu.html' },
 ];
 
 for (const file of requiredFiles) {
@@ -40,18 +38,5 @@ if (manifest.version !== version) {
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
   console.log(`Updated manifest.json to version ${version}`);
 }
-
-// Update menu.html version in the footer
-let menuHtml = fs.readFileSync(menuHtmlPath, 'utf-8');
-const versionRegex = /<span class="version">.*?<\/span>/;
-
-// Replace the version in the footer
-menuHtml = menuHtml.replace(
-  versionRegex,
-  `<span class="version">v${version}</span>`
-);
-
-fs.writeFileSync(menuHtmlPath, menuHtml);
-console.log(`Updated menu.html with version ${version}`);
 
 console.log('Version sync complete!');
