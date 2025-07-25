@@ -87,7 +87,7 @@ const commonPlugins = [
         dest: 'dist/assets/img',
       },
       {
-        src: 'src/assets/fonts/*.{woff,woff2,css}',
+        src: 'src/assets/fonts/*.{woff,woff2}',
         dest: 'dist/assets/fonts',
       },
       {
