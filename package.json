@@ -5,13 +5,10 @@
   "description": "Are you tired of digging through complex CSS and hovering endlessly in DevTools just to figure out element boundaries, margins, and padding? **Border Patrol** is the free and open-source Chrome extension built to solve that frustration!",
   "main": "src/background.js",
   "scripts": {
-    "compile:sass": "sass src/styles:dist/styles",
-    "postcss:prod": "NODE_ENV=production postcss dist/styles/*.css --replace",
-    "build:css": "npm run compile:sass && npm run postcss:prod",
     "clean": "rm -rf dist",
     "version-sync": "node scripts/version-sync.js",
     "prebuild": "npm run version-sync && npm run clean",
-    "build": "npm run build:css && NODE_ENV=production rollup -c",
+    "build": "NODE_ENV=production rollup -c",
     "dev": "NODE_ENV=development rollup -c -w"
   },
   "repository": {
@@ -47,13 +44,13 @@
     "postcss-scss": "^4.0.9",
     "rollup": "^4.45.1",
     "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-delete": "^3.0.1",
     "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.89.2"
   },
   "dependencies": {
     "antd": "^5.26.5",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "rollup-plugin-postcss": "^4.0.2"
   }
 }

@@ -159,7 +159,7 @@ async function ensureScriptIsInjected(tabId) {
     // Inject overlay styles into the active tab
     await chrome.scripting.insertCSS({
       target: { tabId },
-      files: ['styles/main-content.css'],
+      files: ['scripts/main-content.css'],
     });
 
     // Inject border.js and overlay.js into the active tab

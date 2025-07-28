@@ -2,10 +2,13 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
-import del from 'rollup-plugin-delete';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
+import postcss from 'rollup-plugin-postcss';
+
+import autoprefixer from 'autoprefixer';
+import cssnano from 'cssnano';
 
 /**
  * Custom warning handler for Rollup.
@@ -37,6 +40,14 @@ const commonPlugins = [
     ),
     preventAssignment: true,
   }),
+  postcss({
+    extensions: ['.css', '.scss'],
+    extract: true,
+    minimize: isProduction,
+    sourceMap: !isProduction,
+    syntax: 'postcss-scss',
+    plugins: [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
+  }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
@@ -59,15 +70,10 @@ const commonPlugins = [
       { src: 'src/popup/*.html', dest: 'dist/popup' },
       { src: 'src/assets/icons/*.png', dest: 'dist/assets/icons' },
       { src: 'src/assets/img/*.svg', dest: 'dist/assets/img' },
-      { src: 'dist/scripts/main-content.css', dest: 'dist/styles/' },
-      { src: 'dist/popup/menu.css', dest: 'dist/styles/' },
+      // Copy Ant Design styles
+      { src: 'node_modules/antd/dist/reset.css', dest: 'dist/popup' },
     ],
     hook: 'writeBundle',
-  }),
-  del({
-    // Deletes the original CSS files after copying
-    targets: ['dist/scripts/main-content.css', 'dist/popup/menu.css'],
-    hook: 'closeBundle', // Ensure CSS files are deleted after copying
   }),
   isProduction && terser(),
   isProduction &&
