@@ -6,7 +6,6 @@ import del from 'rollup-plugin-delete';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
-import postcss from 'rollup-plugin-postcss';
 
 /**
  * Custom warning handler for Rollup.
@@ -37,20 +36,6 @@ const commonPlugins = [
       process.env.NODE_ENV || 'production'
     ),
     preventAssignment: true,
-  }),
-  postcss({
-    extensions: ['.css', '.scss'],
-    extract: true,
-    minimize: isProduction,
-    sourceMap: !isProduction,
-    include: [
-      '**/*.css',
-      '**/*.scss',
-      'node_modules/antd/es/**/style/css',
-      'node_modules/antd/dist/antd.css',
-    ],
-    syntax: 'postcss-scss',
-    plugins: [],
   }),
   babel({
     babelHelpers: 'bundled',
