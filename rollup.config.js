@@ -2,6 +2,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
+import del from 'rollup-plugin-delete';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -69,36 +70,19 @@ const commonPlugins = [
   }),
   copy({
     targets: [
-      {
-        src: 'src/popup/*.html',
-        dest: 'dist/popup',
-      },
-      {
-        src: 'src/popup/*.css',
-        dest: 'dist/popup',
-      },
-      {
-        src: 'src/styles/*.css',
-        dest: 'dist/styles',
-      },
-      {
-        src: 'src/assets/icons/*.png',
-        dest: 'dist/assets/icons',
-      },
-      {
-        src: 'src/assets/img/*.svg',
-        dest: 'dist/assets/img',
-      },
-      {
-        src: 'src/assets/fonts/*.{woff,woff2}',
-        dest: 'dist/assets/fonts',
-      },
-      {
-        src: 'src/manifest.json',
-        dest: 'dist',
-      },
+      { src: 'src/manifest.json', dest: 'dist' },
+      { src: 'src/popup/*.html', dest: 'dist/popup' },
+      { src: 'src/assets/icons/*.png', dest: 'dist/assets/icons' },
+      { src: 'src/assets/img/*.svg', dest: 'dist/assets/img' },
+      { src: 'dist/scripts/main-content.css', dest: 'dist/styles/' },
+      { src: 'dist/popup/menu.css', dest: 'dist/styles/' },
     ],
     hook: 'writeBundle',
+  }),
+  del({
+    // Deletes the original CSS files after copying
+    targets: ['dist/scripts/main-content.css', 'dist/popup/menu.css'],
+    hook: 'closeBundle', // Ensure CSS files are deleted after copying
   }),
   isProduction && terser(),
   isProduction &&

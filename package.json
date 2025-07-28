@@ -43,6 +43,7 @@
     "postcss-scss": "^4.0.9",
     "rollup": "^4.45.1",
     "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-delete": "^3.0.1",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.89.2"
