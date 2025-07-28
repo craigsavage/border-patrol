@@ -7,6 +7,7 @@ import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
 import postcss from 'rollup-plugin-postcss';
 
+import postcssScss from 'postcss-scss';
 import autoprefixer from 'autoprefixer';
 import cssnano from 'cssnano';
 
@@ -45,8 +46,13 @@ const commonPlugins = [
     extract: true,
     minimize: isProduction,
     sourceMap: !isProduction,
-    syntax: 'postcss-scss',
+    syntax: postcssScss,
     plugins: [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
+    use: {
+      sass: {
+        silenceDeprecations: ['legacy-js-api'],
+      },
+    },
   }),
   babel({
     babelHelpers: 'bundled',
