@@ -6,7 +6,6 @@ import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
 import postcss from 'rollup-plugin-postcss';
-import postcssImport from 'postcss-import';
 
 /**
  * Custom warning handler for Rollup.
@@ -50,7 +49,7 @@ const commonPlugins = [
       'node_modules/antd/dist/antd.css',
     ],
     syntax: 'postcss-scss',
-    plugins: [postcssImport()],
+    plugins: [],
   }),
   babel({
     babelHelpers: 'bundled',
