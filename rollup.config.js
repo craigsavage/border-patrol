@@ -2,10 +2,11 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
-import postcss from 'rollup-plugin-postcss';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
+import postcss from 'rollup-plugin-postcss';
+import postcssImport from 'postcss-import';
 
 /**
  * Custom warning handler for Rollup.
@@ -38,15 +39,18 @@ const commonPlugins = [
     preventAssignment: true,
   }),
   postcss({
-    extensions: ['.css'],
+    extensions: ['.css', '.scss'],
     extract: true,
     minimize: isProduction,
     sourceMap: !isProduction,
     include: [
       '**/*.css',
+      '**/*.scss',
       'node_modules/antd/es/**/style/css',
       'node_modules/antd/dist/antd.css',
     ],
+    syntax: 'postcss-scss',
+    plugins: [postcssImport()],
   }),
   babel({
     babelHelpers: 'bundled',

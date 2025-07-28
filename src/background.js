@@ -4,7 +4,11 @@ import {
   DEFAULT_TAB_STATE,
   ICON_PATHS,
 } from './scripts/constants.js';
-import { isRestrictedUrl, getActiveTab, hasPermission } from './scripts/helpers.js';
+import {
+  isRestrictedUrl,
+  getActiveTab,
+  hasPermission,
+} from './scripts/helpers.js';
 import { getTimestampedScreenshotFilename } from './scripts/utils/filename.js';
 import Logger from './scripts/utils/logger.js';
 
@@ -155,7 +159,7 @@ async function ensureScriptIsInjected(tabId) {
     // Inject overlay styles into the active tab
     await chrome.scripting.insertCSS({
       target: { tabId },
-      files: ['styles/overlay.css'],
+      files: ['styles/main-content.css'],
     });
 
     // Inject border.js and overlay.js into the active tab
@@ -466,7 +470,9 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
           const hasDownloadPermission = await hasPermission('downloads');
 
           if (!hasDownloadPermission) {
-            Logger.warn('Attempted to take screenshot without download permission');
+            Logger.warn(
+              'Attempted to take screenshot without download permission'
+            );
             return false;
           }
 

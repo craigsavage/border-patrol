@@ -1,4 +1,5 @@
-@import url('../styles/_base.css');
+@use '../styles/abstracts/fonts.scss';
+@use '../styles/abstracts/variables.scss';
 
 * {
   font-family: 'Inter', sans-serif;
