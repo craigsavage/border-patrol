@@ -5,7 +5,8 @@ import copy from 'rollup-plugin-copy';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
-import postcss from 'rollup-plugin-postcss';
+import postcssRollup from 'rollup-plugin-postcss';
+import postcss from 'postcss';
 
 import postcssScss from 'postcss-scss';
 import autoprefixer from 'autoprefixer';
@@ -29,8 +30,14 @@ const onwarn = (warning, warn) => {
   warn(warning);
 };
 
+/**
+ * PostCSS plugin configuration for Rollup.
+ *
+ * @param {string} outputPath - The path where the CSS file will be extracted.
+ * @returns {Object} - The PostCSS plugin configuration.
+ */
 const postcssPlugin = outputPath => {
-  return postcss({
+  return postcssRollup({
     extract: outputPath,
     minimize: isProduction,
     sourceMap: !isProduction,
@@ -56,19 +63,6 @@ const commonPlugins = [
     ),
     preventAssignment: true,
   }),
-  // postcss({
-  //   extensions: ['.css', '.scss'],
-  //   extract: true,
-  //   minimize: isProduction,
-  //   sourceMap: !isProduction,
-  //   syntax: postcssScss,
-  //   plugins: [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
-  //   use: {
-  //     sass: {
-  //       silenceDeprecations: ['legacy-js-api'],
-  //     },
-  //   },
-  // }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
@@ -92,7 +86,22 @@ const commonPlugins = [
       { src: 'src/assets/icons/*.png', dest: 'dist/assets/icons' },
       { src: 'src/assets/img/*.svg', dest: 'dist/assets/img' },
       // Copy Ant Design styles
-      { src: 'node_modules/antd/dist/reset.css', dest: 'dist/popup' },
+      {
+        src: 'node_modules/antd/dist/reset.css',
+        dest: 'dist/popup',
+        transform: async (contents, filename) => {
+          if (isProduction) {
+            const postcssResult = await postcss([
+              autoprefixer(),
+              cssnano(),
+            ]).process(contents, {
+              from: filename,
+              to: 'reset.css',
+            });
+            return postcssResult.css;
+          }
+        },
+      },
     ],
     hook: 'writeBundle',
   }),
