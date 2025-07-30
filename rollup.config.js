@@ -29,6 +29,21 @@ const onwarn = (warning, warn) => {
   warn(warning);
 };
 
+const postcssPlugin = outputPath => {
+  return postcss({
+    extract: outputPath,
+    minimize: isProduction,
+    sourceMap: !isProduction,
+    plugins: [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
+    syntax: postcssScss,
+    use: {
+      sass: {
+        silenceDeprecations: ['legacy-js-api'],
+      },
+    },
+  });
+};
+
 // Determine if we are in production mode
 const isProduction = process.env.NODE_ENV === 'production';
 console.log(`Building for ${isProduction ? 'production' : 'development'}...`);
@@ -41,19 +56,19 @@ const commonPlugins = [
     ),
     preventAssignment: true,
   }),
-  postcss({
-    extensions: ['.css', '.scss'],
-    extract: true,
-    minimize: isProduction,
-    sourceMap: !isProduction,
-    syntax: postcssScss,
-    plugins: [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
-    use: {
-      sass: {
-        silenceDeprecations: ['legacy-js-api'],
-      },
-    },
-  }),
+  // postcss({
+  //   extensions: ['.css', '.scss'],
+  //   extract: true,
+  //   minimize: isProduction,
+  //   sourceMap: !isProduction,
+  //   syntax: postcssScss,
+  //   plugins: [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
+  //   use: {
+  //     sass: {
+  //       silenceDeprecations: ['legacy-js-api'],
+  //     },
+  //   },
+  // }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
@@ -97,21 +112,29 @@ const entryPoints = [
     input: 'src/background.js',
     output: 'background',
     format: 'es', // ES module
+    cssFilename: null, // No CSS output for background script
   },
   {
     input: 'src/scripts/main-content.js',
     output: 'scripts/main-content',
     format: 'iife', // IIFE
+    cssFilename: 'main-content.css',
   },
   {
     input: 'src/popup/menu.js',
     output: 'popup/menu',
     format: 'iife', // IIFE
+    cssFilename: 'menu.css',
   },
 ];
 
 // Generate a config for each entry point
-export default entryPoints.map(({ input, output, format }) => {
+export default entryPoints.map(({ input, output, format, cssFilename }) => {
+  const pluginsForThisEntry = [
+    ...commonPlugins,
+    cssFilename && postcssPlugin(cssFilename),
+  ].filter(Boolean);
+
   const config = {
     input,
     onwarn,
@@ -122,7 +145,7 @@ export default entryPoints.map(({ input, output, format }) => {
       sourcemap: !isProduction,
       globals: {},
     },
-    plugins: commonPlugins,
+    plugins: pluginsForThisEntry,
   };
 
   // Add additional plugins for IIFE format
