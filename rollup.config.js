@@ -2,10 +2,15 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
-import postcss from 'rollup-plugin-postcss';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
+import postcssRollup from 'rollup-plugin-postcss';
+import postcss from 'postcss';
+
+import postcssScss from 'postcss-scss';
+import autoprefixer from 'autoprefixer';
+import cssnano from 'cssnano';
 import { readFileSync } from 'fs';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
@@ -28,6 +33,27 @@ const onwarn = (warning, warn) => {
   warn(warning);
 };
 
+/**
+ * PostCSS plugin configuration for Rollup.
+ *
+ * @param {string} outputPath - The path where the CSS file will be extracted.
+ * @returns {Object} - The PostCSS plugin configuration.
+ */
+const postcssPlugin = outputPath => {
+  return postcssRollup({
+    extract: outputPath,
+    minimize: isProduction,
+    sourceMap: !isProduction,
+    plugins: [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
+    syntax: postcssScss,
+    use: {
+      sass: {
+        silenceDeprecations: ['legacy-js-api'],
+      },
+    },
+  });
+};
+
 // Determine if we are in production mode
 const isProduction = process.env.NODE_ENV === 'production';
 console.log(`Building for ${isProduction ? 'production' : 'development'}...`);
@@ -43,17 +69,6 @@ const commonPlugins = [
     __BP_APP_VERSION__: pkg.version
       ? JSON.stringify('v' + pkg.version)
       : JSON.stringify(''),
-  }),
-  postcss({
-    extensions: ['.css'],
-    extract: true,
-    minimize: isProduction,
-    sourceMap: !isProduction,
-    include: [
-      '**/*.css',
-      'node_modules/antd/es/**/style/css',
-      'node_modules/antd/dist/antd.css',
-    ],
   }),
   babel({
     babelHelpers: 'bundled',
@@ -73,33 +88,26 @@ const commonPlugins = [
   }),
   copy({
     targets: [
+      { src: 'src/manifest.json', dest: 'dist' },
+      { src: 'src/popup/*.html', dest: 'dist/popup' },
+      { src: 'src/assets/icons/*.png', dest: 'dist/assets/icons' },
+      { src: 'src/assets/img/*.svg', dest: 'dist/assets/img' },
+      // Copy Ant Design styles
       {
-        src: 'src/popup/*.html',
+        src: 'node_modules/antd/dist/reset.css',
         dest: 'dist/popup',
-      },
-      {
-        src: 'src/popup/*.css',
-        dest: 'dist/popup',
-      },
-      {
-        src: 'src/styles/*.css',
-        dest: 'dist/styles',
-      },
-      {
-        src: 'src/assets/icons/*.png',
-        dest: 'dist/assets/icons',
-      },
-      {
-        src: 'src/assets/img/*.svg',
-        dest: 'dist/assets/img',
-      },
-      {
-        src: 'src/assets/fonts/*.{woff,woff2}',
-        dest: 'dist/assets/fonts',
-      },
-      {
-        src: 'src/manifest.json',
-        dest: 'dist',
+        transform: async (contents, filename) => {
+          if (isProduction) {
+            const postcssResult = await postcss([
+              autoprefixer(),
+              cssnano(),
+            ]).process(contents, {
+              from: filename,
+              to: 'reset.css',
+            });
+            return postcssResult.css;
+          }
+        },
       },
     ],
     hook: 'writeBundle',
@@ -120,21 +128,29 @@ const entryPoints = [
     input: 'src/background.js',
     output: 'background',
     format: 'es', // ES module
+    cssFilename: null, // No CSS output for background script
   },
   {
     input: 'src/scripts/main-content.js',
     output: 'scripts/main-content',
     format: 'iife', // IIFE
+    cssFilename: 'main-content.css',
   },
   {
     input: 'src/popup/menu.js',
     output: 'popup/menu',
     format: 'iife', // IIFE
+    cssFilename: 'menu.css',
   },
 ];
 
 // Generate a config for each entry point
-export default entryPoints.map(({ input, output, format }) => {
+export default entryPoints.map(({ input, output, format, cssFilename }) => {
+  const pluginsForThisEntry = [
+    ...commonPlugins,
+    cssFilename && postcssPlugin(cssFilename),
+  ].filter(Boolean);
+
   const config = {
     input,
     onwarn,
@@ -145,7 +161,7 @@ export default entryPoints.map(({ input, output, format }) => {
       sourcemap: !isProduction,
       globals: {},
     },
-    plugins: commonPlugins,
+    plugins: pluginsForThisEntry,
   };
 
   // Add additional plugins for IIFE format
