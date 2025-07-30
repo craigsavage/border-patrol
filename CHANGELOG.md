@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2025-07-30
+
+### Added
+
+- Added dark mode support to the extension's popup UI.
+- Integrated Sass and a Rollup/PostCSS pipeline for streamlined, optimized, and isolated CSS bundling per component.
+
+### Changed
+
+- Now highlights all box model areas (margin, border, padding, content) for enhanced CSS layout visualization.
+- Refactored Popup component to use React for improved maintainability and scalability.
+- Updated Popup UI to utilize Ant Design, providing a more modern and consistent user experience.
+- Self-host font assets for faster load times, improved reliability, and enhanced privacy.
+- App version now directly injected from `package.json` into the UI's footer at build time, ensuring consistent display.
+
 ## [1.3.2] - 2025-06-29
 
 ### Fixed

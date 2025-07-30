@@ -1,29 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
-:root {
-  --bp-light-gray: #ccc;
-  --bp-gray: #999;
-  --bp-dark-gray: #333;
-
-  --bp-blue-50: #f2f8fd;
-  --bp-blue-100: #e5f0f9;
-  --bp-blue-200: #c5e0f2;
-  --bp-blue-300: #92c7e7;
-  --bp-blue-400: #57a9d9;
-  --bp-blue-500: #328ec5;
-  --bp-blue-600: #2374ab; /* Main Color */
-  --bp-blue-700: #1d5a87;
-  --bp-blue-800: #1c4e70;
-  --bp-blue-900: #1c425e;
-  --bp-blue-950: #132a3e;
-
-  --bp-blush-600: #aa4465;
-  --bp-blush-700: #9d3957;
-}
-
 #bp-inspector-container,
 #bp-inspector-overlay,
-#bp-element-highlight,
 .bp-element-info,
 .bp-branding-info {
   /* Reset these styles to prevent interference with the overlay */
@@ -53,7 +29,19 @@
   width: 100vw !important;
   height: 100vh !important;
   pointer-events: none !important;
-  z-index: 10000 !important;
+  z-index: 1000000 !important;
+}
+
+/* Base styles for all box model visualization layers */
+#bp-margin-box,
+#bp-border-box,
+#bp-padding-box,
+#bp-content-box {
+  position: absolute !important;
+  pointer-events: none !important;
+  display: none;
+  box-sizing: border-box; /* Important for correct sizing if any internal borders/paddings were applied (though we use background-color) */
+  z-index: 1000001 !important;
 }
 
 #bp-inspector-overlay {
@@ -69,18 +57,10 @@
   font-size: 12px;
   border-radius: 5px;
   pointer-events: none !important;
-  z-index: 9999 !important;
+  z-index: 1000002 !important;
   max-width: 250px;
   min-width: 150px;
   line-height: 1.4;
-}
-
-#bp-element-highlight {
-  position: absolute !important;
-  background-color: var(--bp-blush-600) !important;
-  opacity: 0.3 !important;
-  pointer-events: none !important;
-  z-index: 9998 !important;
 }
 
 /* --- Specific Styles for Inner Element Information --- */

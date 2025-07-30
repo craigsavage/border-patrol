@@ -6,14 +6,23 @@ import { toSentenceCase } from './utils/string-utils';
   let isInspectorModeEnabled = false; // Cache the inspector mode state
   let throttleTimeout = null;
 
-  // DOM elements
+  // Variables for overlay DOM elements
   let overlayContainer = null;
   let overlay = null;
-  let highlight = null;
+  let marginBox = null;
+  let borderBox = null;
+  let paddingBox = null;
+  let contentBox = null;
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
   const OVERLAY_MARGIN = 10; // Margin from cursor position to overlay position
+
+  // Colors for box model visualization
+  const MARGIN_COLOR = 'rgba(255, 165, 0, 0.3)'; // Orange with transparency
+  const BORDER_COLOR = 'rgba(255, 255, 0, 0.3)'; // Yellow with transparency
+  const PADDING_COLOR = 'rgba(0, 128, 0, 0.3)'; // Green with transparency
+  const CONTENT_COLOR = 'rgba(0, 0, 255, 0.3)'; // Blue with transparency
 
   /**
    * Handles the inspector mode update
@@ -44,24 +53,58 @@ import { toSentenceCase } from './utils/string-utils';
     if (document.getElementById('bp-inspector-container')) {
       overlayContainer = document.getElementById('bp-inspector-container');
       overlay = document.getElementById('bp-inspector-overlay');
-      highlight = document.getElementById('bp-element-highlight');
+      marginBox = document.getElementById('bp-margin-box');
+      borderBox = document.getElementById('bp-border-box');
+      paddingBox = document.getElementById('bp-padding-box');
+      contentBox = document.getElementById('bp-content-box');
       return;
     }
 
     // Initialize DOM elements
-    overlayContainer = createAndAppend('bp-inspector-container', document.body);
-    overlay = createAndAppend('bp-inspector-overlay', overlayContainer);
-    highlight = createAndAppend('bp-element-highlight', overlayContainer);
+    overlayContainer = createAndAppend({
+      id: 'bp-inspector-container',
+      parent: document.body,
+    });
+    overlay = createAndAppend({
+      id: 'bp-inspector-overlay',
+      parent: overlayContainer,
+    });
 
-    // Ensure they are hidden initially
-    if (overlay) overlay.style.display = 'none';
-    if (highlight) highlight.style.display = 'none';
+    // Create box model elements
+    marginBox = createAndAppend({
+      id: 'bp-margin-box',
+      parent: overlayContainer,
+    });
+    borderBox = createAndAppend({
+      id: 'bp-border-box',
+      parent: overlayContainer,
+    });
+    paddingBox = createAndAppend({
+      id: 'bp-padding-box',
+      parent: overlayContainer,
+    });
+    contentBox = createAndAppend({
+      id: 'bp-content-box',
+      parent: overlayContainer,
+    });
+
+    // Ensure all elements are hidden initially
+    [overlay, marginBox, borderBox, paddingBox, contentBox].forEach(element => {
+      if (element) element.style.display = 'none';
+    });
   }
 
   /** Adds event listeners */
   function addEventListeners() {
     // Check if overlay is already initialized
-    if (!overlayContainer || !overlay || !highlight) {
+    if (
+      !overlayContainer ||
+      !overlay ||
+      !marginBox ||
+      !borderBox ||
+      !paddingBox ||
+      !contentBox
+    ) {
       Logger.error('Overlay elements not initialized.');
       return;
     }
@@ -75,14 +118,18 @@ import { toSentenceCase } from './utils/string-utils';
   /**
    * Creates and appends an element to a parent element
    *
-   * @param {string} id - The id of the element
-   * @param {Object} parent - The parent element
-   * @returns {Object} The created element
+   * @param {Object} options - The options object
+   * @param {string} options.id - The id of the element
+   * @param {HTMLElement} options.parent - The parent element to append to
+   * @param {string} [options.tagName='div'] - The tag name of the element
+   * @param {string} [options.classNames=''] - The class names of the element
+   * @returns {HTMLElement|null} The created element or null if required params are missing
    */
-  function createAndAppend(id, parent) {
-    if (!id || !parent) return null;
-    const element = document.createElement('div');
+  function createAndAppend({ id, parent, tagName = 'div', classNames = '' }) {
+    if (!id || !parent || !tagName) return null;
+    const element = document.createElement(tagName);
     element.id = id;
+    element.className = classNames;
     parent.appendChild(element);
     return element;
   }
@@ -197,24 +244,38 @@ import { toSentenceCase } from './utils/string-utils';
   }
 
   /**
+   * Retrieves the numeric value of a CSS property in pixels
+   *
+   * @param {string} prop - The CSS property
+   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
+   * @returns {number} The numeric value in pixels, or 0 if not a number
+   */
+  function getPxValue(prop, computedStyle) {
+    return parseFloat(computedStyle.getPropertyValue(prop)) || 0;
+  }
+
+  /**
    * Displays the overlay on mouseover
    *
    * @param {Event} event - The triggered event
    */
   function mouseOverHandler(event) {
     // Check if inspector mode is enabled
-    if (!isInspectorModeEnabled || !overlay || !highlight || !overlayContainer)
+    if (
+      !isInspectorModeEnabled ||
+      !overlay ||
+      !marginBox ||
+      !borderBox ||
+      !paddingBox ||
+      !contentBox ||
+      !overlayContainer
+    ) {
       return;
+    }
 
     const element = event.target;
-    // Avoid targeting the overlay or highlight elements
-    if (
-      !element ||
-      element === overlay ||
-      element === highlight ||
-      overlayContainer.contains(element)
-    ) {
-      // Hide overlay/highlight if hovered over our own elements
+    // Skip if hovered over the overlay
+    if (!element || overlayContainer.contains(element)) {
       mouseOutHandler();
       return;
     }
@@ -222,7 +283,26 @@ import { toSentenceCase } from './utils/string-utils';
     const rect = element.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(element);
 
-    if (!rect || !computedStyle) return;
+    if (!rect || !computedStyle) {
+      mouseOutHandler();
+      return;
+    }
+
+    // Parse all box model values
+    const marginTop = getPxValue('margin-top', computedStyle);
+    const marginRight = getPxValue('margin-right', computedStyle);
+    const marginBottom = getPxValue('margin-bottom', computedStyle);
+    const marginLeft = getPxValue('margin-left', computedStyle);
+
+    const borderTopWidth = getPxValue('border-top-width', computedStyle);
+    const borderRightWidth = getPxValue('border-right-width', computedStyle);
+    const borderBottomWidth = getPxValue('border-bottom-width', computedStyle);
+    const borderLeftWidth = getPxValue('border-left-width', computedStyle);
+
+    const paddingTop = getPxValue('padding-top', computedStyle);
+    const paddingRight = getPxValue('padding-right', computedStyle);
+    const paddingBottom = getPxValue('padding-bottom', computedStyle);
+    const paddingLeft = getPxValue('padding-left', computedStyle);
 
     // Get the formatted border information
     const borderInfo = getFormattedBorderInfo(computedStyle);
@@ -272,25 +352,69 @@ import { toSentenceCase } from './utils/string-utils';
 
     // Set display to block before getOverlayPosition
     overlay.style.display = 'block';
-    overlay.style.pointerEvents = 'none'; // Ensure overlay doesn't block clicks
 
     updateOverlayPosition(event);
 
-    // Display the highlight
+    // Render the box model overlay elements
     requestAnimationFrame(() => {
-      if (!highlight) return; // Highlight may have been removed
+      // The elements may have been removed or not initialized
+      if (!overlay || !marginBox || !borderBox || !paddingBox || !contentBox) {
+        Logger.error('Overlay elements not initialized.');
+        return;
+      }
 
       try {
-        // Set position and size of the highlight
-        highlight.style.top = `${rect.top}px`;
-        highlight.style.left = `${rect.left}px`;
-        highlight.style.width = `${rect.width}px`;
-        highlight.style.height = `${rect.height}px`;
+        // Margin Box
+        marginBox.style.top = `${rect.top - marginTop}px`;
+        marginBox.style.left = `${rect.left - marginLeft}px`;
+        marginBox.style.width = `${rect.width + marginLeft + marginRight}px`;
+        marginBox.style.height = `${rect.height + marginTop + marginBottom}px`;
+        marginBox.style.backgroundColor = MARGIN_COLOR;
+        marginBox.style.display = 'block';
 
-        highlight.style.display = 'block';
-        highlight.style.pointerEvents = 'none'; // Ensure highlight doesn't block clicks
+        // Border Box (element's getBoundingClientRect() directly represents this)
+        borderBox.style.top = `${rect.top}px`;
+        borderBox.style.left = `${rect.left}px`;
+        borderBox.style.width = `${rect.width}px`;
+        borderBox.style.height = `${rect.height}px`;
+        borderBox.style.backgroundColor = BORDER_COLOR;
+        borderBox.style.display = 'block';
+
+        // Padding Box
+        paddingBox.style.top = `${rect.top + borderTopWidth}px`;
+        paddingBox.style.left = `${rect.left + borderLeftWidth}px`;
+        paddingBox.style.width = `${
+          rect.width - borderLeftWidth - borderRightWidth
+        }px`;
+        paddingBox.style.height = `${
+          rect.height - borderTopWidth - borderBottomWidth
+        }px`;
+        paddingBox.style.backgroundColor = PADDING_COLOR;
+        paddingBox.style.display = 'block';
+
+        // Content Box
+        contentBox.style.top = `${rect.top + borderTopWidth + paddingTop}px`;
+        contentBox.style.left = `${
+          rect.left + borderLeftWidth + paddingLeft
+        }px`;
+        contentBox.style.width = `${
+          rect.width -
+          borderLeftWidth -
+          borderRightWidth -
+          paddingLeft -
+          paddingRight
+        }px`;
+        contentBox.style.height = `${
+          rect.height -
+          borderTopWidth -
+          borderBottomWidth -
+          paddingTop -
+          paddingBottom
+        }px`;
+        contentBox.style.backgroundColor = CONTENT_COLOR;
+        contentBox.style.display = 'block';
       } catch (error) {
-        Logger.error('Error displaying highlight:', error);
+        Logger.error('Error rendering box model:', error);
       }
     });
   }
@@ -341,10 +465,13 @@ import { toSentenceCase } from './utils/string-utils';
     }
   }
 
-  /** Hides the overlay and highlight when the mouse leaves the element */
+  /** Hides the overlay and box model elements on mouseout */
   function mouseOutHandler() {
     if (overlay) overlay.style.display = 'none';
-    if (highlight) highlight.style.display = 'none';
+    if (marginBox) marginBox.style.display = 'none';
+    if (borderBox) borderBox.style.display = 'none';
+    if (paddingBox) paddingBox.style.display = 'none';
+    if (contentBox) contentBox.style.display = 'none';
   }
 
   /** Removes all overlay elements from the DOM and resets related variables to null */
@@ -355,7 +482,10 @@ import { toSentenceCase } from './utils/string-utils';
     // Reset DOM element variables to null
     overlayContainer = null;
     overlay = null;
-    highlight = null;
+    marginBox = null;
+    borderBox = null;
+    paddingBox = null;
+    contentBox = null;
   }
 
   /** Removes event listeners */
