@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.0] - 2025-07-25
+## [1.4.0] - 2025-07-30
 
 ### Added
 
 - Added dark mode support to the extension's popup UI.
+- Integrated Sass and a Rollup/PostCSS pipeline for streamlined, optimized, and isolated CSS bundling per component.
 
 ### Changed
 
