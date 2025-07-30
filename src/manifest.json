@@ -30,7 +30,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["scripts/*.js", "styles/*.css", "assets/fonts/*.woff2"],
+      "resources": ["scripts/*.js", "scripts/*.css", "assets/fonts/*.woff2"],
       "matches": ["<all_urls>"]
     }
   ]

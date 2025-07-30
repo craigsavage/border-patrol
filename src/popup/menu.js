@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import Logger from '../scripts/utils/logger.js';
 
-import 'antd/dist/reset.css';
+import '../styles/menu.scss';
 
 import App from './App';
 
