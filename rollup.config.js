@@ -91,7 +91,7 @@ const commonPlugins = [
       { src: 'src/manifest.json', dest: 'dist' },
       { src: 'src/popup/*.html', dest: 'dist/popup' },
       { src: 'src/assets/icons/*.png', dest: 'dist/assets/icons' },
-      { src: 'src/assets/img/*.svg', dest: 'dist/assets/img' },
+      { src: 'src/assets/fonts/*.woff2', dest: 'dist/assets/fonts' },
       // Copy Ant Design styles
       {
         src: 'node_modules/antd/dist/reset.css',

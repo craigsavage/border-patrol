@@ -483,6 +483,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
           }
 
           await captureAndDownloadScreenshot(activeTab.windowId);
+          sendResponse(true);
           return true; // Success
         } catch (error) {
           Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);

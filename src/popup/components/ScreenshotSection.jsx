@@ -56,25 +56,25 @@ export default function ScreenshotSection({
     try {
       const success = await onCaptureScreenshot();
 
-      if (success) {
-        setNotification({ message: 'Screenshot captured!', type: 'success' });
-      } else {
-        setNotification({
-          message: 'Failed to capture screenshot',
-          type: 'error',
-        });
-      }
+      // if (success) {
+      //   setNotification({ message: 'Screenshot captured!', type: 'success' });
+      // } else {
+      //   setNotification({
+      //     message: 'Failed to capture screenshot',
+      //     type: 'error',
+      //   });
+      // }
     } catch (error) {
       console.error('Error in handleTakeScreenshot:', error);
-      setNotification({
-        message: 'Internal error occurred',
-        type: 'error',
-      });
+      // setNotification({
+      //   message: 'Internal error occurred',
+      //   type: 'error',
+      // });
     } finally {
-      setTimeout(() => {
-        setIsCapturing(false);
-        setNotification(null);
-      }, 2000); // Clear message after 2 seconds
+      // setTimeout(() => {
+      //   setIsCapturing(false);
+      //   setNotification(null);
+      // }, 2000); // Clear message after 2 seconds
     }
   };
 
