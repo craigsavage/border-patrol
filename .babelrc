@@ -5,8 +5,10 @@
       "import",
       {
         "libraryName": "antd",
-        "libraryDirectory": "es"
-      }
+        "libraryDirectory": "es",
+        "style": false
+      },
+      "antd-tree-shaking"
     ]
   ]
 }
