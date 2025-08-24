@@ -26,6 +26,13 @@
         "mac": "Alt+Shift+B"
       },
       "description": "Toggle Border Patrol"
+    },
+    "toggle_inspector_mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+I",
+        "mac": "Alt+Shift+I"
+      },
+      "description": "Toggle Inspector Mode"
     }
   },
   "web_accessible_resources": [
