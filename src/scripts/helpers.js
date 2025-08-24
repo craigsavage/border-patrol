@@ -27,17 +27,22 @@ export function isRestrictedUrl(url) {
 /**
  * Retrieves the active tab in the current window.
  *
+ * The active tab is the last focused tab in the current window.
+ * If no tab is found, an empty object is returned.
+ *
  * @returns {Promise<chrome.tabs.Tab>} The active tab object, or an empty object if not found.
  */
 export async function getActiveTab() {
   try {
-    const [tab] = await chrome.tabs.query({
+    // Query for the active tab in the current window
+    const tabs = await chrome.tabs.query({
       active: true,
       lastFocusedWindow: true,
     });
-    return tab ?? {};
+
+    // Return the first tab found, or an empty object if none are found
+    return tabs[0] ?? {};
   } catch (error) {
-    Logger.error('Error retrieving active tab:', error);
     return {};
   }
 }
