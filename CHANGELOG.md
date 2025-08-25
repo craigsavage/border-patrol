@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - UNRELEASED
+
+### Added
+
+- Added new keyboard shortcut (`"Alt+Shift+I"`) for toggling inspector mode
+
 ## [1.4.0] - 2025-07-30
 
 ### Added
@@ -134,7 +140,7 @@ All notable changes to this project will be documented in this file.
 - Resolved issues where the popup menu's display wasn't updating correctly.
 - Fixed critical connection and state synchronization issues for more reliable functionality.
 - Borders now apply correctly immediately after installation.
-- Changed the keyboard shortcut for toggling borders to `'Alt+Shift+B'` to avoid conflicts and ensure it works reliably.
+- Changed the keyboard shortcut for toggling borders to `"Alt+Shift+B"` to avoid conflicts and ensure it works reliably.
 - Inspector mode now correctly deactivates after extension reload or on restricted pages.
 - Corrected inspector overlay position when scrolling or with the console open.
 - Improved resource management by cleaning up data when tabs are closed.
