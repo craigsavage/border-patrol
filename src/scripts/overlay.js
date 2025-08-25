@@ -18,11 +18,11 @@ import { toSentenceCase } from './utils/string-utils';
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
   const OVERLAY_MARGIN = 10; // Margin from cursor position to overlay position
 
-  // Colors for box model visualization
-  const MARGIN_COLOR = 'rgba(255, 165, 0, 0.3)'; // Orange with transparency
-  const BORDER_COLOR = 'rgba(255, 255, 0, 0.3)'; // Yellow with transparency
-  const PADDING_COLOR = 'rgba(0, 128, 0, 0.3)'; // Green with transparency
-  const CONTENT_COLOR = 'rgba(0, 0, 255, 0.3)'; // Blue with transparency
+  // Colors for box model visualization (rgba with transparency)
+  const MARGIN_COLOR = 'rgba(255, 165, 0, 0.3)'; // Orange
+  const BORDER_COLOR = 'rgba(255, 255, 0, 0.3)'; // Yellow
+  const PADDING_COLOR = 'rgba(0, 128, 0, 0.3)'; // Green
+  const CONTENT_COLOR = 'rgba(0, 0, 255, 0.3)'; // Blue
 
   /**
    * Handles the inspector mode update
