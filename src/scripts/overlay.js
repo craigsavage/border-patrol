@@ -255,6 +255,21 @@ import { toSentenceCase } from './utils/string-utils';
   }
 
   /**
+   * Formats box model values for display
+   *
+   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
+   * @param {string} property - The CSS property to format (e.g., 'margin', 'padding')
+   * @returns {string} The formatted box model values
+   */
+  function formatBoxModelValues(computedStyle, property) {
+    const elementValue = computedStyle.getPropertyValue(property);
+
+    if (!elementValue || elementValue === '0px') return '';
+
+    return elementValue;
+  }
+
+  /**
    * Generates the HTML content for the overlay
    *
    * @param {HTMLElement} element - The target element
@@ -269,6 +284,8 @@ import { toSentenceCase } from './utils/string-utils';
       element,
       MAX_CLASS_DISPLAY_LENGTH
     );
+    const margin = formatBoxModelValues(computedStyle, 'margin');
+    const padding = formatBoxModelValues(computedStyle, 'padding');
 
     // Get the formatted border information
     const borderInfo = getFormattedBorderInfo(computedStyle);
@@ -284,9 +301,6 @@ import { toSentenceCase } from './utils/string-utils';
             ? `<span class="bp-element-label">Classes:</span> ${elementClasses}<br>`
             : ''
         }
-        <span class="bp-element-label">Dimensions:</span> ${Math.round(
-          rect.width
-        )} x ${Math.round(rect.height)} px
       </div>
 
       <div class="bp-element-group">
@@ -295,17 +309,20 @@ import { toSentenceCase } from './utils/string-utils';
           <li><span class="bp-element-label">Display:</span> ${
             computedStyle.display
           }</li>
+          <li><span class="bp-element-label">Dimensions:</span> ${Math.round(
+            rect.width
+          )} x ${Math.round(rect.height)} px</li>
           ${
-            computedStyle.margin &&
-            `<li><span class="bp-element-label">Margin:</span> ${computedStyle.margin}</li>`
+            margin &&
+            `<li><span class="bp-element-label">Margin:</span> ${margin}</li>`
           }
           ${
             borderInfo &&
             `<li><span class="bp-element-label">Border:</span> ${borderInfo}</li>`
           }
           ${
-            computedStyle.padding &&
-            `<li><span class="bp-element-label">Padding:</span> ${computedStyle.padding}</li>`
+            padding &&
+            `<li><span class="bp-element-label">Padding:</span> ${padding}</li>`
           }
         </ul>
       </div>
