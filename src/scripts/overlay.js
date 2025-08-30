@@ -329,22 +329,56 @@ import { toSentenceCase } from './utils/string-utils';
           rect.width
         )} x ${Math.round(rect.height)} px<br>
         <span class="bp-info-label">Display:</span> ${computedStyle.display}<br>
-        ${
-          borderInfo
-            ? `<span class="bp-info-label">Border:</span> ${borderInfo}<br>`
-            : ''
-        }
-        ${
-          computedStyle.margin
-            ? `<span class="bp-info-label">Margin:</span> ${computedStyle.margin}<br>`
-            : ''
-        }
-        ${
-          computedStyle.padding
-            ? `<span class="bp-info-label">Padding:</span> ${computedStyle.padding}`
-            : ''
-        }
       </div>
+
+      <div class="bp-element-group">
+        <h4 class="bp-element-group-title">Layout</h4>
+        <ul>
+          ${
+            computedStyle.margin &&
+            `<li><span class="bp-element-label">Margin:</span> ${computedStyle.margin}</li>`
+          }
+          ${
+            borderInfo &&
+            `<li><span class="bp-element-label">Border:</span> ${borderInfo}</li>`
+          }
+          ${
+            computedStyle.padding &&
+            `<li><span class="bp-element-label">Padding:</span> ${computedStyle.padding}</li>`
+          }
+        </ul>
+      </div>
+
+      <div class="bp-element-group">
+        <h4 class="bp-element-group-title">Text</h4>
+        <ul>
+          ${
+            computedStyle.fontFamily &&
+            `<li><span class="bp-element-label">Font Family:</span> ${computedStyle.fontFamily}</li>`
+          }
+          ${
+            computedStyle.fontSize &&
+            `<li><span class="bp-element-label">Font Size:</span> ${computedStyle.fontSize}</li>`
+          }
+          ${
+            computedStyle.fontWeight &&
+            `<li><span class="bp-element-label">Font Weight:</span> ${computedStyle.fontWeight}</li>`
+          }
+          ${
+            computedStyle.color &&
+            `<li><span class="bp-element-label">Color:</span> ${computedStyle.color}</li>`
+          }
+          ${
+            computedStyle.lineHeight &&
+            `<li><span class="bp-element-label">Line Height:</span> ${computedStyle.lineHeight}</li>`
+          }
+          ${
+            computedStyle.textAlign &&
+            `<li><span class="bp-element-label">Text Align:</span> ${computedStyle.textAlign}</li>`
+          }
+        </ul>
+      </div>
+
       <footer class="bp-branding-info">
         <span class="bp-branding">Border Patrol</span>
       </footer>

@@ -59,7 +59,7 @@
   pointer-events: none !important;
   z-index: 1000002 !important;
   max-width: 250px;
-  min-width: 150px;
+  min-width: 200px;
   line-height: 1.4;
 }
 
@@ -75,7 +75,8 @@
   color: var(--bp-blue-300);
 }
 
-.bp-element-info .bp-info-label {
+.bp-element-info .bp-info-label,
+.bp-element-label {
   font-weight: normal;
   color: var(--bp-gray);
   margin-right: 4px;
@@ -88,4 +89,21 @@
   padding-top: 4px;
   margin-top: 4px;
   text-align: right;
+}
+
+.bp-element-group {
+  margin-top: 8px;
+}
+
+.bp-element-group h4 {
+  color: var(--bp-blue-200);
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.bp-element-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 2px;
 }
