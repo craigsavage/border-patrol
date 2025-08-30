@@ -50,7 +50,7 @@
   position: absolute !important;
   display: block !important;
   box-sizing: border-box !important;
-  background: rgba(0, 0, 0, 0.85) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
   color: var(--bp-blue-50);
   padding: 6px 10px;
   font-family: 'Inter', sans-serif;
@@ -75,13 +75,6 @@
   color: var(--bp-blue-300);
 }
 
-.bp-element-info .bp-info-label,
-.bp-element-label {
-  font-weight: normal;
-  color: var(--bp-gray);
-  margin-right: 4px;
-}
-
 .bp-element-group {
   margin-top: 8px;
 }
@@ -97,6 +90,12 @@
   list-style: none;
   padding: 0;
   margin: 2px;
+}
+
+.bp-element-label {
+  font-weight: normal;
+  color: var(--bp-gray);
+  margin-right: 4px;
 }
 
 .bp-color-element-box {

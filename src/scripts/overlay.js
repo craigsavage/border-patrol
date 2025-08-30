@@ -255,58 +255,14 @@ import { toSentenceCase } from './utils/string-utils';
   }
 
   /**
-   * Displays the overlay on mouseover
+   * Generates the HTML content for the overlay
    *
-   * @param {Event} event - The triggered event
+   * @param {HTMLElement} element - The target element
+   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
+   * @param {DOMRect} rect - The bounding client rect of the element
+   * @returns {string} The HTML content for the overlay
    */
-  function mouseOverHandler(event) {
-    // Check if inspector mode is enabled
-    if (
-      !isInspectorModeEnabled ||
-      !overlay ||
-      !marginBox ||
-      !borderBox ||
-      !paddingBox ||
-      !contentBox ||
-      !overlayContainer
-    ) {
-      return;
-    }
-
-    const element = event.target;
-    // Skip if hovered over the overlay
-    if (!element || overlayContainer.contains(element)) {
-      mouseOutHandler();
-      return;
-    }
-
-    const rect = element.getBoundingClientRect();
-    const computedStyle = window.getComputedStyle(element);
-
-    if (!rect || !computedStyle) {
-      mouseOutHandler();
-      return;
-    }
-
-    // Parse all box model values
-    const marginTop = getPxValue('margin-top', computedStyle);
-    const marginRight = getPxValue('margin-right', computedStyle);
-    const marginBottom = getPxValue('margin-bottom', computedStyle);
-    const marginLeft = getPxValue('margin-left', computedStyle);
-
-    const borderTopWidth = getPxValue('border-top-width', computedStyle);
-    const borderRightWidth = getPxValue('border-right-width', computedStyle);
-    const borderBottomWidth = getPxValue('border-bottom-width', computedStyle);
-    const borderLeftWidth = getPxValue('border-left-width', computedStyle);
-
-    const paddingTop = getPxValue('padding-top', computedStyle);
-    const paddingRight = getPxValue('padding-right', computedStyle);
-    const paddingBottom = getPxValue('padding-bottom', computedStyle);
-    const paddingLeft = getPxValue('padding-left', computedStyle);
-
-    // Get the formatted border information
-    const borderInfo = getFormattedBorderInfo(computedStyle);
-
+  function generateOverlayContent(element, computedStyle, rect) {
     // Get element ID and classes
     const elementId = element.id ? `#${element.id}` : '';
     const elementClasses = getElementClassNames(
@@ -314,26 +270,31 @@ import { toSentenceCase } from './utils/string-utils';
       MAX_CLASS_DISPLAY_LENGTH
     );
 
-    // Update the overlay content with the element details
-    overlay.innerHTML = `
-      <div class="bp-element-info">
+    // Get the formatted border information
+    const borderInfo = getFormattedBorderInfo(computedStyle);
+
+    // Generate the HTML content for the overlay
+    return `
+      <div>
         <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
           ${elementId}
         </span><br>
         ${
           elementClasses
-            ? `<span class="bp-info-label">Classes:</span> ${elementClasses}<br>`
+            ? `<span class="bp-element-label">Classes:</span> ${elementClasses}<br>`
             : ''
         }
-        <span class="bp-info-label">Dimensions:</span> ${Math.round(
+        <span class="bp-element-label">Dimensions:</span> ${Math.round(
           rect.width
-        )} x ${Math.round(rect.height)} px<br>
-        <span class="bp-info-label">Display:</span> ${computedStyle.display}<br>
+        )} x ${Math.round(rect.height)} px
       </div>
 
       <div class="bp-element-group">
         <h4 class="bp-element-group-title">Layout</h4>
         <ul>
+          <li><span class="bp-element-label">Display:</span> ${
+            computedStyle.display
+          }</li>
           ${
             computedStyle.margin &&
             `<li><span class="bp-element-label">Margin:</span> ${computedStyle.margin}</li>`
@@ -385,10 +346,65 @@ import { toSentenceCase } from './utils/string-utils';
         <span class="bp-branding">Border Patrol</span>
       </footer>
     `;
+  }
+
+  /**
+   * Displays the overlay on mouseover
+   *
+   * @param {Event} event - The triggered event
+   */
+  function mouseOverHandler(event) {
+    // Check if inspector mode is enabled
+    if (
+      !isInspectorModeEnabled ||
+      !overlay ||
+      !marginBox ||
+      !borderBox ||
+      !paddingBox ||
+      !contentBox ||
+      !overlayContainer
+    ) {
+      return;
+    }
+
+    const element = event.target;
+    // Skip if hovered over the overlay
+    if (!element || overlayContainer.contains(element)) {
+      mouseOutHandler();
+      return;
+    }
+
+    const rect = element.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(element);
+
+    if (!rect || !computedStyle) {
+      mouseOutHandler();
+      return;
+    }
+
+    // Parse all box model values
+    const marginTop = getPxValue('margin-top', computedStyle);
+    const marginRight = getPxValue('margin-right', computedStyle);
+    const marginBottom = getPxValue('margin-bottom', computedStyle);
+    const marginLeft = getPxValue('margin-left', computedStyle);
+
+    const borderTopWidth = getPxValue('border-top-width', computedStyle);
+    const borderRightWidth = getPxValue('border-right-width', computedStyle);
+    const borderBottomWidth = getPxValue('border-bottom-width', computedStyle);
+    const borderLeftWidth = getPxValue('border-left-width', computedStyle);
+
+    const paddingTop = getPxValue('padding-top', computedStyle);
+    const paddingRight = getPxValue('padding-right', computedStyle);
+    const paddingBottom = getPxValue('padding-bottom', computedStyle);
+    const paddingLeft = getPxValue('padding-left', computedStyle);
+
+    // Update the overlay content with the element details
+    overlay.innerHTML = generateOverlayContent(element, computedStyle, rect);
 
     // Set display to block before getOverlayPosition
     overlay.style.display = 'block';
 
+    // Update the position of the overlay
     updateOverlayPosition(event);
 
     // Render the box model overlay elements
