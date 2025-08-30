@@ -366,7 +366,9 @@ import { toSentenceCase } from './utils/string-utils';
           }
           ${
             computedStyle.color &&
-            `<li><span class="bp-element-label">Color:</span> ${computedStyle.color}</li>`
+            `<li><span class="bp-element-label">Color:</span>
+              <span class="bp-color-element-box" style="background-color: ${computedStyle.color}"></span> ${computedStyle.color}
+            </li>`
           }
           ${
             computedStyle.lineHeight &&
@@ -379,7 +381,7 @@ import { toSentenceCase } from './utils/string-utils';
         </ul>
       </div>
 
-      <footer class="bp-branding-info">
+      <footer class="bp-overlay-footer">
         <span class="bp-branding">Border Patrol</span>
       </footer>
     `;

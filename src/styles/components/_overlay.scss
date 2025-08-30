@@ -1,7 +1,7 @@
 #bp-inspector-container,
 #bp-inspector-overlay,
 .bp-element-info,
-.bp-branding-info {
+.bp-overlay-footer {
   /* Reset these styles to prevent interference with the overlay */
   background: none;
   box-shadow: none;
@@ -82,15 +82,6 @@
   margin-right: 4px;
 }
 
-.bp-branding-info {
-  font-size: 10px;
-  color: var(--bp-blue-400);
-  border-top: 1px dashed var(--bp-blue-50);
-  padding-top: 4px;
-  margin-top: 4px;
-  text-align: right;
-}
-
 .bp-element-group {
   margin-top: 8px;
 }
@@ -106,4 +97,23 @@
   list-style: none;
   padding: 0;
   margin: 2px;
+}
+
+.bp-color-element-box {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--bp-gray);
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.bp-overlay-footer {
+  font-size: 10px;
+  color: var(--bp-blue-400);
+  border-top: 1px dashed var(--bp-blue-50);
+  padding-top: 4px;
+  margin-top: 8px;
+  text-align: right;
 }
