@@ -1,6 +1,5 @@
-import { getElementClassNames } from './helpers';
 import Logger from './utils/logger';
-
+import { getPxValue, getElementClassNames } from './utils/dom-helpers';
 import {
   formatBoxModelValues,
   formatBorderInfo,
@@ -168,17 +167,6 @@ import {
       top: posY,
       left: posX,
     };
-  }
-
-  /**
-   * Retrieves the numeric value of a CSS property in pixels
-   *
-   * @param {string} prop - The CSS property
-   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
-   * @returns {number} The numeric value in pixels, or 0 if not a number
-   */
-  function getPxValue(prop, computedStyle) {
-    return parseFloat(computedStyle.getPropertyValue(prop)) || 0;
   }
 
   /**
