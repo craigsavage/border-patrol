@@ -564,4 +564,34 @@ chrome.commands.onCommand.addListener(async command => {
       return;
     }
   }
+
+  // Toggle the inspector for the active tab
+  else if (command === 'toggle_inspector_mode') {
+    let tabId;
+
+    try {
+      // Get the active tab to determine which tab to toggle
+      const activeTab = await getActiveTab();
+      if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url)) {
+        Logger.warn('Ignoring command on restricted or invalid tab.');
+        return;
+      }
+      tabId = activeTab.id;
+
+      // Get current state and toggle inspector mode
+      const currentState = await getTabState({ tabId });
+      const newState = !currentState.inspectorMode;
+
+      // Handle the state change centrally
+      await handleTabStateChange({
+        tabId,
+        states: { inspectorMode: newState },
+      });
+    } catch (error) {
+      Logger.error(`Error toggling inspector mode for tab ${tabId}:`, error);
+      return;
+    }
+  } else {
+    Logger.warn('Unknown command received:', command);
+  }
 });

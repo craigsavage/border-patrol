@@ -1,7 +1,10 @@
 #bp-inspector-container,
 #bp-inspector-overlay,
 .bp-element-info,
-.bp-branding-info {
+.bp-element-group,
+.bp-overlay-footer {
+  all: unset;
+
   /* Reset these styles to prevent interference with the overlay */
   background: none;
   box-shadow: none;
@@ -19,6 +22,8 @@
   left: auto;
   right: auto;
   bottom: auto;
+
+  font-family: 'Inter', sans-serif !important;
 }
 
 /* --- Specific Styles for Core Structural Elements --- */
@@ -45,47 +50,81 @@
 }
 
 #bp-inspector-overlay {
-  all: unset;
-
   position: absolute !important;
   display: block !important;
   box-sizing: border-box !important;
-  background: rgba(0, 0, 0, 0.85) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
   color: var(--bp-blue-50);
   padding: 6px 10px;
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   border-radius: 5px;
   pointer-events: none !important;
   z-index: 1000002 !important;
-  max-width: 250px;
-  min-width: 150px;
+  max-width: 260px;
+  min-width: 200px;
   line-height: 1.4;
 }
 
 /* --- Specific Styles for Inner Element Information --- */
-.bp-element-info {
-  font-weight: normal;
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.bp-element-info .bp-id-value {
-  font-weight: 500;
+.bp-id-value {
+  font-weight: 400;
   color: var(--bp-blue-300);
 }
 
-.bp-element-info .bp-info-label {
+.bp-element-group {
+  margin-top: 8px;
+}
+
+.bp-element-group-title {
+  color: var(--bp-blue-200);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+  padding: 0;
+}
+
+.bp-element-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 2px;
+}
+
+.bp-element-group li {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.4;
+  margin-left: 4px;
+  padding: 0;
+}
+
+.bp-element-label {
   font-weight: normal;
   color: var(--bp-gray);
+  font-size: 12px;
   margin-right: 4px;
 }
 
-.bp-branding-info {
+.bp-color-element-box {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--bp-gray);
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.bp-overlay-footer {
   font-size: 10px;
+  font-weight: normal;
   color: var(--bp-blue-400);
   border-top: 1px dashed var(--bp-blue-50);
   padding-top: 4px;
-  margin-top: 4px;
+  margin-top: 8px;
   text-align: right;
+  display: flex;
+  justify-content: flex-end;
 }

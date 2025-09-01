@@ -27,17 +27,22 @@ export function isRestrictedUrl(url) {
 /**
  * Retrieves the active tab in the current window.
  *
+ * The active tab is the last focused tab in the current window.
+ * If no tab is found, an empty object is returned.
+ *
  * @returns {Promise<chrome.tabs.Tab>} The active tab object, or an empty object if not found.
  */
 export async function getActiveTab() {
   try {
-    const [tab] = await chrome.tabs.query({
+    // Query for the active tab in the current window
+    const tabs = await chrome.tabs.query({
       active: true,
       lastFocusedWindow: true,
     });
-    return tab ?? {};
+
+    // Return the first tab found, or an empty object if none are found
+    return tabs[0] ?? {};
   } catch (error) {
-    Logger.error('Error retrieving active tab:', error);
     return {};
   }
 }
@@ -58,30 +63,4 @@ export async function hasPermission(permissions) {
     Logger.error('Error checking permissions:', error);
     return false;
   }
-}
-
-/**
- * Retrieves and formats the class names of an element.
- * Truncates the list if it exceeds the maximum display length.
- *
- * @param {HTMLElement} element - The DOM element whose class names are to be retrieved.
- * @param {number} [maxLength=50] - The maximum length of the class names string.
- * @returns {string} A formatted string of class names.
- */
-export function getElementClassNames(element, maxLength = 50) {
-  const classAttribute = element.getAttribute('class');
-  // Handle cases where class attribute is null or not a string
-  if (!classAttribute || typeof classAttribute !== 'string') return '';
-
-  // Split class names by whitespace and filter out empty strings
-  const classNames = classAttribute.split(/\s+/).filter(Boolean);
-  let elementClasses = '';
-  if (classNames.length > 0) {
-    elementClasses = `.${classNames.join(' .')}`;
-    if (elementClasses.length > maxLength) {
-      elementClasses = elementClasses.substring(0, maxLength - 3) + '...';
-    }
-  }
-
-  return elementClasses;
 }

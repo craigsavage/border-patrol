@@ -20,7 +20,7 @@ export default function Header() {
     color: token.colorPrimary,
     border: `3px dashed ${token.colorPrimary}`,
     borderRadius: '10px',
-    padding: '8px',
+    padding: '4px 8px',
     margin: 0,
   };
 
