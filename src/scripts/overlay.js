@@ -1,6 +1,12 @@
-import { getElementClassNames } from './helpers';
 import Logger from './utils/logger';
-import { toSentenceCase } from './utils/string-utils';
+import { getPxValue, getElementClassNames } from './utils/dom-helpers';
+import {
+  formatDimensions,
+  formatColorValue,
+  formatBoxModelValues,
+  formatBorderInfo,
+  formatFontStack,
+} from './utils/overlay-formatters';
 
 (function () {
   let isInspectorModeEnabled = false; // Cache the inspector mode state
@@ -167,91 +173,140 @@ import { toSentenceCase } from './utils/string-utils';
   }
 
   /**
-   * Gets the formatted border information from the computed style
+   * Generates the HTML content for the overlay
    *
+   * @param {HTMLElement} element - The target element
    * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
-   * @returns {string} The formatted border information (width style color) or an empty string if no border is present
+   * @param {DOMRect} rect - The bounding client rect of the element
+   * @returns {string} The HTML content for the overlay
    */
-  function getFormattedBorderInfo(computedStyle) {
-    const borders = {
-      top: {
-        width: computedStyle.borderTopWidth,
-        style: computedStyle.borderTopStyle,
-        color: computedStyle.borderTopColor,
-      },
-      right: {
-        width: computedStyle.borderRightWidth,
-        style: computedStyle.borderRightStyle,
-        color: computedStyle.borderRightColor,
-      },
-      bottom: {
-        width: computedStyle.borderBottomWidth,
-        style: computedStyle.borderBottomStyle,
-        color: computedStyle.borderBottomColor,
-      },
-      left: {
-        width: computedStyle.borderLeftWidth,
-        style: computedStyle.borderLeftStyle,
-        color: computedStyle.borderLeftColor,
-      },
-    };
+  function generateOverlayContent(element, computedStyle, rect) {
+    if (!element || !computedStyle || !rect) return '';
 
-    // Check if all borders are zero width, none style, or transparent color
-    const allBordersZero = Object.values(borders).every(border => {
-      return (
-        border.width === '0px' ||
-        border.style === 'none' ||
-        border.color === 'transparent'
-      );
-    });
-
-    if (allBordersZero) return '';
-
-    // Check if all borders have the same width, style, and color
-    const allBordersSame = Object.values(borders).every(border => {
-      return (
-        border.width === borders.top.width &&
-        border.style === borders.top.style &&
-        border.color === borders.top.color
-      );
-    });
-
-    // Return the top border information if all borders are the same
-    if (allBordersSame) {
-      return `${borders.top.width} ${borders.top.style} ${borders.top.color}`;
-    }
-    // If borders are not the same, return a formatted string for each border
-    return (
-      '<br>' +
-      Object.entries(borders)
-        .map(([side, border]) => {
-          // Skip if border is zero width, none style, or transparent color
-          if (
-            border.width === '0px' ||
-            border.style === 'none' ||
-            border.color === 'transparent'
-          ) {
-            return '';
-          }
-          // Format the border information for each side
-          return `${toSentenceCase(side)}: ${border.width} ${border.style} ${
-            border.color
-          }`;
-        })
-        .filter(info => info) // Filter out empty strings
-        .join('<br>')
+    // Get element details
+    const elementId = element.id ? `#${element.id}` : '';
+    const elementClasses = getElementClassNames(
+      element,
+      MAX_CLASS_DISPLAY_LENGTH
     );
-  }
+    const dimensions = formatDimensions(rect.width, rect.height);
+    const margin = formatBoxModelValues(computedStyle, 'margin');
+    const padding = formatBoxModelValues(computedStyle, 'padding');
+    const border = formatBorderInfo(computedStyle);
+    const borderRadius = formatBoxModelValues(computedStyle, 'border-radius');
+    const fontFamily = formatFontStack({
+      fontFamily: computedStyle.fontFamily,
+      maxFonts: 1,
+      showFallback: false,
+    });
+    const backgroundColor = formatColorValue(computedStyle.backgroundColor);
 
-  /**
-   * Retrieves the numeric value of a CSS property in pixels
-   *
-   * @param {string} prop - The CSS property
-   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
-   * @returns {number} The numeric value in pixels, or 0 if not a number
-   */
-  function getPxValue(prop, computedStyle) {
-    return parseFloat(computedStyle.getPropertyValue(prop)) || 0;
+    // Check if the sections have any data to display
+    const hasLayoutSection = dimensions || margin || padding || border;
+    const hasAppearanceSection = backgroundColor || borderRadius;
+    const hasTextSection = element.textContent.trim().length > 0;
+
+    const layoutSection = hasLayoutSection
+      ? `
+      <section class="bp-element-group">
+        <h4 class="bp-element-group-title">Layout</h4>
+        <ul>
+          <li><span class="bp-element-label">Display:</span> ${
+            computedStyle.display
+          }</li>
+          <li><span class="bp-element-label">Dimensions:</span> ${dimensions}</li>
+          ${
+            margin &&
+            `<li><span class="bp-element-label">Margin:</span> ${margin}</li>`
+          }
+          ${
+            border &&
+            `<li><span class="bp-element-label">Border:</span> ${border}</li>`
+          }
+          ${
+            padding &&
+            `<li><span class="bp-element-label">Padding:</span> ${padding}</li>`
+          }
+        </ul>
+      </section>`
+      : '';
+
+    const appearanceSection = hasAppearanceSection
+      ? `
+      <section class="bp-element-group">
+        <h4 class="bp-element-group-title">Appearance</h4>
+        <ul>
+          ${
+            backgroundColor &&
+            `<li><span class="bp-element-label">Background Color:</span>
+              <span class="bp-color-element-box" style="background-color: ${backgroundColor}"></span> ${backgroundColor}
+            </li>`
+          }
+          ${
+            borderRadius &&
+            `<li><span class="bp-element-label">Border Radius:</span> ${borderRadius}</li>`
+          }
+        </ul>
+      </section>`
+      : '';
+
+    const textSection = hasTextSection
+      ? `
+      <section class="bp-element-group">
+        <h4 class="bp-element-group-title">Text</h4>
+        <ul>
+          ${
+            fontFamily &&
+            `<li><span class="bp-element-label">Font Family:</span> ${fontFamily}</li>`
+          }
+          ${
+            computedStyle.fontSize &&
+            `<li><span class="bp-element-label">Font Size:</span> ${computedStyle.fontSize}</li>`
+          }
+          ${
+            computedStyle.fontWeight &&
+            `<li><span class="bp-element-label">Font Weight:</span> ${computedStyle.fontWeight}</li>`
+          }
+          ${
+            computedStyle.color &&
+            `<li><span class="bp-element-label">Color:</span>
+              <span class="bp-color-element-box" style="background-color: ${computedStyle.color}">
+              </span> ${computedStyle.color}
+            </li>`
+          }
+          ${
+            computedStyle.lineHeight &&
+            `<li><span class="bp-element-label">Line Height:</span> ${computedStyle.lineHeight}</li>`
+          }
+          ${
+            computedStyle.textAlign &&
+            `<li><span class="bp-element-label">Text Align:</span> ${computedStyle.textAlign}</li>`
+          }
+        </ul>
+      </section>`
+      : '';
+
+    // Generate the HTML content for the overlay
+    return `
+      <section>
+        <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
+          ${elementId}
+        </span><br>
+        ${
+          elementClasses
+            ? `<span class="bp-element-label">Classes:</span> ${elementClasses}<br>`
+            : ''
+        }
+      </section>
+
+      ${layoutSection}
+      ${appearanceSection}
+      ${textSection}
+
+      <footer class="bp-overlay-footer">
+        <span class="bp-branding">Border Patrol</span>
+      </footer>
+    `;
   }
 
   /**
@@ -304,55 +359,13 @@ import { toSentenceCase } from './utils/string-utils';
     const paddingBottom = getPxValue('padding-bottom', computedStyle);
     const paddingLeft = getPxValue('padding-left', computedStyle);
 
-    // Get the formatted border information
-    const borderInfo = getFormattedBorderInfo(computedStyle);
-
-    // Get element ID and classes
-    const elementId = element.id ? `#${element.id}` : '';
-    const elementClasses = getElementClassNames(
-      element,
-      MAX_CLASS_DISPLAY_LENGTH
-    );
-
     // Update the overlay content with the element details
-    overlay.innerHTML = `
-      <div class="bp-element-info">
-        <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
-          ${elementId}
-        </span><br>
-        ${
-          elementClasses
-            ? `<span class="bp-info-label">Classes:</span> ${elementClasses}<br>`
-            : ''
-        }
-        <span class="bp-info-label">Dimensions:</span> ${Math.round(
-          rect.width
-        )} x ${Math.round(rect.height)} px<br>
-        <span class="bp-info-label">Display:</span> ${computedStyle.display}<br>
-        ${
-          borderInfo
-            ? `<span class="bp-info-label">Border:</span> ${borderInfo}<br>`
-            : ''
-        }
-        ${
-          computedStyle.margin
-            ? `<span class="bp-info-label">Margin:</span> ${computedStyle.margin}<br>`
-            : ''
-        }
-        ${
-          computedStyle.padding
-            ? `<span class="bp-info-label">Padding:</span> ${computedStyle.padding}`
-            : ''
-        }
-      </div>
-      <footer class="bp-branding-info">
-        <span class="bp-branding">Border Patrol</span>
-      </footer>
-    `;
+    overlay.innerHTML = generateOverlayContent(element, computedStyle, rect);
 
     // Set display to block before getOverlayPosition
     overlay.style.display = 'block';
 
+    // Update the position of the overlay
     updateOverlayPosition(event);
 
     // Render the box model overlay elements
