@@ -1,6 +1,20 @@
 import { toSentenceCase } from './string-utils';
 
 /**
+ * Formats width and height values for display.
+ *
+ * @param {number} width - The width of the element.
+ * @param {number} height - The height of the element.
+ * @returns {string} The formatted dimensions or 'N/A' if invalid.
+ */
+export function formatDimensions(width, height) {
+  if (isNaN(width) || isNaN(height)) {
+    return 'N/A';
+  }
+  return `${Math.round(width)} x ${Math.round(height)} px`;
+}
+
+/**
  * Formats box model values for display
  *
  * @param {CSSStyleDeclaration} computedStyle - The computed style of the element

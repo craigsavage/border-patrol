@@ -1,6 +1,7 @@
 import Logger from './utils/logger';
 import { getPxValue, getElementClassNames } from './utils/dom-helpers';
 import {
+  formatDimensions,
   formatBoxModelValues,
   formatBorderInfo,
   formatFontStack,
@@ -185,6 +186,7 @@ import {
       element,
       MAX_CLASS_DISPLAY_LENGTH
     );
+    const dimensions = formatDimensions(rect.width, rect.height);
     const margin = formatBoxModelValues(computedStyle, 'margin');
     const padding = formatBoxModelValues(computedStyle, 'padding');
     const border = formatBorderInfo(computedStyle);
@@ -213,9 +215,7 @@ import {
           <li><span class="bp-element-label">Display:</span> ${
             computedStyle.display
           }</li>
-          <li><span class="bp-element-label">Dimensions:</span> ${Math.round(
-            rect.width
-          )} x ${Math.round(rect.height)} px</li>
+          <li><span class="bp-element-label">Dimensions:</span> ${dimensions}</li>
           ${
             margin &&
             `<li><span class="bp-element-label">Margin:</span> ${margin}</li>`
