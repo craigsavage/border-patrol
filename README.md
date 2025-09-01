@@ -30,7 +30,8 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 
 Toggle Border Patrol ON or OFF instantly with a customizable keyboard shortcut.
 
-- Toggle Border Outlines: `Alt` + `Shift` + `B` (Default)
+- Toggle Border Mode: `Alt` + `Shift` + `B` (Default)
+- Toggle Inspector Mode: `Alt` + `Shift` + `I` (Default)
 
 You can customize this shortcut in your Chrome browser by navigating to `chrome://extensions/shortcuts`.
 
