@@ -2,6 +2,7 @@ import Logger from './utils/logger';
 import { getPxValue, getElementClassNames } from './utils/dom-helpers';
 import {
   formatDimensions,
+  formatColorValue,
   formatBoxModelValues,
   formatBorderInfo,
   formatFontStack,
@@ -180,7 +181,9 @@ import {
    * @returns {string} The HTML content for the overlay
    */
   function generateOverlayContent(element, computedStyle, rect) {
-    // Get element ID and classes
+    if (!element || !computedStyle || !rect) return '';
+
+    // Get element details
     const elementId = element.id ? `#${element.id}` : '';
     const elementClasses = getElementClassNames(
       element,
@@ -196,21 +199,16 @@ import {
       maxFonts: 1,
       showFallback: false,
     });
+    const backgroundColor = formatColorValue(computedStyle.backgroundColor);
 
-    // Generate the HTML content for the overlay
-    return `
-      <div>
-        <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
-          ${elementId}
-        </span><br>
-        ${
-          elementClasses
-            ? `<span class="bp-element-label">Classes:</span> ${elementClasses}<br>`
-            : ''
-        }
-      </div>
+    // Check if the sections have any data to display
+    const hasLayoutSection = dimensions || margin || padding || border;
+    const hasAppearanceSection = backgroundColor || borderRadius;
+    const hasTextSection = element.textContent.trim().length > 0;
 
-      <div class="bp-element-group">
+    const layoutSection = hasLayoutSection
+      ? `
+      <section class="bp-element-group">
         <h4 class="bp-element-group-title">Layout</h4>
         <ul>
           <li><span class="bp-element-label">Display:</span> ${
@@ -230,24 +228,31 @@ import {
             `<li><span class="bp-element-label">Padding:</span> ${padding}</li>`
           }
         </ul>
-      </div>
+      </section>`
+      : '';
 
-      <div class="bp-element-group">
+    const appearanceSection = hasAppearanceSection
+      ? `
+      <section class="bp-element-group">
         <h4 class="bp-element-group-title">Appearance</h4>
         <ul>
-          <li><span class="bp-element-label">Background Color:</span>
-            <span class="bp-color-element-box" style="background-color: ${
-              computedStyle.backgroundColor
-            }"></span> ${computedStyle.backgroundColor}
-          </li>
+          ${
+            backgroundColor &&
+            `<li><span class="bp-element-label">Background Color:</span>
+              <span class="bp-color-element-box" style="background-color: ${backgroundColor}"></span> ${backgroundColor}
+            </li>`
+          }
           ${
             borderRadius &&
             `<li><span class="bp-element-label">Border Radius:</span> ${borderRadius}</li>`
           }
         </ul>
-      </div>
+      </section>`
+      : '';
 
-      <div class="bp-element-group">
+    const textSection = hasTextSection
+      ? `
+      <section class="bp-element-group">
         <h4 class="bp-element-group-title">Text</h4>
         <ul>
           ${
@@ -265,7 +270,8 @@ import {
           ${
             computedStyle.color &&
             `<li><span class="bp-element-label">Color:</span>
-              <span class="bp-color-element-box" style="background-color: ${computedStyle.color}"></span> ${computedStyle.color}
+              <span class="bp-color-element-box" style="background-color: ${computedStyle.color}">
+              </span> ${computedStyle.color}
             </li>`
           }
           ${
@@ -277,7 +283,25 @@ import {
             `<li><span class="bp-element-label">Text Align:</span> ${computedStyle.textAlign}</li>`
           }
         </ul>
-      </div>
+      </section>`
+      : '';
+
+    // Generate the HTML content for the overlay
+    return `
+      <section>
+        <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
+          ${elementId}
+        </span><br>
+        ${
+          elementClasses
+            ? `<span class="bp-element-label">Classes:</span> ${elementClasses}<br>`
+            : ''
+        }
+      </section>
+
+      ${layoutSection}
+      ${appearanceSection}
+      ${textSection}
 
       <footer class="bp-overlay-footer">
         <span class="bp-branding">Border Patrol</span>

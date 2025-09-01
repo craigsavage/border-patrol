@@ -15,6 +15,24 @@ export function formatDimensions(width, height) {
 }
 
 /**
+ * Formats a color value for display
+ *
+ * @param {string} color - The color value from computed styles
+ * @returns {string} The formatted color value or an empty string if transparent or invalid
+ */
+export function formatColorValue(color) {
+  const transparentValues = [
+    'transparent',
+    'rgba(0, 0, 0, 0)',
+    'hsla(0, 0%, 0%, 0)',
+    '#00000000',
+  ];
+
+  if (!color || transparentValues.includes(color.toLowerCase())) return '';
+  return color;
+}
+
+/**
  * Formats box model values for display
  *
  * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
