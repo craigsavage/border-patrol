@@ -91,3 +91,34 @@ export function formatBorderInfo(computedStyle) {
       .join('<br>')
   );
 }
+
+/**
+ * Formats a font stack string for display
+ *
+ * @param {Object} options - The options object
+ * @param {string} options.fontFamily - The font-family string from computed styles
+ * @param {number} [options.maxFonts=3] - Maximum number of fonts to display
+ * @param {boolean} [options.showFallback=true] - Whether to show "..." if there are more fonts than maxFonts
+ * @returns {string} The formatted font stack
+ */
+export function formatFontStack({
+  fontFamily,
+  maxFonts = 3,
+  showFallback = true,
+}) {
+  if (!fontFamily) return '';
+
+  // Split the font family string by commas and trim whitespace
+  const fonts = fontFamily.split(',').map(font => font.trim());
+
+  if (fonts.length === 0) return '';
+
+  // Limit the number of fonts displayed
+  const displayedFonts = fonts.slice(0, maxFonts).join(', ');
+
+  if (showFallback && fonts.length > maxFonts) {
+    return `${displayedFonts}, ...`;
+  }
+
+  return displayedFonts;
+}

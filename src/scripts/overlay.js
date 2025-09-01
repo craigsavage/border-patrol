@@ -3,6 +3,7 @@ import { getPxValue, getElementClassNames } from './utils/dom-helpers';
 import {
   formatBoxModelValues,
   formatBorderInfo,
+  formatFontStack,
 } from './utils/overlay-formatters';
 
 (function () {
@@ -187,6 +188,11 @@ import {
     const margin = formatBoxModelValues(computedStyle, 'margin');
     const padding = formatBoxModelValues(computedStyle, 'padding');
     const border = formatBorderInfo(computedStyle);
+    const fontFamily = formatFontStack({
+      fontFamily: computedStyle.fontFamily,
+      maxFonts: 1,
+      showFallback: false,
+    });
 
     // Generate the HTML content for the overlay
     return `
@@ -229,8 +235,8 @@ import {
         <h4 class="bp-element-group-title">Text</h4>
         <ul>
           ${
-            computedStyle.fontFamily &&
-            `<li><span class="bp-element-label">Font Family:</span> ${computedStyle.fontFamily}</li>`
+            fontFamily &&
+            `<li><span class="bp-element-label">Font Family:</span> ${fontFamily}</li>`
           }
           ${
             computedStyle.fontSize &&
