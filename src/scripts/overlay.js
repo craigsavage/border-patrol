@@ -190,6 +190,7 @@ import {
     const margin = formatBoxModelValues(computedStyle, 'margin');
     const padding = formatBoxModelValues(computedStyle, 'padding');
     const border = formatBorderInfo(computedStyle);
+    const borderRadius = formatBoxModelValues(computedStyle, 'border-radius');
     const fontFamily = formatFontStack({
       fontFamily: computedStyle.fontFamily,
       maxFonts: 1,
@@ -227,6 +228,21 @@ import {
           ${
             padding &&
             `<li><span class="bp-element-label">Padding:</span> ${padding}</li>`
+          }
+        </ul>
+      </div>
+
+      <div class="bp-element-group">
+        <h4 class="bp-element-group-title">Appearance</h4>
+        <ul>
+          <li><span class="bp-element-label">Background Color:</span>
+            <span class="bp-color-element-box" style="background-color: ${
+              computedStyle.backgroundColor
+            }"></span> ${computedStyle.backgroundColor}
+          </li>
+          ${
+            borderRadius &&
+            `<li><span class="bp-element-label">Border Radius:</span> ${borderRadius}</li>`
           }
         </ul>
       </div>
