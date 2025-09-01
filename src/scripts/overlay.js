@@ -294,7 +294,7 @@ import {
         </span><br>
         ${
           elementClasses
-            ? `<span class="bp-element-label">Classes:</span> ${elementClasses}<br>`
+            ? `<span class="bp-element-label">Classes:</span> ${elementClasses}`
             : ''
         }
       </section>

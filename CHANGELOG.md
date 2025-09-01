@@ -6,7 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Added new keyboard shortcut (`"Alt+Shift+I"`) for toggling inspector mode
+- Added new keyboard shortcut (`"Alt+Shift+I"`) for toggling inspector mode.
+
+### Changed
+
+- Enhanced Inspector Mode overlay with element grouping, text-related, and appearance properties.
+- Improved display text formatting and added color preview box in the Inspector Mode overlay.
+
+### Fixed
+
+- Fixed style conflicts between inspector mode and host page text.
 
 ## [1.4.0] - 2025-07-30
 
