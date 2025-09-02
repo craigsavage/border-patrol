@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.1] - 2025-09-02
+## [1.4.2] - 2025-09-02
+
+### Fixed
+
+- Fixed Rollup configuration issue causing error on development builds.
+
+## [1.4.1] - 2025-09-01
 
 ### Added
 

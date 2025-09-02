@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Border Patrol - CSS Outliner & Debugging Tool",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Inspect web layout instantly! Visualize element spacing & structure. Outlines webpage elements. For developers & designers.",
   "permissions": [
     "scripting",

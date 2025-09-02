@@ -107,6 +107,7 @@ const commonPlugins = [
             });
             return postcssResult.css;
           }
+          return contents; // Return the original contents in development mode
         },
       },
     ],
