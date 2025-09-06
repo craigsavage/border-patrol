@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { marked } from 'marked';
+import prettier from 'prettier';
 
 // Read the markdown file
 const markdown = readFileSync('CHANGELOG.md', 'utf-8');
@@ -58,7 +59,10 @@ const htmlTemplate = `
 </html>
 `;
 
+// Format the HTML
+const formattedHtml = await prettier.format(htmlTemplate, { parser: 'html' });
+
 // Write the HTML to a file
-writeFileSync('docs/changelog.html', htmlTemplate);
+writeFileSync('docs/changelog.html', formattedHtml);
 
 console.log('Changelog has been converted to docs/changelog.html');

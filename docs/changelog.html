@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Border Patrol - Changelog</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="icon" type="image/png" href="assets/icons/bp-icon-32.png">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="icon" type="image/png" href="assets/icons/bp-icon-32.png" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -26,173 +25,335 @@
   </head>
   <body>
     <main class="container" style="padding-top: 2rem">
-        <h1>Changelog</h1>
-<p>All notable changes to this project will be documented in this file.</p>
-<h2>[1.4.2] - 2025-09-02</h2>
-<h3>Fixed</h3>
-<ul>
-<li>Fixed Rollup configuration issue causing error on development builds.</li>
-</ul>
-<h2>[1.4.1] - 2025-09-01</h2>
-<h3>Added</h3>
-<ul>
-<li>Added new keyboard shortcut (<code>&quot;Alt+Shift+I&quot;</code>) for toggling inspector mode.</li>
-</ul>
-<h3>Changed</h3>
-<ul>
-<li>Enhanced Inspector Mode overlay with element grouping, text-related, and appearance properties.</li>
-<li>Improved display text formatting and added color preview box in the Inspector Mode overlay.</li>
-</ul>
-<h3>Fixed</h3>
-<ul>
-<li>Fixed style conflicts between inspector mode and host page text.</li>
-</ul>
-<h2>[1.4.0] - 2025-07-30</h2>
-<h3>Added</h3>
-<ul>
-<li>Added dark mode support to the extension&#39;s popup UI.</li>
-<li>Integrated Sass and a Rollup/PostCSS pipeline for streamlined, optimized, and isolated CSS bundling per component.</li>
-</ul>
-<h3>Changed</h3>
-<ul>
-<li>Now highlights all box model areas (margin, border, padding, content) for enhanced CSS layout visualization.</li>
-<li>Refactored Popup component to use React for improved maintainability and scalability.</li>
-<li>Updated Popup UI to utilize Ant Design, providing a more modern and consistent user experience.</li>
-<li>Self-host font assets for faster load times, improved reliability, and enhanced privacy.</li>
-<li>App version now directly injected from <code>package.json</code> into the UI&#39;s footer at build time, ensuring consistent display.</li>
-</ul>
-<h2>[1.3.2] - 2025-06-29</h2>
-<h3>Fixed</h3>
-<ul>
-<li>Border outlines are now applied to dynamically added elements.</li>
-</ul>
-<h2>[1.3.1] - 2025-06-27</h2>
-<h3>Added</h3>
-<ul>
-<li>Added the CHANGELOG to the landing page website, making it easier for users to stay informed about the latest features and improvements.</li>
-<li>Implemented a script to automate the synchronization of version numbers across multiple files.</li>
-<li>Added feedback for users when attempting to take a screenshot without the necessary downloads permission.</li>
-</ul>
-<h3>Changed</h3>
-<ul>
-<li>Updated popup menu to display the version number and include a link to the website, replacing the previous GitHub link.</li>
-</ul>
-<h3>Fixed</h3>
-<ul>
-<li>Improved error handling for tab lifecycle events and restricted pages.</li>
-</ul>
-<h2>[1.3.0] - 2025-06-21</h2>
-<h3>Added</h3>
-<ul>
-<li>Added Rollup bundler to Border Patrol to improve build process and performance.</li>
-<li>Popup now includes a &quot;Take Screenshot&quot; button to capture and download the current tab as an image.</li>
-<li>Launched a comprehensive landing page featuring an intuitive layout, enhanced visuals, and clear feature explanations to improve user onboarding and engagement.</li>
-</ul>
-<h3>Changed</h3>
-<ul>
-<li>Redesigned the Border Patrol logo with the &#39;Grandstander&#39; font for a modern, distinctive look.</li>
-<li>Updated popup checkboxes to modern toggle switches with smooth animations and consistent styling.</li>
-</ul>
-<h3>Fixed</h3>
-<ul>
-<li>Border formatting issue causing multiple border info to be shown inline.</li>
-</ul>
-<h2>[1.2.4] - 2025-06-08</h2>
-<h3>Fixed</h3>
-<ul>
-<li>Resolved a critical issue that could cause JavaScript errors in the extension popup, preventing the UI from displaying correctly or initializing properly.</li>
-</ul>
-<h2>[1.2.3] - 2025-06-07</h2>
-<h3>Changed</h3>
-<ul>
-<li>Improved the popup interface to clearly indicate when the extension cannot be used on restricted pages and disabled inputs for better user clarity.</li>
-<li>Enabled Border Patrol to work on local files, supporting local development environments.</li>
-</ul>
-<h3>Fixed</h3>
-<ul>
-<li>Resolved an error that prevented inspector mode from working on SVG and Path elements.</li>
-<li>Prevented Border Mode styles from unintentionally affecting the Inspector Overlay, ensuring a cleaner view of the extension&#39;s own elements.</li>
-<li>Improved border information display in the Inspector Overlay to only show relevant details when a border is actually visible.</li>
-<li>Cleaned up redundant positioning logic and unnecessary async declarations.</li>
-</ul>
-<h2>[1.2.2] - 2025-05-28</h2>
-<h3>Added</h3>
-<ul>
-<li>Enhanced inspector overlay with element ID, classes, display property, and the full BP Blue color palette for improved information and visuals.</li>
-</ul>
-<h3>Fixed</h3>
-<ul>
-<li>Resolved issues causing errors when tabs were closed or navigated away, improving stability.</li>
-<li>Corrected the inspector overlay&#39;s position, so it no longer shifts when you scroll.</li>
-<li>Improved compatibility with various websites by preventing site styles from disrupting the extension&#39;s appearance.</li>
-<li>Resolved an error that occurred when inspecting SVG icons.</li>
-<li>Ensured the inspector overlay&#39;s text size remains consistent across different websites.</li>
-</ul>
-<h2>[1.2.1] - 2025-05-19</h2>
-<h3>Added</h3>
-<ul>
-<li>Added community guidelines (Code of Conduct).</li>
-<li>Added security policies.</li>
-<li>Added guidelines for contributors.</li>
-<li>Included project licensing information.</li>
-</ul>
-<h3>Changed</h3>
-<ul>
-<li>Updated <code>README</code> with fresh project details and improved instructions.</li>
-<li>Updated extension description in the manifest file for clarity.</li>
-</ul>
-<h2>[1.2.0] - 2025-05-17</h2>
-<h3>Added</h3>
-<ul>
-<li>Introduced an Element Inspector Overlay to show details about elements you hover over.</li>
-<li>Added visual highlighting for hovered elements in inspect mode.</li>
-</ul>
-<h3>Changed</h3>
-<ul>
-<li>Improved internal file organization for better future development.</li>
-<li>Refactored the popup menu for more efficient and robust functionality.</li>
-<li>Made the popup menu more reliable on restricted web pages.</li>
-<li>Inspector mode can now be enabled per individual tab, not just globally.</li>
-<li>Improved how border and inspector mode settings are saved and managed per tab.</li>
-<li>Added centralized functions for managing tab states.</li>
-<li>Updated the overlay with company branding for a more professional look.</li>
-<li>Significant internal code improvements for better performance and easier future updates.</li>
-<li>Refreshed the menu text logo to match the brand&#39;s design.</li>
-<li>Smoother and more responsive overlay positioning when you move your mouse.</li>
-</ul>
-<h3>Removed</h3>
-<ul>
-<li>Streamlined script injection for better performance.</li>
-<li>Removed <code>&quot;On/Off&quot;</code> text from the extension icon for a cleaner look.</li>
-</ul>
-<h3>Fixed</h3>
-<ul>
-<li>Resolved issues where the popup menu&#39;s display wasn&#39;t updating correctly.</li>
-<li>Fixed critical connection and state synchronization issues for more reliable functionality.</li>
-<li>Borders now apply correctly immediately after installation.</li>
-<li>Changed the keyboard shortcut for toggling borders to <code>&quot;Alt+Shift+B&quot;</code> to avoid conflicts and ensure it works reliably.</li>
-<li>Inspector mode now correctly deactivates after extension reload or on restricted pages.</li>
-<li>Corrected inspector overlay position when scrolling or with the console open.</li>
-<li>Improved resource management by cleaning up data when tabs are closed.</li>
-</ul>
-<h2>[1.1.0] - 2025-03-18</h2>
-<h3>Added</h3>
-<ul>
-<li>Introduced a new official brand logo for Border Patrol.</li>
-<li>Added a popup menu to easily customize border size and style, with instant updates.</li>
-<li>Included an Enable/Disable toggle in the extension popup.</li>
-<li>Added colored outlines to elements based on their type, making website structure easier to understand.</li>
-</ul>
-<h3>Changed</h3>
-<ul>
-<li>Updated all extension icons to the new brand logo.</li>
-</ul>
-<h3>Fixed</h3>
-<ul>
-<li>Resolved an issue where borders would disappear after page reloads or tab switches.</li>
-<li>Ensured borders are correctly removed when the extension is disabled.</li>
-</ul>
-
+      <h1>Changelog</h1>
+      <p>
+        All notable changes to this project will be documented in this file.
+      </p>
+      <h2>[1.4.2] - 2025-09-02</h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Fixed Rollup configuration issue causing error on development builds.
+        </li>
+      </ul>
+      <h2>[1.4.1] - 2025-09-01</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>
+          Added new keyboard shortcut (<code>&quot;Alt+Shift+I&quot;</code>) for
+          toggling inspector mode.
+        </li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>
+          Enhanced Inspector Mode overlay with element grouping, text-related,
+          and appearance properties.
+        </li>
+        <li>
+          Improved display text formatting and added color preview box in the
+          Inspector Mode overlay.
+        </li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Fixed style conflicts between inspector mode and host page text.
+        </li>
+      </ul>
+      <h2>[1.4.0] - 2025-07-30</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>Added dark mode support to the extension&#39;s popup UI.</li>
+        <li>
+          Integrated Sass and a Rollup/PostCSS pipeline for streamlined,
+          optimized, and isolated CSS bundling per component.
+        </li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>
+          Now highlights all box model areas (margin, border, padding, content)
+          for enhanced CSS layout visualization.
+        </li>
+        <li>
+          Refactored Popup component to use React for improved maintainability
+          and scalability.
+        </li>
+        <li>
+          Updated Popup UI to utilize Ant Design, providing a more modern and
+          consistent user experience.
+        </li>
+        <li>
+          Self-host font assets for faster load times, improved reliability, and
+          enhanced privacy.
+        </li>
+        <li>
+          App version now directly injected from <code>package.json</code> into
+          the UI&#39;s footer at build time, ensuring consistent display.
+        </li>
+      </ul>
+      <h2>[1.3.2] - 2025-06-29</h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li>Border outlines are now applied to dynamically added elements.</li>
+      </ul>
+      <h2>[1.3.1] - 2025-06-27</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>
+          Added the CHANGELOG to the landing page website, making it easier for
+          users to stay informed about the latest features and improvements.
+        </li>
+        <li>
+          Implemented a script to automate the synchronization of version
+          numbers across multiple files.
+        </li>
+        <li>
+          Added feedback for users when attempting to take a screenshot without
+          the necessary downloads permission.
+        </li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>
+          Updated popup menu to display the version number and include a link to
+          the website, replacing the previous GitHub link.
+        </li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Improved error handling for tab lifecycle events and restricted pages.
+        </li>
+      </ul>
+      <h2>[1.3.0] - 2025-06-21</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>
+          Added Rollup bundler to Border Patrol to improve build process and
+          performance.
+        </li>
+        <li>
+          Popup now includes a &quot;Take Screenshot&quot; button to capture and
+          download the current tab as an image.
+        </li>
+        <li>
+          Launched a comprehensive landing page featuring an intuitive layout,
+          enhanced visuals, and clear feature explanations to improve user
+          onboarding and engagement.
+        </li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>
+          Redesigned the Border Patrol logo with the &#39;Grandstander&#39; font
+          for a modern, distinctive look.
+        </li>
+        <li>
+          Updated popup checkboxes to modern toggle switches with smooth
+          animations and consistent styling.
+        </li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Border formatting issue causing multiple border info to be shown
+          inline.
+        </li>
+      </ul>
+      <h2>[1.2.4] - 2025-06-08</h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Resolved a critical issue that could cause JavaScript errors in the
+          extension popup, preventing the UI from displaying correctly or
+          initializing properly.
+        </li>
+      </ul>
+      <h2>[1.2.3] - 2025-06-07</h2>
+      <h3>Changed</h3>
+      <ul>
+        <li>
+          Improved the popup interface to clearly indicate when the extension
+          cannot be used on restricted pages and disabled inputs for better user
+          clarity.
+        </li>
+        <li>
+          Enabled Border Patrol to work on local files, supporting local
+          development environments.
+        </li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Resolved an error that prevented inspector mode from working on SVG
+          and Path elements.
+        </li>
+        <li>
+          Prevented Border Mode styles from unintentionally affecting the
+          Inspector Overlay, ensuring a cleaner view of the extension&#39;s own
+          elements.
+        </li>
+        <li>
+          Improved border information display in the Inspector Overlay to only
+          show relevant details when a border is actually visible.
+        </li>
+        <li>
+          Cleaned up redundant positioning logic and unnecessary async
+          declarations.
+        </li>
+      </ul>
+      <h2>[1.2.2] - 2025-05-28</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>
+          Enhanced inspector overlay with element ID, classes, display property,
+          and the full BP Blue color palette for improved information and
+          visuals.
+        </li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Resolved issues causing errors when tabs were closed or navigated
+          away, improving stability.
+        </li>
+        <li>
+          Corrected the inspector overlay&#39;s position, so it no longer shifts
+          when you scroll.
+        </li>
+        <li>
+          Improved compatibility with various websites by preventing site styles
+          from disrupting the extension&#39;s appearance.
+        </li>
+        <li>Resolved an error that occurred when inspecting SVG icons.</li>
+        <li>
+          Ensured the inspector overlay&#39;s text size remains consistent
+          across different websites.
+        </li>
+      </ul>
+      <h2>[1.2.1] - 2025-05-19</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>Added community guidelines (Code of Conduct).</li>
+        <li>Added security policies.</li>
+        <li>Added guidelines for contributors.</li>
+        <li>Included project licensing information.</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>
+          Updated <code>README</code> with fresh project details and improved
+          instructions.
+        </li>
+        <li>Updated extension description in the manifest file for clarity.</li>
+      </ul>
+      <h2>[1.2.0] - 2025-05-17</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>
+          Introduced an Element Inspector Overlay to show details about elements
+          you hover over.
+        </li>
+        <li>Added visual highlighting for hovered elements in inspect mode.</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>
+          Improved internal file organization for better future development.
+        </li>
+        <li>
+          Refactored the popup menu for more efficient and robust functionality.
+        </li>
+        <li>Made the popup menu more reliable on restricted web pages.</li>
+        <li>
+          Inspector mode can now be enabled per individual tab, not just
+          globally.
+        </li>
+        <li>
+          Improved how border and inspector mode settings are saved and managed
+          per tab.
+        </li>
+        <li>Added centralized functions for managing tab states.</li>
+        <li>
+          Updated the overlay with company branding for a more professional
+          look.
+        </li>
+        <li>
+          Significant internal code improvements for better performance and
+          easier future updates.
+        </li>
+        <li>Refreshed the menu text logo to match the brand&#39;s design.</li>
+        <li>
+          Smoother and more responsive overlay positioning when you move your
+          mouse.
+        </li>
+      </ul>
+      <h3>Removed</h3>
+      <ul>
+        <li>Streamlined script injection for better performance.</li>
+        <li>
+          Removed <code>&quot;On/Off&quot;</code> text from the extension icon
+          for a cleaner look.
+        </li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Resolved issues where the popup menu&#39;s display wasn&#39;t updating
+          correctly.
+        </li>
+        <li>
+          Fixed critical connection and state synchronization issues for more
+          reliable functionality.
+        </li>
+        <li>Borders now apply correctly immediately after installation.</li>
+        <li>
+          Changed the keyboard shortcut for toggling borders to
+          <code>&quot;Alt+Shift+B&quot;</code> to avoid conflicts and ensure it
+          works reliably.
+        </li>
+        <li>
+          Inspector mode now correctly deactivates after extension reload or on
+          restricted pages.
+        </li>
+        <li>
+          Corrected inspector overlay position when scrolling or with the
+          console open.
+        </li>
+        <li>
+          Improved resource management by cleaning up data when tabs are closed.
+        </li>
+      </ul>
+      <h2>[1.1.0] - 2025-03-18</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>Introduced a new official brand logo for Border Patrol.</li>
+        <li>
+          Added a popup menu to easily customize border size and style, with
+          instant updates.
+        </li>
+        <li>Included an Enable/Disable toggle in the extension popup.</li>
+        <li>
+          Added colored outlines to elements based on their type, making website
+          structure easier to understand.
+        </li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>Updated all extension icons to the new brand logo.</li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Resolved an issue where borders would disappear after page reloads or
+          tab switches.
+        </li>
+        <li>
+          Ensured borders are correctly removed when the extension is disabled.
+        </li>
+      </ul>
     </main>
     <footer>
       <div class="container">
@@ -204,9 +365,9 @@
             href="https://github.com/craigsavage/border-patrol"
             target="_blank"
             rel="noopener noreferrer"
-            >
+          >
             View on GitHub
-            </a>
+          </a>
         </p>
       </div>
     </footer>
