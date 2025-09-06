@@ -7,7 +7,8 @@
   "scripts": {
     "clean": "rm -rf dist",
     "version-sync": "node scripts/version-sync.js",
-    "prebuild": "npm run version-sync && npm run clean",
+    "changelog:generate": "node scripts/changelog-md-to-html.js",
+    "prebuild": "npm run clean && npm run version-sync && npm run changelog:generate",
     "build": "NODE_ENV=production rollup -c",
     "dev": "NODE_ENV=development rollup -c -w"
   },
