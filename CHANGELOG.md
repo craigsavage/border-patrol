@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## UNRELEASED
+
+### Added
+
+- Added a new script to automatically generate `changelog.html` from `CHANGELOG.md`, streamlining the build process.
+
 ## [1.4.2] - 2025-09-02
 
 ### Fixed
