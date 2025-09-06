@@ -2,11 +2,12 @@ import { readFileSync, writeFileSync } from 'fs';
 import { marked } from 'marked';
 import prettier from 'prettier';
 
-// Get the path to the CHANGELOG.md file
-const changelogPath = 'CHANGELOG.md';
+// Define input and output paths for the changelog conversion
+const changelogMarkdownPath = 'CHANGELOG.md';
+const changelogHtmlPath = 'docs/changelog.html';
 
 // Read the markdown file
-const markdown = readFileSync(changelogPath, 'utf-8');
+const markdown = readFileSync(changelogMarkdownPath, 'utf-8');
 
 // Convert markdown to HTML
 const changelogHtml = marked.parse(markdown);
@@ -91,6 +92,6 @@ const htmlTemplate = `
 const formattedHtml = await prettier.format(htmlTemplate, { parser: 'html' });
 
 // Write the HTML to a file
-writeFileSync('docs/changelog.html', formattedHtml);
+writeFileSync(changelogHtmlPath, formattedHtml);
 
-console.log('Changelog has been converted to docs/changelog.html');
+console.log(`Changelog has been converted to ${changelogHtmlPath}`);
