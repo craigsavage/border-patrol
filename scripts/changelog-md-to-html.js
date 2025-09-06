@@ -36,6 +36,31 @@ const htmlTemplate = `
     />
   </head>
   <body>
+    <nav class="main-nav">
+      <div class="nav-container">
+        <div class="nav-content">
+          <div class="nav-brand">
+            <a href="index.html">
+              <img
+                src="assets/img/border-patrol-logo.svg"
+                alt="Border Patrol Logo"
+                class="nav-logo"
+              />
+              <span class="nav-title">Border Patrol</span>
+            </a>
+          </div>
+          <div class="nav-cta">
+            <a
+              href="https://chromewebstore.google.com/detail/fdkdknepjdabfaihhdljlbbcjiahmkkd?utm_source=item-share-cb"
+              class="nav-button button"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Get Border Patrol</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
     <main class="container" style="padding-top: 2rem">
         ${changelogHtml}
     </main>
