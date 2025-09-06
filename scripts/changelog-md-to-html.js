@@ -2,8 +2,11 @@ import { readFileSync, writeFileSync } from 'fs';
 import { marked } from 'marked';
 import prettier from 'prettier';
 
+// Get the path to the CHANGELOG.md file
+const changelogPath = 'CHANGELOG.md';
+
 // Read the markdown file
-const markdown = readFileSync('CHANGELOG.md', 'utf-8');
+const markdown = readFileSync(changelogPath, 'utf-8');
 
 // Convert markdown to HTML
 const changelogHtml = marked.parse(markdown);
