@@ -7,7 +7,8 @@
   "scripts": {
     "clean": "rm -rf dist",
     "version-sync": "node scripts/version-sync.js",
-    "prebuild": "npm run version-sync && npm run clean",
+    "changelog:generate": "node scripts/changelog-md-to-html.js",
+    "prebuild": "npm run clean && npm run version-sync && npm run changelog:generate",
     "build": "NODE_ENV=production rollup -c",
     "dev": "NODE_ENV=development rollup -c -w"
   },
@@ -39,8 +40,10 @@
     "autoprefixer": "^10.4.21",
     "babel-plugin-import": "^1.13.8",
     "cssnano": "^7.1.0",
+    "marked": "^16.2.1",
     "postcss": "^8.5.6",
     "postcss-scss": "^4.0.9",
+    "prettier": "^3.6.2",
     "rollup": "^4.45.1",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-postcss": "^4.0.2",
