@@ -4,6 +4,7 @@
 /dist
 /tmp
 /out-tsc
+/dist-zips
 
 # Runtime data
 pids

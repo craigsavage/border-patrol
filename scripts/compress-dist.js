@@ -1,8 +1,18 @@
-import { createWriteStream } from 'fs';
+import { readFileSync, createWriteStream, existsSync, mkdirSync } from 'fs';
 import archiver from 'archiver';
 
-// Create a zip archive of the dist folder
-const output = createWriteStream('dist.zip');
+// Read the version from package.json
+const pkg = JSON.parse(readFileSync('package.json', 'utf-8'));
+
+// Create the output directory if it doesn't exist
+const outputDir = 'dist-zips';
+if (!existsSync(outputDir)) {
+  mkdirSync(outputDir, { recursive: true });
+}
+const outputPath = `${outputDir}/border-patrol-${pkg.version}.zip`;
+
+// Create the output stream and archive
+const output = createWriteStream(outputPath);
 const archive = archiver('zip', {
   zlib: { level: 9 }, // Set the compression level
 });
@@ -21,3 +31,5 @@ archive.pipe(output);
 // Append files from the dist directory
 archive.directory('dist/', false);
 archive.finalize();
+
+console.log(`Successfully created: ${outputPath}`);
