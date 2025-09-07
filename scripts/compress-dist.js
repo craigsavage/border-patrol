@@ -1,6 +1,13 @@
 import { readFileSync, createWriteStream, existsSync, mkdirSync } from 'fs';
 import archiver from 'archiver';
 
+// Check if the source folder exists
+const sourceFolder = 'dist/';
+if (!existsSync(sourceFolder)) {
+  console.error(`Source folder does not exist: ${sourceFolder}`);
+  process.exit(1);
+}
+
 // Read the version from package.json
 const pkg = JSON.parse(readFileSync('package.json', 'utf-8'));
 
@@ -31,5 +38,5 @@ archive.on('error', err => {
 archive.pipe(output);
 
 // Append files from the dist directory
-archive.directory('dist/', false);
+archive.directory(sourceFolder, false);
 archive.finalize();
