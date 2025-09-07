@@ -11,7 +11,8 @@
     "compress:dist": "node scripts/compress-dist.js",
     "prebuild": "npm run clean && npm run version-sync && npm run changelog:generate",
     "build": "NODE_ENV=production rollup -c",
-    "dev": "NODE_ENV=development rollup -c -w"
+    "dev": "NODE_ENV=development rollup -c -w",
+    "release": "npm run build && npm run compress:dist"
   },
   "repository": {
     "type": "git",

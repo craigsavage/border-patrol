@@ -18,7 +18,9 @@ const archive = archiver('zip', {
 });
 
 output.on('close', () => {
-  console.log(`Archive created successfully: ${archive.pointer()} total bytes`);
+  console.log(
+    `Successfully created: ${outputPath} | ${archive.pointer()} total bytes`
+  );
 });
 
 archive.on('error', err => {
@@ -31,5 +33,3 @@ archive.pipe(output);
 // Append files from the dist directory
 archive.directory('dist/', false);
 archive.finalize();
-
-console.log(`Successfully created: ${outputPath}`);
