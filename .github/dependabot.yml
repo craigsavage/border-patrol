@@ -1,12 +1,24 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
+# Documentation:
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/" # Location of package manifests
+  - package-ecosystem: 'npm'
+    directory: '/' # Location of package manifests
     schedule:
-      interval: "weekly"
-    target-branch: "dev"
+      interval: 'weekly'
+    target-branch: 'dev'
+    labels:
+      - 'dependencies'
+    assignees:
+      - 'craigsavage'
+    # Enable security updates
+    commit-message:
+      # Include the scope of the update in the commit message
+      include: scope
+    groups:
+      # Group all minor and patch updates into a single PR to reduce noise.
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
