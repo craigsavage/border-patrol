@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { Flex, Typography } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { SHORTCUTS_PAGE } from '../../scripts/constants.js';
+import { useExtensionSettings } from '../hooks/useExtensionSettings.js';
 
 const { Text } = Typography;
 
@@ -10,22 +10,9 @@ const iconStyle = {
   fontSize: '1.1rem',
   cursor: 'pointer',
 };
-const NO_SHORTCUT_SET = 'No shortcut set.';
 
 export default function ShortcutInfo({ command }) {
-  const [shortcut, setShortcut] = useState(NO_SHORTCUT_SET);
-
-  useEffect(() => {
-    if (window.chrome && chrome.commands) {
-      chrome.commands.getAll(commands => {
-        const toggleCmd = commands.find(cmd => cmd.name === command);
-        console.log('toggleCmd', toggleCmd);
-        setShortcut(
-          toggleCmd && toggleCmd.shortcut ? toggleCmd.shortcut : NO_SHORTCUT_SET
-        );
-      });
-    }
-  }, []);
+  const { shortcuts } = useExtensionSettings();
 
   /**
    * Opens the Chrome extensions shortcuts page in a new tab.
@@ -44,7 +31,7 @@ export default function ShortcutInfo({ command }) {
       <Text type='secondary'>Keyboard Shortcut:</Text>
 
       <Flex align='center' gap={8}>
-        <Text type='secondary'>{shortcut}</Text>
+        <Text type='secondary'>{shortcuts[command] || 'None'}</Text>
         <EditOutlined style={iconStyle} onClick={openShortcutsPage} />
       </Flex>
     </Flex>

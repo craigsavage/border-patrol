@@ -23,6 +23,7 @@ export function useExtensionSettings() {
   const [borderSize, setBorderSize] = useState(1);
   const [borderStyle, setBorderStyle] = useState('solid');
   const [tabId, setTabId] = useState(null);
+  const [shortcuts, setShortcuts] = useState({});
 
   /**
    * Toggles the border mode on or off.
@@ -108,6 +109,17 @@ export function useExtensionSettings() {
         setInspectorMode(data[tabIdString]?.inspectorMode ?? false);
         setBorderSize(data.borderSize ?? 1);
         setBorderStyle(data.borderStyle ?? 'solid');
+
+        // Fetch extension commands and shortcuts
+        if (window.chrome && chrome.commands) {
+          chrome.commands.getAll(commands => {
+            const shortcutMap = {};
+            commands.forEach(cmd => {
+              shortcutMap[cmd.name] = cmd.shortcut || '';
+            });
+            setShortcuts(shortcutMap);
+          });
+        }
       } catch (error) {
         Logger.error('Error during extension settings initialization:', error);
         setIsRestricted(true); // Show restricted state on error too
@@ -141,6 +153,7 @@ export function useExtensionSettings() {
     inspectorMode,
     borderSize,
     borderStyle,
+    shortcuts,
     handleToggleBorderMode,
     handleToggleInspectorMode,
     handleUpdateBorderSettings,
