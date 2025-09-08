@@ -11,6 +11,12 @@ const iconStyle = {
   cursor: 'pointer',
 };
 
+/**
+ * ShortcutInfo component displays the keyboard shortcut for a given command.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} The rendered ShortcutInfo component.
+ */
 export default function ShortcutInfo({ command }) {
   const { shortcuts } = useExtensionSettings();
 

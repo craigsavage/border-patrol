@@ -34,7 +34,6 @@ export default function App() {
     inspectorMode,
     borderSize,
     borderStyle,
-    shortcuts,
     handleToggleBorderMode,
     handleToggleInspectorMode,
     handleUpdateBorderSettings,
