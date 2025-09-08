@@ -80,6 +80,7 @@ export default function App() {
                 checked={borderMode}
                 onChange={handleToggleBorderMode}
                 ariaLabel='Enable or disable borders'
+                commandName='toggle_border_patrol'
               />
               <FeatureToggle
                 label='Inspector Mode'
@@ -87,6 +88,7 @@ export default function App() {
                 checked={inspectorMode}
                 onChange={handleToggleInspectorMode}
                 ariaLabel='Enable or disable inspector mode'
+                commandName='toggle_inspector_mode'
               />
             </Space>
 
