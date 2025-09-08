@@ -12,7 +12,6 @@ import FeatureToggle from './components/FeatureToggle';
 import BorderSettings from './components/BorderSettings';
 import ScreenshotSection from './components/ScreenshotSection';
 import Footer from './components/Footer.jsx';
-import ShortcutInfo from './components/ShortcutInfo.jsx';
 
 /**
  * App component renders the popup UI for the extension.
