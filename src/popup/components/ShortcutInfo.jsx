@@ -19,7 +19,7 @@ export default function ShortcutInfo({ command }) {
    * Uses the Chrome Tabs API if available, otherwise falls back to window.open.
    */
   const openShortcutsPage = () => {
-    if (window.chrome && chrome.tabs) {
+    if (chrome?.tabs) {
       chrome.tabs.create({ url: SHORTCUTS_PAGE });
     } else {
       window.open(SHORTCUTS_PAGE, '_blank');

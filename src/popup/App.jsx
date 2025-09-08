@@ -74,7 +74,7 @@ export default function App() {
         <RestrictedMessage isVisible={isRestricted} />
 
         {!isRestricted && (
-          <Space direction='vertical' size='small' style={{ width: '100%' }}>
+          <Space direction='vertical' size={4} style={{ width: '100%' }}>
             <Space direction='vertical' size='middle' style={{ width: '100%' }}>
               <FeatureToggle
                 label='Border Mode'
