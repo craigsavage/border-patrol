@@ -5,3 +5,4 @@ export const ICON_PATHS = {
   icon16: 'assets/icons/bp-icon-16.png',
   iconDisabled: 'assets/icons/bp-icon-16-disabled.png',
 };
+export const SHORTCUTS_PAGE = 'chrome://extensions/shortcuts';

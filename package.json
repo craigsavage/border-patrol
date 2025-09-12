@@ -1,15 +1,18 @@
 {
   "type": "module",
   "name": "border-patrol",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Are you tired of digging through complex CSS and hovering endlessly in DevTools just to figure out element boundaries, margins, and padding? **Border Patrol** is the free and open-source Chrome extension built to solve that frustration!",
   "main": "src/background.js",
   "scripts": {
     "clean": "rm -rf dist",
     "version-sync": "node scripts/version-sync.js",
-    "prebuild": "npm run version-sync && npm run clean",
+    "changelog:generate": "node scripts/changelog-md-to-html.js",
+    "compress:dist": "node scripts/compress-dist.js",
+    "prebuild": "npm run clean && npm run version-sync && npm run changelog:generate",
     "build": "NODE_ENV=production rollup -c",
-    "dev": "NODE_ENV=development rollup -c -w"
+    "dev": "NODE_ENV=development rollup -c -w",
+    "release": "npm run build && npm run compress:dist"
   },
   "repository": {
     "type": "git",
@@ -36,20 +39,23 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^0.4.4",
+    "archiver": "^7.0.1",
     "autoprefixer": "^10.4.21",
     "babel-plugin-import": "^1.13.8",
-    "cssnano": "^7.1.0",
+    "cssnano": "^7.1.1",
+    "marked": "^16.2.1",
     "postcss": "^8.5.6",
     "postcss-scss": "^4.0.9",
-    "rollup": "^4.45.1",
+    "prettier": "^3.6.2",
+    "rollup": "^4.50.1",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-visualizer": "^6.0.3",
-    "sass": "^1.89.2"
+    "sass": "^1.92.1"
   },
   "dependencies": {
-    "antd": "^5.26.7",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "antd": "^5.27.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }

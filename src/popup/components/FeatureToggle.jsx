@@ -1,4 +1,5 @@
 import { Flex, Switch, Typography } from 'antd';
+import ShortcutInfo from './ShortcutInfo.jsx';
 
 const { Text } = Typography;
 
@@ -14,18 +15,22 @@ export default function FeatureToggle({
   checked,
   onChange,
   ariaLabel,
+  commandName,
 }) {
   return (
-    <Flex justify='space-between' align='center'>
-      <Text strong>{label}</Text>
-      <Switch
-        id={id}
-        checkedChildren='Enabled'
-        unCheckedChildren='Disabled'
-        checked={checked}
-        onChange={onChange}
-        aria-label={ariaLabel}
-      />
-    </Flex>
+    <>
+      <Flex justify='space-between' align='center'>
+        <Text strong>{label}</Text>
+        <Switch
+          id={id}
+          checkedChildren='Enabled'
+          unCheckedChildren='Disabled'
+          checked={checked}
+          onChange={onChange}
+          aria-label={ariaLabel}
+        />
+      </Flex>
+      <ShortcutInfo command={commandName} />
+    </>
   );
 }

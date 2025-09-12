@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.3] - 2025-09-12
+
+### Added
+
+- Added a new script to automatically generate `changelog.html` from `CHANGELOG.md`, streamlining the build process.
+- Implemented automated compression of the `dist` folder, streamlining the release process.
+- Added keyboard shortcut display to the popup UI for both Border Mode and Inspector Mode. Users can now view the current shortcut and access a direct link to the browser's extension settings for customization.
+
 ## [1.4.2] - 2025-09-02
 
 ### Fixed
