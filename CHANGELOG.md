@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - UNRELEASED
+
+### Added
+
+- Setup testing framework to improve code reliability and prevent future regressions.
+
 ## [1.4.3] - 2025-09-12
 
 ### Added
