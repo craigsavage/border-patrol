@@ -7,4 +7,5 @@ export default {
   moduleNameMapper: {
     '\\.(css|scss)$': 'identity-obj-proxy',
   },
+  moduleDirectories: ['node_modules', 'src'],
 };
