@@ -18,4 +18,22 @@ describe('isRestrictedUrl', () => {
       expect(isRestrictedUrl(url)).toBe(true);
     });
   });
+
+  it('should return false for non-restricted URLs', () => {
+    const nonRestrictedUrls = [
+      'https://www.example.com',
+      'https://www.google.com',
+      'https://www.github.com',
+    ];
+
+    nonRestrictedUrls.forEach(url => {
+      expect(isRestrictedUrl(url)).toBe(false);
+    });
+  });
+
+  it('should handle edge cases', () => {
+    expect(isRestrictedUrl('')).toBe(false);
+    expect(isRestrictedUrl('http://localhost')).toBe(false);
+    expect(isRestrictedUrl('ftp://example.com')).toBe(false);
+  });
 });
