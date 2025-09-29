@@ -6,7 +6,7 @@ import { useScreenshotCapture } from './hooks/useScreenshotCapture.js';
 import { useDarkMode } from './hooks/useDarkMode.js';
 
 // Components
-import Header from './components/Header.jsx';
+import Header from './components/Header.js';
 import RestrictedMessage from './components/RestrictedMessage';
 import FeatureToggle from './components/FeatureToggle';
 import BorderSettings from './components/BorderSettings';

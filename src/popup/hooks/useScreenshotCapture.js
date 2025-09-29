@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { hasPermission } from '../../scripts/helpers.js';
-import Logger from '../../scripts/utils/logger.js';
+import Logger from '../../scripts/utils/logger';
 
 /**
  * Custom hook to manage screenshot capture permissions and functionality.

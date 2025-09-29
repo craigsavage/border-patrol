@@ -3,6 +3,8 @@ import { Layout, theme, Typography } from 'antd';
 const { useToken } = theme;
 const { Title } = Typography;
 
+interface HeaderProps {}
+
 /**
  * Displays the header title for the popup.
  *

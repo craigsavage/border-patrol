@@ -73,7 +73,10 @@ const commonPlugins = [
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
-    presets: [['@babel/preset-react', { runtime: 'automatic' }]],
+    presets: [
+      ['@babel/preset-react', { runtime: 'automatic' }],
+      '@babel/preset-typescript',
+    ],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
   nodeResolve({
@@ -138,7 +141,7 @@ const entryPoints = [
     cssFilename: 'main-content.css',
   },
   {
-    input: 'src/popup/menu.js',
+    input: 'src/popup/menu.tsx',
     output: 'popup/menu',
     format: 'iife', // IIFE
     cssFilename: 'menu.css',

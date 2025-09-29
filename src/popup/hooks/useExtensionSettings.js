@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getActiveTab, isRestrictedUrl } from '../../scripts/helpers.js';
-import Logger from '../../scripts/utils/logger.js';
+import Logger from '../../scripts/utils/logger';
 
 /**
  * Custom hook to manage core extension settings and their interactions with Chrome APIs.

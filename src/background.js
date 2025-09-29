@@ -10,7 +10,7 @@ import {
   hasPermission,
 } from './scripts/helpers.js';
 import { getTimestampedScreenshotFilename } from './scripts/utils/filename.js';
-import Logger from './scripts/utils/logger.js';
+import Logger from './scripts/utils/logger';
 
 // In-memory cache for tab states. This helps reduce repeated calls to storage
 const cachedTabStates = {}; // tabId: { borderMode: boolean, inspectorMode: boolean }
@@ -104,8 +104,8 @@ async function updateExtensionState(tabId) {
     const title = isRestricted
       ? 'Border Patrol - Restricted'
       : isActive
-      ? 'Border Patrol - Active'
-      : 'Border Patrol - Inactive';
+        ? 'Border Patrol - Active'
+        : 'Border Patrol - Inactive';
 
     // Set the extension title
     await chrome.action.setTitle({ tabId, title });

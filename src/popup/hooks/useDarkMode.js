@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Logger from '../../scripts/utils/logger.js';
+import Logger from '../../scripts/utils/logger';
 
 /**
  * Custom hook to manage dark mode functionality.
@@ -32,9 +32,8 @@ export const useDarkMode = () => {
   useEffect(() => {
     const loadDarkModePreference = async () => {
       try {
-        const { darkMode: savedDarkMode } = await chrome.storage.local.get(
-          'darkMode'
-        );
+        const { darkMode: savedDarkMode } =
+          await chrome.storage.local.get('darkMode');
 
         // If a preference is found, set it; otherwise, default to light mode
         if (savedDarkMode !== undefined) {
