@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { Button, Space, Alert } from 'antd';
+import type {
+  ScreenshotSectionProps,
+  NotificationType,
+} from '../../types/popup/components.js';
 
 /**
  * A component that handles screenshot capture permission and capture process.
@@ -8,27 +12,22 @@ import { Button, Space, Alert } from 'antd';
  * If permission is not granted, it requests permission from the user first.
  * If permission is granted, it captures the screenshot.
  * It displays success or error notifications after the capture process.
- *
- * @param {Object} props - The component props.
- * @param {boolean} props.hasPermission - Indicates if the user has download permission.
- * @param {Function} props.onRequestPermission - Function to request download permission.
- * @param {Function} props.onCaptureScreenshot - Function to handle the screenshot capture process.
- * @returns {JSX.Element} A button to capture screenshot and notifications for the result.
  */
 export default function ScreenshotSection({
-  hasPermission,
+  hasDownloadPermission,
   onRequestPermission,
   onCaptureScreenshot,
-}) {
-  const [isCapturing, setIsCapturing] = useState(false);
-  const [notification, setNotification] = useState(null);
+}: ScreenshotSectionProps): React.ReactElement {
+  const [isCapturing, setIsCapturing] = useState<boolean>(false);
+  const [notification, setNotification] = useState<NotificationType | null>(
+    null
+  );
 
   /**
    * Handles the screenshot capture process.
+   *
    * It checks for download permission, and if granted, it captures the screenshot.
    * If permission is not granted, it requests permission from the user first.
-   *
-   * @returns {Promise<void>} Resolves when the screenshot is captured or an error occurs.
    */
   const handleTakeScreenshot = async () => {
     if (!onRequestPermission || !onCaptureScreenshot) {
@@ -38,7 +37,7 @@ export default function ScreenshotSection({
       return;
     }
 
-    if (!hasPermission) {
+    if (!hasDownloadPermission) {
       const granted = await onRequestPermission();
       if (!granted) {
         setNotification({
@@ -80,7 +79,7 @@ export default function ScreenshotSection({
 
   return (
     <Space direction='vertical' style={{ width: '100%' }}>
-      {!hasPermission && (
+      {!hasDownloadPermission && (
         <Alert
           message='Download permission required for screenshots'
           type='warning'

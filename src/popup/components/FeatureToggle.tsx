@@ -1,14 +1,10 @@
 import { Flex, Switch, Typography } from 'antd';
-import ShortcutInfo from './ShortcutInfo.jsx';
+import type { FeatureToggleProps } from '../../types/popup/components.js';
+import ShortcutInfo from './ShortcutInfo';
 
 const { Text } = Typography;
 
-/**
- * A toggle switch component that allows users to enable or disable a feature.
- *
- * @param {Object} props - The properties for the toggle switch.
- * @returns {React.FC} - A functional component that renders a toggle switch.
- */
+/** A toggle switch component that allows users to enable or disable a feature. */
 export default function FeatureToggle({
   label,
   id,
@@ -16,7 +12,7 @@ export default function FeatureToggle({
   onChange,
   ariaLabel,
   commandName,
-}) {
+}: FeatureToggleProps): React.ReactElement {
   return (
     <>
       <Flex justify='space-between' align='center'>

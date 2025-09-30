@@ -1,23 +1,26 @@
 import { Flex, Typography } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
+import type { ShortcutInfoProps } from '../../types/popup/components.js';
 import { SHORTCUTS_PAGE } from '../../scripts/constants.js';
 import { useExtensionSettings } from '../hooks/useExtensionSettings.js';
 
 const { Text } = Typography;
 
-const iconStyle = {
+const iconStyle: React.CSSProperties = {
   color: 'var(--bp-gray)',
   fontSize: '1.1rem',
   cursor: 'pointer',
 };
 
 /**
- * ShortcutInfo component displays the keyboard shortcut for a given command.
+ * A component that displays the keyboard shortcut for a given command.
  *
- * @param {Object} props - The component props.
- * @returns {JSX.Element} The rendered ShortcutInfo component.
+ * It retrieves the shortcut from extension settings and provides a link to
+ * the Chrome extensions shortcuts page for editing.
  */
-export default function ShortcutInfo({ command }) {
+export default function ShortcutInfo({
+  command,
+}: ShortcutInfoProps): React.ReactElement {
   const { shortcuts } = useExtensionSettings();
 
   /**
