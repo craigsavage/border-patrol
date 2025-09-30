@@ -1,6 +1,6 @@
 import { Layout, Typography } from 'antd';
 import { MoonFilled, SunFilled } from '@ant-design/icons';
-import type { FooterProps } from '../../types/popup/components.js';
+import type { FooterProps } from '../../types/popup/components';
 
 const { Link } = Typography;
 

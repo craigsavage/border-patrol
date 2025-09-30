@@ -1,5 +1,5 @@
 import { Flex, Switch, Typography } from 'antd';
-import type { FeatureToggleProps } from '../../types/popup/components.js';
+import type { FeatureToggleProps } from '../../types/popup/components';
 import ShortcutInfo from './ShortcutInfo';
 
 const { Text } = Typography;

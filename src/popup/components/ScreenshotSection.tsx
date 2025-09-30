@@ -3,7 +3,7 @@ import { Button, Space, Alert } from 'antd';
 import type {
   ScreenshotSectionProps,
   NotificationType,
-} from '../../types/popup/components.js';
+} from '../../types/popup/components';
 
 /**
  * A component that handles screenshot capture permission and capture process.

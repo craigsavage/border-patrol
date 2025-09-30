@@ -1,5 +1,5 @@
 import { Form, Slider, Select, Card } from 'antd';
-import type { BorderSettingsProps } from '../../types/popup/components.js';
+import type { BorderSettingsProps } from '../../types/popup/components';
 
 /** Component for border settings. Allows users to adjust the border size and style. */
 export default function BorderSettings({
