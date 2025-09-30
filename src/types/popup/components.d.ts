@@ -1,5 +1,3 @@
-export interface HeaderProps {}
-
 export interface RestrictedMessageProps {
   isVisible: boolean;
 }

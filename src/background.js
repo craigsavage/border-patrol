@@ -3,13 +3,13 @@ import {
   DEFAULT_BORDER_STYLE,
   DEFAULT_TAB_STATE,
   ICON_PATHS,
-} from './scripts/constants.js';
+} from './scripts/constants';
 import {
   isRestrictedUrl,
   getActiveTab,
   hasPermission,
-} from './scripts/helpers.js';
-import { getTimestampedScreenshotFilename } from './scripts/utils/filename.js';
+} from './scripts/helpers';
+import { getTimestampedScreenshotFilename } from './scripts/utils/filename';
 import Logger from './scripts/utils/logger';
 
 // In-memory cache for tab states. This helps reduce repeated calls to storage

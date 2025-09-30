@@ -1,11 +1,10 @@
 import { Layout, theme, Typography } from 'antd';
-import type { HeaderProps } from '../../types/popup/components';
 
 const { useToken } = theme;
 const { Title } = Typography;
 
 /** Displays the header title for the popup. */
-export default function Header(props: HeaderProps): React.ReactElement {
+export default function Header(): React.ReactElement {
   const { token } = useToken();
 
   const titleStyle: React.CSSProperties = {

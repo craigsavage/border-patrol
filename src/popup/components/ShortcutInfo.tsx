@@ -1,8 +1,8 @@
 import { Flex, Typography } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import type { ShortcutInfoProps } from '../../types/popup/components.js';
-import { SHORTCUTS_PAGE } from '../../scripts/constants.js';
-import { useExtensionSettings } from '../hooks/useExtensionSettings.js';
+import type { ShortcutInfoProps } from '../../types/popup/components';
+import { SHORTCUTS_PAGE } from '../../scripts/constants';
+import { useExtensionSettings } from '../hooks/useExtensionSettings';
 
 const { Text } = Typography;
 

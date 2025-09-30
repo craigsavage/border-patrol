@@ -2,8 +2,8 @@ import { Space, Divider, ConfigProvider, theme, Layout } from 'antd';
 
 // Hooks
 import { useExtensionSettings } from './hooks/useExtensionSettings';
-import { useScreenshotCapture } from './hooks/useScreenshotCapture.js';
-import { useDarkMode } from './hooks/useDarkMode.js';
+import { useScreenshotCapture } from './hooks/useScreenshotCapture';
+import { useDarkMode } from './hooks/useDarkMode';
 
 // Components
 import Header from './components/Header';
@@ -23,10 +23,8 @@ import Footer from './components/Footer';
  * If the extension is restricted, only the RestrictedMessage is shown.
  * Otherwise, it displays toggles for Border and Inspector modes, border settings,
  * screenshot controls, and a footer.
- *
- * @returns {JSX.Element} Popup UI for the extension.
  */
-export default function App() {
+export default function App(): React.ReactElement {
   const {
     isRestricted,
     borderMode,
