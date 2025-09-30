@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import type { IExtensionSettings } from '../../types/popup/hooks';
+import type {
+  IExtensionSettings,
+  MessageListenerType,
+} from '../../types/popup/hooks';
 import { getActiveTab, isRestrictedUrl } from '../../scripts/helpers';
 import Logger from '../../scripts/utils/logger';
 
@@ -123,7 +126,11 @@ export function useExtensionSettings(): IExtensionSettings {
     initializeStates();
 
     // Listener for background script updates (e.g., if content script toggles state)
-    const messageListener = (message, sender, sendResponse) => {
+    const messageListener: MessageListenerType = (
+      message,
+      sender,
+      sendResponse
+    ) => {
       if (message.action === 'UPDATE_POPUP_STATE') {
         if (typeof message.borderMode !== 'undefined') {
           setBorderMode(message.borderMode);

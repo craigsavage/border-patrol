@@ -9,3 +9,20 @@ export interface IExtensionSettings {
   handleToggleInspectorMode: (checked: boolean) => void;
   handleUpdateBorderSettings: (size: number, style: string) => void;
 }
+
+export type MessageListenerType = (
+  message: {
+    action: string;
+    borderMode?: boolean;
+    inspectorMode?: boolean;
+  },
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void
+) => void;
+
+export interface IScreenshotCapture {
+  hasDownloadPermission: boolean;
+  checkDownloadPermission: () => Promise<boolean>;
+  requestDownloadPermission: () => Promise<boolean>;
+  handleCaptureScreenshot: () => Promise<boolean>;
+}

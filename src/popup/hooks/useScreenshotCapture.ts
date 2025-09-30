@@ -1,20 +1,19 @@
 import { useState, useEffect } from 'react';
-import { hasPermission } from '../../scripts/helpers.js';
+import type { IScreenshotCapture } from '../../types/popup/hooks';
+import { hasPermission } from '../../scripts/helpers';
 import Logger from '../../scripts/utils/logger';
 
 /**
  * Custom hook to manage screenshot capture permissions and functionality.
  *
- * @param {boolean} isAppRestricted - Indicates if the app is restricted (e.g., on a restricted URL).
- * @returns {{
- * hasDownloadPermission: boolean,
- * checkDownloadPermission: () => Promise<boolean>,
- * requestDownloadPermission: () => Promise<boolean>,
- * handleCaptureScreenshot: () => Promise<boolean>
- * }} An object containing functions to check, request, and handle screenshot capture permissions.
+ * @param isAppRestricted Indicates if the app is restricted (e.g., on a restricted URL).
+ * @returns An object containing functions to check, request, and handle screenshot capture permissions.
  */
-export function useScreenshotCapture(isAppRestricted) {
-  const [hasDownloadPermission, setHasDownloadPermission] = useState(false);
+export function useScreenshotCapture(
+  isAppRestricted: boolean
+): IScreenshotCapture {
+  const [hasDownloadPermission, setHasDownloadPermission] =
+    useState<boolean>(false);
 
   /**
    * Checks if the extension has the 'downloads' permission.
