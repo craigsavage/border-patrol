@@ -32,7 +32,7 @@ export function isRestrictedUrl(url: string): boolean {
  *
  * @returns The active tab object, or an empty object if not found.
  */
-export async function getActiveTab(): Promise<chrome.tabs.Tab | {}> {
+export async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
   try {
     // Query for the active tab in the current window
     const tabs = await chrome.tabs.query({
@@ -40,10 +40,10 @@ export async function getActiveTab(): Promise<chrome.tabs.Tab | {}> {
       lastFocusedWindow: true,
     });
 
-    // Return the first tab found, or an empty object if none are found
-    return tabs[0] ?? {};
+    // Return the first tab found, or undefined if none are found
+    return tabs[0];
   } catch (error) {
-    return {};
+    return undefined;
   }
 }
 
@@ -56,9 +56,7 @@ export async function getActiveTab(): Promise<chrome.tabs.Tab | {}> {
 export async function hasPermission(
   permissions: string | string[]
 ): Promise<boolean> {
-  const perms: string[] = Array.isArray(permissions)
-    ? permissions
-    : [permissions];
+  const perms = Array.isArray(permissions) ? permissions : [permissions];
 
   try {
     // Check if the permissions are already granted
