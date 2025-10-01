@@ -26,3 +26,8 @@ export interface IScreenshotCapture {
   requestDownloadPermission: () => Promise<boolean>;
   handleCaptureScreenshot: () => Promise<boolean>;
 }
+
+export interface IDarkMode {
+  isDarkMode: boolean;
+  handleToggleDarkMode: (checked: boolean) => Promise<void>;
+}

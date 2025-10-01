@@ -110,9 +110,11 @@ export function useExtensionSettings(): IExtensionSettings {
         // Fetch extension commands and shortcuts
         if (window.chrome && chrome.commands) {
           chrome.commands.getAll(commands => {
-            const shortcutMap = {};
+            const shortcutMap: Record<string, string> = {};
             commands.forEach(cmd => {
-              shortcutMap[cmd.name] = cmd.shortcut || '';
+              if (cmd.name) {
+                shortcutMap[cmd.name] = cmd.shortcut || '';
+              }
             });
             setShortcuts(shortcutMap);
           });

@@ -18,9 +18,9 @@ export function useScreenshotCapture(
   /**
    * Checks if the extension has the 'downloads' permission.
    *
-   * @returns {Promise<boolean>} A promise that resolves to true if the permission is granted, otherwise false.
+   * @returns A promise that resolves to true if the permission is granted, otherwise false.
    */
-  const checkDownloadPermission = async () => {
+  const checkDownloadPermission = async (): Promise<boolean> => {
     try {
       const granted = await hasPermission('downloads');
       setHasDownloadPermission(granted);
@@ -38,9 +38,9 @@ export function useScreenshotCapture(
    * If the permission is granted, it sets `hasDownloadPermission` to true otherwise false.
    * Logs the success or failure of the permission request.
    *
-   * @returns {Promise<boolean>} Returns a promise that resolves to true if the permission was granted, otherwise false.
+   * @returns Returns a promise that resolves to true if the permission was granted, otherwise false.
    */
-  const requestDownloadPermission = async () => {
+  const requestDownloadPermission = async (): Promise<boolean> => {
     try {
       const granted = await chrome.permissions.request({
         permissions: ['downloads'],
@@ -64,9 +64,9 @@ export function useScreenshotCapture(
    * Handles the process of capturing a screenshot by sending a message to the background script.
    * Logs the success or failure of the capture process.
    *
-   * @returns {Promise<boolean>} Returns a promise that resolves to true if the screenshot was captured successfully, otherwise false.
+   * @returns Returns a promise that resolves to true if the screenshot was captured successfully, otherwise false.
    */
-  const handleCaptureScreenshot = async () => {
+  const handleCaptureScreenshot = async (): Promise<boolean> => {
     try {
       const success = await chrome.runtime.sendMessage({
         action: 'CAPTURE_SCREENSHOT',
