@@ -1,10 +1,11 @@
 export default {
   testEnvironment: 'jsdom',
-  moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
   transform: {
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   moduleNameMapper: {
+    '^scripts/(.*)$': '<rootDir>/src/scripts/$1',
     '\\.(css|scss)$': 'identity-obj-proxy',
   },
   moduleDirectories: ['node_modules', 'src'],

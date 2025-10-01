@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import Logger from '../scripts/utils/logger.js';
+import Logger from '../scripts/utils/logger';
 
 import '../styles/menu.scss';
 

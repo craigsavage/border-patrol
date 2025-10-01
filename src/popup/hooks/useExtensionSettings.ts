@@ -1,38 +1,32 @@
 import { useState, useEffect } from 'react';
-import { getActiveTab, isRestrictedUrl } from '../../scripts/helpers.js';
-import Logger from '../../scripts/utils/logger.js';
+import type {
+  IExtensionSettings,
+  MessageListenerType,
+} from '../../types/popup/hooks';
+import { getActiveTab, isRestrictedUrl } from '../../scripts/helpers';
+import Logger from '../../scripts/utils/logger';
 
 /**
  * Custom hook to manage core extension settings and their interactions with Chrome APIs.
- *
- * @returns {{
- * isRestricted: boolean,
- * borderMode: boolean,
- * inspectorMode: boolean,
- * borderSize: number,
- * borderStyle: string,
- * handleToggleBorderMode: (checked: boolean) => void,
- * handleToggleInspectorMode: (checked: boolean) => void,
- * handleUpdateBorderSettings: (size: number, style: string) => void
- * }} An object containing the current settings and functions to update them.
+ * @returns An object containing the current settings and functions to update them.
  */
-export function useExtensionSettings() {
-  const [isRestricted, setIsRestricted] = useState(false);
-  const [borderMode, setBorderMode] = useState(false);
-  const [inspectorMode, setInspectorMode] = useState(false);
-  const [borderSize, setBorderSize] = useState(1);
-  const [borderStyle, setBorderStyle] = useState('solid');
-  const [tabId, setTabId] = useState(null);
-  const [shortcuts, setShortcuts] = useState({});
+export function useExtensionSettings(): IExtensionSettings {
+  const [isRestricted, setIsRestricted] = useState<boolean>(false);
+  const [borderMode, setBorderMode] = useState<boolean>(false);
+  const [inspectorMode, setInspectorMode] = useState<boolean>(false);
+  const [borderSize, setBorderSize] = useState<number>(1);
+  const [borderStyle, setBorderStyle] = useState<string>('solid');
+  const [tabId, setTabId] = useState<number | null>(null);
+  const [shortcuts, setShortcuts] = useState<Record<string, string>>({});
 
   /**
    * Toggles the border mode on or off.
    * Sends a message to the background script to handle the state toggle.
    *
-   * @param {boolean} checked - The new state of the border mode toggle.
-   * @returns {Promise<void>} - Resolves when the state is toggled.
+   * @param checked The new state of the border mode toggle.
+   * @returns Resolves when the state is toggled.
    */
-  const handleToggleBorderMode = async checked => {
+  const handleToggleBorderMode = async (checked: boolean): Promise<void> => {
     setBorderMode(checked);
     if (tabId) {
       chrome.runtime.sendMessage({
@@ -49,10 +43,10 @@ export function useExtensionSettings() {
    * Toggles the inspector mode on or off.
    * Sends a message to the background script to handle the state toggle.
    *
-   * @param {boolean} checked - The new state of the inspector mode toggle.
-   * @returns {Promise<void>} - Resolves when the state is toggled.
+   * @param checked The new state of the inspector mode toggle.
+   * @returns Resolves when the state is toggled.
    */
-  const handleToggleInspectorMode = async checked => {
+  const handleToggleInspectorMode = async (checked: boolean): Promise<void> => {
     setInspectorMode(checked);
     if (tabId) {
       chrome.runtime.sendMessage({
@@ -69,10 +63,13 @@ export function useExtensionSettings() {
    * Updates the border settings.
    * Sends a message to the background script with the new settings.
    *
-   * @param {number} size - The new border size to apply.
-   * @param {string} style - The new border style to apply.
+   * @param size The new border size to apply.
+   * @param style The new border style to apply.
    */
-  const handleUpdateBorderSettings = async (size, style) => {
+  const handleUpdateBorderSettings = async (
+    size: number,
+    style: string
+  ): Promise<void> => {
     setBorderSize(size);
     setBorderStyle(style);
     chrome.runtime.sendMessage({
@@ -113,9 +110,12 @@ export function useExtensionSettings() {
         // Fetch extension commands and shortcuts
         if (window.chrome && chrome.commands) {
           chrome.commands.getAll(commands => {
-            const shortcutMap = {};
+            const shortcutMap: Record<string, string> = {};
             commands.forEach(cmd => {
-              shortcutMap[cmd.name] = cmd.shortcut || '';
+              // Map command names to their shortcuts
+              if (cmd.name) {
+                shortcutMap[cmd.name] = cmd.shortcut || '';
+              }
             });
             setShortcuts(shortcutMap);
           });
@@ -129,7 +129,11 @@ export function useExtensionSettings() {
     initializeStates();
 
     // Listener for background script updates (e.g., if content script toggles state)
-    const messageListener = (message, sender, sendResponse) => {
+    const messageListener: MessageListenerType = (
+      message,
+      sender,
+      sendResponse
+    ) => {
       if (message.action === 'UPDATE_POPUP_STATE') {
         if (typeof message.borderMode !== 'undefined') {
           setBorderMode(message.borderMode);

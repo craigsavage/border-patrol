@@ -3,15 +3,11 @@ import { Layout, theme, Typography } from 'antd';
 const { useToken } = theme;
 const { Title } = Typography;
 
-/**
- * Displays the header title for the popup.
- *
- * @returns {JSX.Element} A header with the title "Border Patrol".
- */
-export default function Header() {
+/** Displays the header title for the popup. */
+export default function Header(): React.ReactElement {
   const { token } = useToken();
 
-  const titleStyle = {
+  const titleStyle: React.CSSProperties = {
     fontFamily: '"Grandstander", "Inter", Arial, sans-serif',
     fontSize: '1.6rem',
     fontWeight: 700,

@@ -1,23 +1,21 @@
 import { useState, useEffect } from 'react';
-import Logger from '../../scripts/utils/logger.js';
+import type { IDarkMode } from '../../types/popup/hooks';
+import Logger from '../../scripts/utils/logger';
 
 /**
  * Custom hook to manage dark mode functionality.
  *
- * @returns {{
- * isDarkMode: boolean,
- * handleToggleDarkMode: (checked: boolean) => Promise<void>
- * }} An object containing the current dark mode state and a function to toggle it.
+ * @returns An object containing the current dark mode state and a function to toggle it.
  */
-export const useDarkMode = () => {
+export const useDarkMode = (): IDarkMode => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   /**
    * Toggles dark mode on or off.
    *
-   * @param {boolean} checked - True if dark mode is enabled, false otherwise.
+   * @param checked True if dark mode is enabled, false otherwise.
    */
-  const handleToggleDarkMode = async checked => {
+  const handleToggleDarkMode = async (checked: boolean): Promise<void> => {
     setIsDarkMode(checked);
     // Save the dark mode preference to local storage
     try {
@@ -32,9 +30,8 @@ export const useDarkMode = () => {
   useEffect(() => {
     const loadDarkModePreference = async () => {
       try {
-        const { darkMode: savedDarkMode } = await chrome.storage.local.get(
-          'darkMode'
-        );
+        const { darkMode: savedDarkMode } =
+          await chrome.storage.local.get('darkMode');
 
         // If a preference is found, set it; otherwise, default to light mode
         if (savedDarkMode !== undefined) {
