@@ -1,4 +1,4 @@
-import { isRestrictedUrl } from 'scripts/helpers.js';
+import { isRestrictedUrl } from 'scripts/helpers';
 
 describe('isRestrictedUrl', () => {
   it('should return true for restricted URLs', () => {
