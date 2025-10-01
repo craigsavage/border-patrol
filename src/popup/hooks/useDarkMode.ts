@@ -15,7 +15,7 @@ export const useDarkMode = (): IDarkMode => {
    *
    * @param checked True if dark mode is enabled, false otherwise.
    */
-  const handleToggleDarkMode = async (checked: boolean) => {
+  const handleToggleDarkMode = async (checked: boolean): Promise<void> => {
     setIsDarkMode(checked);
     // Save the dark mode preference to local storage
     try {

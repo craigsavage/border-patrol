@@ -112,6 +112,7 @@ export function useExtensionSettings(): IExtensionSettings {
           chrome.commands.getAll(commands => {
             const shortcutMap: Record<string, string> = {};
             commands.forEach(cmd => {
+              // Map command names to their shortcuts
               if (cmd.name) {
                 shortcutMap[cmd.name] = cmd.shortcut || '';
               }

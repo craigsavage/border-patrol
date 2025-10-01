@@ -3,10 +3,10 @@ import Logger from './utils/logger';
 /**
  * Checks if the provided URL is a restricted URL.
  *
- * @param {string} url - The URL to check.
- * @returns {boolean} True if the URL is restricted, false otherwise.
+ * @param url The URL to check.
+ * @returns True if the URL is restricted, false otherwise.
  */
-export function isRestrictedUrl(url) {
+export function isRestrictedUrl(url: string): boolean {
   const invalidSchemes = [
     'chrome:',
     'chrome-extension:',
@@ -32,7 +32,7 @@ export function isRestrictedUrl(url) {
  *
  * @returns The active tab object, or an empty object if not found.
  */
-export async function getActiveTab(): Promise<chrome.tabs.Tab> {
+export async function getActiveTab(): Promise<chrome.tabs.Tab | {}> {
   try {
     // Query for the active tab in the current window
     const tabs = await chrome.tabs.query({
@@ -50,15 +50,19 @@ export async function getActiveTab(): Promise<chrome.tabs.Tab> {
 /**
  * Checks if the extension has the specified permission.
  *
- * @param {string|string[]} permissions - The permission or array of permissions to check.
- * @returns {Promise<boolean>} A promise that resolves to true if all permissions are granted.
+ * @param permissions The permission or array of permissions to check.
+ * @returns A promise that resolves to true if all permissions are granted.
  */
-export async function hasPermission(permissions) {
-  const perms = Array.isArray(permissions) ? permissions : [permissions];
+export async function hasPermission(
+  permissions: string | string[]
+): Promise<boolean> {
+  const perms: string[] = Array.isArray(permissions)
+    ? permissions
+    : [permissions];
 
   try {
     // Check if the permissions are already granted
-    return await chrome.permissions.contains({ permissions: perms });
+    return await chrome.permissions.contains({ permissions: perms as any });
   } catch (error) {
     Logger.error('Error checking permissions:', error);
     return false;
