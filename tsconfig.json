@@ -8,9 +8,12 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": "./src",
+    "baseUrl": "./src",
+    "paths": {
+      "scripts/*": ["scripts/*"]
+    },
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist", "dist-zips"]
 }
