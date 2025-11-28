@@ -135,7 +135,7 @@ const entryPoints = [
     cssFilename: null, // No CSS output for background script
   },
   {
-    input: 'src/scripts/main-content.js',
+    input: 'src/scripts/main-content.ts',
     output: 'scripts/main-content',
     format: 'iife', // IIFE
     cssFilename: 'main-content.css',
