@@ -1,4 +1,4 @@
-import { toSentenceCase } from 'scripts/utils/string-utils';
+import { toSentenceCase } from './string-utils';
 
 /**
  * Formats width and height values for display.
