@@ -1,9 +1,10 @@
 import Logger from './utils/logger';
+import { BorderSettings, ElementGroup } from '../types/scripts/border';
 
 (function () {
   // Cache the border mode state and border settings
   let isBorderModeEnabled: boolean = false;
-  let currentBorderSettings: { size: number; style: string } = {
+  let currentBorderSettings: BorderSettings = {
     size: 1,
     style: 'solid',
   };
@@ -16,7 +17,7 @@ import Logger from './utils/logger';
   let observer: MutationObserver | null = null; // Declare the MutationObserver instance
 
   // Define element groups with their tags and colors
-  const elementGroups: Record<string, { tags: string[]; color: string }> = {
+  const elementGroups: Record<string, ElementGroup> = {
     containers: {
       tags: ['div', 'section', 'article', 'header', 'footer', 'main'],
       color: 'blue',

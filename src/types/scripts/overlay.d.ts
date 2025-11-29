@@ -1,5 +1,6 @@
 /**
  * Options for creating and appending an element
+ *
  * @property id - The ID of the element
  * @property parent - The parent element to append to
  * @property tagName - The tag name of the element (default: 'div')
