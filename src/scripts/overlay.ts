@@ -9,16 +9,16 @@ import {
 } from './utils/overlay-formatters';
 
 (function () {
-  let isInspectorModeEnabled = false; // Cache the inspector mode state
-  let throttleTimeout = null;
+  let isInspectorModeEnabled: boolean = false; // Cache the inspector mode state
+  let throttleTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Variables for overlay DOM elements
-  let overlayContainer = null;
-  let overlay = null;
-  let marginBox = null;
-  let borderBox = null;
-  let paddingBox = null;
-  let contentBox = null;
+  let overlayContainer: HTMLElement | null = null;
+  let overlay: HTMLElement | null = null;
+  let marginBox: HTMLElement | null = null;
+  let borderBox: HTMLElement | null = null;
+  let paddingBox: HTMLElement | null = null;
+  let contentBox: HTMLElement | null = null;
 
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
@@ -35,9 +35,9 @@ import {
    * If enabled, it initializes the overlay DOM elements and adds event listeners.
    * If disabled, it removes the event listeners and cleans up the DOM elements.
    *
-   * @param {boolean} isEnabled - The state of the inspector mode
+   * @param isEnabled - The state of the inspector mode
    */
-  function handleInspectorModeUpdate(isEnabled) {
+  function handleInspectorModeUpdate(isEnabled: boolean): void {
     Logger.info('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
 
     isInspectorModeEnabled = isEnabled; // Update the inspector mode state cache
@@ -54,7 +54,7 @@ import {
   }
 
   /** Initializes the DOM elements if they are not already initialized */
-  function initializeOverlayDOM() {
+  function initializeOverlayDOM(): void {
     // Check if overlay is already initialized
     if (document.getElementById('bp-inspector-container')) {
       overlayContainer = document.getElementById('bp-inspector-container');
@@ -101,7 +101,7 @@ import {
   }
 
   /** Adds event listeners */
-  function addEventListeners() {
+  function addEventListeners(): void {
     // Check if overlay is already initialized
     if (
       !overlayContainer ||
@@ -122,16 +122,31 @@ import {
   }
 
   /**
+   * Options for creating and appending an element
+   * @property id - The ID of the element
+   * @property parent - The parent element to append to
+   * @property tagName - The tag name of the element (default: 'div')
+   * @property classNames - The class names to assign to the element
+   */
+  type CreateAndAppendOptions = {
+    id: string;
+    parent: HTMLElement;
+    tagName?: string;
+    classNames?: string;
+  };
+
+  /**
    * Creates and appends an element to a parent element
    *
-   * @param {Object} options - The options object
-   * @param {string} options.id - The id of the element
-   * @param {HTMLElement} options.parent - The parent element to append to
-   * @param {string} [options.tagName='div'] - The tag name of the element
-   * @param {string} [options.classNames=''] - The class names of the element
-   * @returns {HTMLElement|null} The created element or null if required params are missing
+   * @param options - The options object for element creation
+   * @returns The created element or null if required params are missing
    */
-  function createAndAppend({ id, parent, tagName = 'div', classNames = '' }) {
+  function createAndAppend({
+    id,
+    parent,
+    tagName = 'div',
+    classNames = '',
+  }: CreateAndAppendOptions): HTMLElement | null {
     if (!id || !parent || !tagName) return null;
     const element = document.createElement(tagName);
     element.id = id;
@@ -143,11 +158,14 @@ import {
   /**
    * Calculates the position of the overlay relative to the cursor and prevents it from going off-screen
    *
-   * @param {Event} event - The triggered event
-   * @param {HTMLElement} overlayElement - The overlay dom element
-   * @returns {Object} The position of the overlay
+   * @param event - The triggered event
+   * @param overlayElement - The overlay dom element
+   * @returns The position of the overlay
    */
-  function getOverlayPosition(event, overlayElement) {
+  function getOverlayPosition(
+    event: MouseEvent,
+    overlayElement: HTMLElement | null
+  ): { top: number; left: number } {
     if (!overlayElement) return { top: 0, left: 0 }; // Default values
 
     const overlayRect = overlayElement.getBoundingClientRect();
@@ -175,12 +193,16 @@ import {
   /**
    * Generates the HTML content for the overlay
    *
-   * @param {HTMLElement} element - The target element
-   * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
-   * @param {DOMRect} rect - The bounding client rect of the element
-   * @returns {string} The HTML content for the overlay
+   * @param element - The target element
+   * @param computedStyle - The computed style of the element
+   * @param rect - The bounding client rect of the element
+   * @returns The HTML content for the overlay
    */
-  function generateOverlayContent(element, computedStyle, rect) {
+  function generateOverlayContent(
+    element: HTMLElement,
+    computedStyle: CSSStyleDeclaration,
+    rect: DOMRect
+  ): string {
     if (!element || !computedStyle || !rect) return '';
 
     // Get element details
@@ -312,9 +334,9 @@ import {
   /**
    * Displays the overlay on mouseover
    *
-   * @param {Event} event - The triggered event
+   * @param event - The triggered event
    */
-  function mouseOverHandler(event) {
+  function mouseOverHandler(event: MouseEvent): void {
     // Check if inspector mode is enabled
     if (
       !isInspectorModeEnabled ||
@@ -328,9 +350,9 @@ import {
       return;
     }
 
-    const element = event.target;
+    const element = event.target as HTMLElement;
     // Skip if hovered over the overlay
-    if (!element || overlayContainer.contains(element)) {
+    if (!element || overlayContainer!.contains(element)) {
       mouseOutHandler();
       return;
     }
@@ -435,9 +457,9 @@ import {
   /**
    * Updates the position of the overlay
    *
-   * @param {Event} event - The triggered event
+   * @param event - The triggered event
    */
-  function updateOverlayPosition(event) {
+  function updateOverlayPosition(event: MouseEvent): void {
     if (!overlay || !isInspectorModeEnabled) return;
 
     // Calculate position of the overlay
@@ -460,9 +482,9 @@ import {
   /**
    * Updates the position of the overlay on mousemove
    *
-   * @param {Event} event - The triggered event
+   * @param event - The triggered event
    */
-  function mouseMoveHandler(event) {
+  function mouseMoveHandler(event: MouseEvent): void {
     if (!isInspectorModeEnabled) return;
 
     try {
@@ -479,7 +501,7 @@ import {
   }
 
   /** Hides the overlay and box model elements on mouseout */
-  function mouseOutHandler() {
+  function mouseOutHandler(): void {
     if (overlay) overlay.style.display = 'none';
     if (marginBox) marginBox.style.display = 'none';
     if (borderBox) borderBox.style.display = 'none';
@@ -488,7 +510,7 @@ import {
   }
 
   /** Removes all overlay elements from the DOM and resets related variables to null */
-  function removeElements() {
+  function removeElements(): void {
     // Remove the overlay container from the DOM if it exists
     overlayContainer?.remove();
 
@@ -502,7 +524,7 @@ import {
   }
 
   /** Removes event listeners */
-  function removeEventListeners() {
+  function removeEventListeners(): void {
     try {
       document.removeEventListener('mouseover', mouseOverHandler);
       document.removeEventListener('mousemove', mouseMoveHandler);
@@ -513,25 +535,31 @@ import {
   }
 
   // Recieve message to update inspector mode
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    Logger.info('Received message:', request);
+  chrome.runtime.onMessage.addListener(
+    (
+      request: any,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: any) => void
+    ) => {
+      Logger.info('Received message:', request);
 
-    try {
-      // Check if the message is to update inspector mode
-      if (request.action === 'UPDATE_INSPECTOR_MODE') {
-        handleInspectorModeUpdate(request.isEnabled);
+      try {
+        // Check if the message is to update inspector mode
+        if (request.action === 'UPDATE_INSPECTOR_MODE') {
+          handleInspectorModeUpdate(request.isEnabled);
+        }
+        // Respond to PING message if needed (used by background to check injection)
+        else if (request.action === 'PING') {
+          sendResponse({ status: 'PONG' });
+          return true; // Indicate async response
+        } else {
+          // Ignore any other messages
+          return false;
+        }
+      } catch (error) {
+        Logger.error(`Error handling message:`, error);
+        return false; // An error occurred
       }
-      // Respond to PING message if needed (used by background to check injection)
-      else if (request.action === 'PING') {
-        sendResponse({ status: 'PONG' });
-        return true; // Indicate async response
-      } else {
-        // Ignore any other messages
-        return false;
-      }
-    } catch (error) {
-      Logger.error(`Error handling message:`, error);
-      return false; // An error occurred
     }
-  });
+  );
 })();
