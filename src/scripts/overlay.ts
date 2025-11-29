@@ -71,6 +71,8 @@ import {
       id: 'bp-inspector-container',
       parent: document.body,
     });
+    if (!overlayContainer) return;
+
     overlay = createAndAppend({
       id: 'bp-inspector-overlay',
       parent: overlayContainer,
