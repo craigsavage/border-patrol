@@ -7,6 +7,7 @@ import {
   formatBorderInfo,
   formatFontStack,
 } from './utils/overlay-formatters';
+import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
 (function () {
   let isInspectorModeEnabled: boolean = false; // Cache the inspector mode state
@@ -122,20 +123,6 @@ import {
     document.addEventListener('mousemove', mouseMoveHandler);
     document.addEventListener('mouseout', mouseOutHandler);
   }
-
-  /**
-   * Options for creating and appending an element
-   * @property id - The ID of the element
-   * @property parent - The parent element to append to
-   * @property tagName - The tag name of the element (default: 'div')
-   * @property classNames - The class names to assign to the element
-   */
-  type CreateAndAppendOptions = {
-    id: string;
-    parent: HTMLElement;
-    tagName?: string;
-    classNames?: string;
-  };
 
   /**
    * Creates and appends an element to a parent element
