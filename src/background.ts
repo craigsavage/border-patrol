@@ -569,20 +569,14 @@ chrome.runtime.onMessage.addListener(
       }
       // Recieve message to get border mode state
       else if (request.action === 'GET_BORDER_MODE') {
-        const borderState = await getTabState({
-          tabId: tabId,
-          key: 'borderMode',
-        });
-        sendResponse(borderState);
+        const tabState = await getTabState(tabId);
+        sendResponse(tabState.borderMode);
         return true; // Indicate async handling
       }
       // Recieve message to get inspector mode state
       else if (request.action === 'GET_INSPECTOR_MODE') {
-        const inspectorState = await getTabState({
-          tabId: tabId,
-          key: 'inspectorMode',
-        });
-        sendResponse(inspectorState);
+        const tabState = await getTabState(tabId);
+        sendResponse(tabState.inspectorMode);
         return true; // Indicate async handling
       }
       // Recieve message to ping
