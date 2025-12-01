@@ -1,4 +1,4 @@
-const LOG_LABEL: string = '[BORDER PATROL]';
+export const LOG_LABEL: string = '[BORDER PATROL]';
 
 /**
  * An ILogger interface defining the structure of the logger object.
@@ -10,7 +10,7 @@ const LOG_LABEL: string = '[BORDER PATROL]';
  * @property {function} warn - Logs warning messages.
  * @property {function} error - Logs error messages. Errors are always logged.
  */
-interface ILogger {
+export interface ILogger {
   isDebug: boolean;
   info: (message: string, ...args: any[]) => void;
   debug: (message: string, ...args: any[]) => void;
