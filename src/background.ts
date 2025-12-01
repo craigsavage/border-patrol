@@ -8,10 +8,11 @@ import {
   isRestrictedUrl,
   getActiveTab,
   hasPermission,
+  isChromeTabClosedError,
 } from './scripts/helpers';
 import { getTimestampedScreenshotFilename } from './scripts/utils/filename';
 import Logger from './scripts/utils/logger';
-import type { TabState } from './types/background';
+import type { TabState, TabStateChangeOptions } from './types/background';
 
 // In-memory cache for tab states. This helps reduce repeated calls to storage
 const cachedTabStates: Record<string, TabState> = {}; // tabId: TabState
@@ -53,23 +54,12 @@ async function getTabState(tabId: number): Promise<TabState> {
  * Updates and stores the extension states for a specified tab.
  * Updates the cache and storage.
  *
- * @param {{ tabId: number, states: Object }} options - Options to set the tab states.
- * @param {number} options.tabId - The ID of the tab to set the states for.
- * @param {Object} options.states - An object containing the states to be updated.
- */
-/**
- * Updates and stores the extension states for a specified tab.
- * Updates the cache and storage.
- *
  * @param options - Options to set the tab states.
  */
 async function setTabState({
   tabId,
   states,
-}: {
-  tabId: number;
-  states: Partial<TabState>;
-}): Promise<void> {
+}: TabStateChangeOptions): Promise<void> {
   const tabIdString = tabId.toString();
 
   // Get current state (this will populate the cache if not already populated)
@@ -92,12 +82,6 @@ async function setTabState({
   }
 }
 
-/**
- * Updates the extension state (icon and title) based on the active tab's state.
- * The extension is considered enabled if either borderMode or inspectorMode is enabled for the active tab.
- *
- * @param {number} tabId - The ID of the active tab.
- */
 /**
  * Updates the extension state (icon and title) based on the active tab's state.
  * The extension is considered enabled if either borderMode or inspectorMode is enabled for the active tab.
@@ -129,16 +113,7 @@ async function updateExtensionState(tabId: number): Promise<void> {
 
     await chrome.action.setIcon({ tabId, path: iconPath });
   } catch (error) {
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'message' in error &&
-      typeof (error as { message: string }).message === 'string' &&
-      ((error as { message: string }).message.includes('No tab with id') ||
-        (error as { message: string }).message.includes(
-          'Frame with ID 0 is showing error page'
-        ))
-    ) {
+    if (isChromeTabClosedError(error)) {
       Logger.warn(`Tab ${tabId} has been closed or is invalid.`);
     } else {
       Logger.error(`Error updating extension state for tab ${tabId}:`, error);
@@ -189,22 +164,11 @@ async function ensureScriptIsInjected(tabId: number): Promise<void> {
 
     Logger.info(`Injected content scripts and CSS into tab ${tabId}`);
   } catch (error) {
-    if (
-      error.message.includes('No tab with id') ||
-      error.message.includes('Frame with ID 0 is showing error page')
-    ) {
-      return; // Tab has been closed
-    }
+    if (isChromeTabClosedError(error)) return; // Tab has been closed
     Logger.error(`Error injecting scripts or CSS into tab ${tabId}:`, error);
   }
 }
 
-/**
- * Sends the current state of border and inspector modes, and border settings
- * to the content script in the specified tab. This should be called after state changes.
- *
- * @param {number} tabId - The ID of the tab.
- */
 /**
  * Sends the current state of border and inspector modes, and border settings
  * to the content script in the specified tab. This should be called after state changes.
@@ -249,23 +213,12 @@ async function sendContentScriptUpdates(tabId: number): Promise<void> {
  * Handles state changes for a specific tab.
  * Updates storage, extension state (icon/title), and sends updates to content scripts.
  *
- * @param {Object} options - Options for handling the tab state change.
- * @param {number} options.tabId - The ID of the tab.
- * @param {Object} [options.states] - The partial state object to merge (e.g., { borderMode: true }).
- */
-/**
- * Handles state changes for a specific tab.
- * Updates storage, extension state (icon/title), and sends updates to content scripts.
- *
  * @param options - Options for handling the tab state change.
  */
 async function handleTabStateChange({
   tabId,
   states,
-}: {
-  tabId: number;
-  states?: Partial<TabState>;
-}): Promise<void> {
+}: TabStateChangeOptions): Promise<void> {
   if (!tabId) return;
 
   // Ensure scripts are injected first if needed (Chrome handles not injecting duplicates)
@@ -283,12 +236,6 @@ async function handleTabStateChange({
   await sendContentScriptUpdates(tabId);
 }
 
-/**
- * Captures a visible tab and downloads the screenshot
- *
- * @param {number} windowId - The ID of the window containing the tab to capture
- * @returns {Promise<void>}
- */
 /**
  * Captures a visible tab and downloads the screenshot.
  *
@@ -379,12 +326,7 @@ chrome.tabs.onUpdated.addListener(
       try {
         await handleTabStateChange({ tabId });
       } catch (error) {
-        if (
-          error.message.includes('No tab with id') ||
-          error.message.includes('Frame with ID 0 is showing error page')
-        ) {
-          return; // Tab has been closed
-        }
+        if (isChromeTabClosedError(error)) return; // Tab has been closed
         Logger.error(`Error in onUpdated for tab ${tabId}:`, error);
       }
     }
@@ -416,10 +358,7 @@ chrome.tabs.onActivated.addListener(
 
       await handleTabStateChange({ tabId });
     } catch (error) {
-      if (
-        error.message.includes('No tab with id') ||
-        error.message.includes('Frame with ID 0 is showing error page')
-      ) {
+      if (isChromeTabClosedError(error)) {
         Logger.warn(`Tab ${tabId} has been closed or is invalid.`);
       } else {
         Logger.error(`Error in onActivated for tab ${tabId}:`, error);

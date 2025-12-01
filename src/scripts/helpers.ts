@@ -66,3 +66,23 @@ export async function hasPermission(
     return false;
   }
 }
+
+/**
+ * Checks if an error is a Chrome tab closed or invalid error.
+ * Used to centralize error handling for tab lifecycle events.
+ *
+ * @param error - The error to check.
+ * @returns True if the error is a known Chrome tab closed/invalid error.
+ */
+export function isChromeTabClosedError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message: string }).message === 'string' &&
+    ((error as { message: string }).message.includes('No tab with id') ||
+      (error as { message: string }).message.includes(
+        'Frame with ID 0 is showing error page'
+      ))
+  );
+}
