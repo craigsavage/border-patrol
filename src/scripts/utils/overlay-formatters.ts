@@ -1,4 +1,5 @@
 import { toSentenceCase } from './string-utils';
+import { FormatFontStackOptions } from '../../types/scripts/utils';
 
 /**
  * Formats width and height values for display.
@@ -127,21 +128,6 @@ export function formatBorderInfo(computedStyle: CSSStyleDeclaration): string {
       .join('<br>')
   );
 }
-
-/**
- * Formats a font stack string for display
- *
- * @param options - The options object
- * @param options.fontFamily - The font-family string from computed styles
- * @param options.maxFonts - Maximum number of fonts to display
- * @param options.showFallback - Whether to show "..." if there are more fonts than maxFonts
- * @returns The formatted font stack
- */
-export type FormatFontStackOptions = {
-  fontFamily: string;
-  maxFonts?: number;
-  showFallback?: boolean;
-};
 
 /**
  * Formats a font stack string for display.
