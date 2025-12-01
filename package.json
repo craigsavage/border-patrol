@@ -67,7 +67,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "antd": "^5.27.3",
+    "antd": "^6.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   }
