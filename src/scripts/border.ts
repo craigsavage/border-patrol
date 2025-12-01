@@ -1,17 +1,23 @@
 import Logger from './utils/logger';
+import { BorderSettings, ElementGroup } from '../types/scripts/border';
 
 (function () {
   // Cache the border mode state and border settings
-  let isBorderModeEnabled = false;
-  let currentBorderSettings = { size: 1, style: 'solid' };
+  let isBorderModeEnabled: boolean = false;
+  let currentBorderSettings: BorderSettings = {
+    size: 1,
+    style: 'solid',
+  };
 
   // Get the Border Patrol Inspector container
-  let bpInspectorContainer = document.querySelector('#bp-inspector-container');
+  let bpInspectorContainer: Element | null = document.querySelector(
+    '#bp-inspector-container'
+  );
 
-  let observer = null; // Declare the MutationObserver instance
+  let observer: MutationObserver | null = null; // Declare the MutationObserver instance
 
   // Define element groups with their tags and colors
-  const elementGroups = {
+  const elementGroups: Record<string, ElementGroup> = {
     containers: {
       tags: ['div', 'section', 'article', 'header', 'footer', 'main'],
       color: 'blue',
@@ -35,15 +41,15 @@ import Logger from './utils/logger';
   };
 
   // Default color for elements not in any group
-  const defaultColor = 'red';
+  const defaultColor: string = 'red';
 
   /**
    * Determines if the given element is part of the Border Patrol Inspector UI.
    *
-   * @param {Element} element - The element to be checked.
-   * @returns {boolean} True if the element is part of the Inspector UI, otherwise false.
+   * @param element - The element to be checked.
+   * @returns True if the element is part of the Inspector UI, otherwise false.
    */
-  function isInspectorUIElement(element) {
+  function isInspectorUIElement(element: Element): boolean {
     if (!bpInspectorContainer || !element) return false;
     return bpInspectorContainer.contains(element);
   }
@@ -51,11 +57,15 @@ import Logger from './utils/logger';
   /**
    * Applies an outline to a given element based on its group and specified size and style.
    *
-   * @param {Element} element - The DOM element to apply the outline to.
-   * @param {number} outlineSize - The size of the outline in pixels.
-   * @param {string} outlineStyle - The style of the outline (e.g., 'solid', 'dashed', etc.).
+   * @param element - The DOM element to apply the outline to.
+   * @param outlineSize - The size of the outline in pixels.
+   * @param outlineStyle - The style of the outline (e.g., 'solid', 'dashed', etc.).
    */
-  function applyOutlineToElement(element, outlineSize, outlineStyle) {
+  function applyOutlineToElement(
+    element: Element,
+    outlineSize: number,
+    outlineStyle: string
+  ): void {
     // Ensure the element is a valid DOM element
     if (!(element instanceof Element)) {
       return; // Skip if not an element instance
@@ -65,7 +75,7 @@ import Logger from './utils/logger';
     if (isInspectorUIElement(element)) return;
 
     const elementTag = element.tagName.toLowerCase();
-    let outlineColor = defaultColor;
+    let outlineColor: string = defaultColor;
 
     // Determine element's group and apply corresponding color
     for (const { tags, color: groupColor } of Object.values(elementGroups)) {
@@ -76,15 +86,16 @@ import Logger from './utils/logger';
     }
 
     // Apply the outline style to the element
-    element.style.outline = `${outlineSize}px ${outlineStyle} ${outlineColor}`;
+    (element as HTMLElement).style.outline =
+      `${outlineSize}px ${outlineStyle} ${outlineColor}`;
   }
 
   /**
    * Handles mutations in the DOM to apply or update outlines on elements.
    *
-   * @param {MutationRecord[]} mutations - Array of mutations observed in the DOM.
+   * @param mutationsList - Array of mutations observed in the DOM.
    */
-  function handleMutations(mutationsList) {
+  function handleMutations(mutationsList: MutationRecord[]): void {
     if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
     const { size: outlineSize, style: outlineStyle } = currentBorderSettings;
 
@@ -95,10 +106,10 @@ import Logger from './utils/logger';
           if (node.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
 
           // Apply outline to the newly added node
-          applyOutlineToElement(node, outlineSize, outlineStyle);
+          applyOutlineToElement(node as Element, outlineSize, outlineStyle);
 
           // Apply outline to all child elements of the newly added node
-          node.querySelectorAll('*').forEach(child => {
+          (node as Element).querySelectorAll('*').forEach(child => {
             applyOutlineToElement(child, outlineSize, outlineStyle);
           });
         });
@@ -106,7 +117,7 @@ import Logger from './utils/logger';
         // Handle attribute changes (e.g., class, style)
         // Apply outline ONLY to the target element whose attribute changed.
         // Its children's outlines are independent and should not be re-scanned.
-        const targetElement = mutation.target;
+        const targetElement = mutation.target as Element;
         if (targetElement.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
         if (isInspectorUIElement(targetElement)) return;
 
@@ -120,7 +131,7 @@ import Logger from './utils/logger';
    * This function sets up a MutationObserver to watch for changes in the document body.
    * It listens for child list changes, attribute changes, and subtree modifications.
    */
-  function startObservingDOM() {
+  function startObservingDOM(): void {
     if (!observer) {
       observer = new MutationObserver(handleMutations);
     }
@@ -130,7 +141,7 @@ import Logger from './utils/logger';
     Logger.info('Starting DOM observation for border updates.');
 
     // Define the configuration for the MutationObserver
-    const config = {
+    const config: MutationObserverInit = {
       childList: true,
       subtree: true,
       attributes: true,
@@ -142,7 +153,7 @@ import Logger from './utils/logger';
   }
 
   /** Stops observing the DOM for changes. */
-  function stopObservingDOM() {
+  function stopObservingDOM(): void {
     if (!observer) return;
 
     try {
@@ -157,11 +168,15 @@ import Logger from './utils/logger';
   /**
    * Manages applying or removing extension-specific outlines to elements.
    *
-   * @param {boolean} isEnabled - Determines whether the outline should be applied.
-   * @param {number} size - The size of the outline in pixels.
-   * @param {string} style - The style of the outline (e.g., 'solid', 'dashed', etc.).
+   * @param isEnabled - Determines whether the outline should be applied.
+   * @param size - The size of the outline in pixels.
+   * @param style - The style of the outline (e.g., 'solid', 'dashed', etc.).
    */
-  async function manageElementOutlines(isEnabled, size, style) {
+  async function manageElementOutlines(
+    isEnabled: boolean,
+    size: number,
+    style: string
+  ): Promise<void> {
     Logger.info(
       `Managing element outlines: isEnabled=${isEnabled}, size=${size}, style=${style}`
     );
@@ -175,7 +190,7 @@ import Logger from './utils/logger';
         if (isInspectorUIElement(element)) return;
 
         // Remove outline from all elements
-        element.style.outline = 'none';
+        (element as HTMLElement).style.outline = 'none';
       });
       return;
     }
@@ -194,7 +209,11 @@ import Logger from './utils/logger';
 
   // Receive message to apply outline to all elements
   chrome.runtime.onMessage.addListener(
-    async (request, sender, sendResponse) => {
+    async (
+      request: any,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: any) => void
+    ) => {
       Logger.info('Received message to apply outline:', request);
 
       // Receive message to update border mode
@@ -202,7 +221,7 @@ import Logger from './utils/logger';
         // Get new border mode from request
         isBorderModeEnabled = request.isEnabled;
         // Apply/remove outline based on the new mode and current settings
-        manageElementOutlines(
+        await manageElementOutlines(
           isBorderModeEnabled,
           currentBorderSettings.size,
           currentBorderSettings.style
@@ -214,7 +233,7 @@ import Logger from './utils/logger';
         currentBorderSettings.size = request.borderSize;
         currentBorderSettings.style = request.borderStyle;
         // Apply/remove outline based on the current mode and new settings
-        manageElementOutlines(
+        await manageElementOutlines(
           isBorderModeEnabled,
           currentBorderSettings.size,
           currentBorderSettings.style

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2025-12-01
+
+### Added
+
+- Setup testing framework to improve code reliability and prevent future regressions.
+
+### Changed
+
+- Migrated the codebase from JavaScript to TypeScript for improved type safety and maintainability.
+
 ## [1.4.3] - 2025-09-12
 
 ### Added

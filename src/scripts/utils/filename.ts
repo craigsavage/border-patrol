@@ -4,10 +4,12 @@
  * The filename follows the format 'border_patrol_screenshot_YYYY-MM-DDTHH-MM-SS.png',
  * where the timestamp is in ISO 8601 format with colons replaced by hyphens and milliseconds removed.
  *
- * @param {string} [format='png'] - The file format for the screenshot (Defaults to 'png').
- * @returns {string} The timestamped filename for the screenshot.
+ * @param format - The file format for the screenshot (Defaults to 'png').
+ * @returns The timestamped filename for the screenshot.
  */
-export function getTimestampedScreenshotFilename(format = 'png') {
+export function getTimestampedScreenshotFilename(
+  format: string = 'png'
+): string {
   // Ensure the format is lowercase and valid
   const validFormats = ['png', 'jpg', 'jpeg', 'webp'];
   if (!validFormats.includes(format.toLowerCase())) {

@@ -1,27 +1,26 @@
 import { useState, useEffect } from 'react';
-import { hasPermission } from '../../scripts/helpers.js';
-import Logger from '../../scripts/utils/logger.js';
+import type { IScreenshotCapture } from '../../types/popup/hooks';
+import { hasPermission } from '../../scripts/helpers';
+import Logger from '../../scripts/utils/logger';
 
 /**
  * Custom hook to manage screenshot capture permissions and functionality.
  *
- * @param {boolean} isAppRestricted - Indicates if the app is restricted (e.g., on a restricted URL).
- * @returns {{
- * hasDownloadPermission: boolean,
- * checkDownloadPermission: () => Promise<boolean>,
- * requestDownloadPermission: () => Promise<boolean>,
- * handleCaptureScreenshot: () => Promise<boolean>
- * }} An object containing functions to check, request, and handle screenshot capture permissions.
+ * @param isAppRestricted Indicates if the app is restricted (e.g., on a restricted URL).
+ * @returns An object containing functions to check, request, and handle screenshot capture permissions.
  */
-export function useScreenshotCapture(isAppRestricted) {
-  const [hasDownloadPermission, setHasDownloadPermission] = useState(false);
+export function useScreenshotCapture(
+  isAppRestricted: boolean
+): IScreenshotCapture {
+  const [hasDownloadPermission, setHasDownloadPermission] =
+    useState<boolean>(false);
 
   /**
    * Checks if the extension has the 'downloads' permission.
    *
-   * @returns {Promise<boolean>} A promise that resolves to true if the permission is granted, otherwise false.
+   * @returns A promise that resolves to true if the permission is granted, otherwise false.
    */
-  const checkDownloadPermission = async () => {
+  const checkDownloadPermission = async (): Promise<boolean> => {
     try {
       const granted = await hasPermission('downloads');
       setHasDownloadPermission(granted);
@@ -39,9 +38,9 @@ export function useScreenshotCapture(isAppRestricted) {
    * If the permission is granted, it sets `hasDownloadPermission` to true otherwise false.
    * Logs the success or failure of the permission request.
    *
-   * @returns {Promise<boolean>} Returns a promise that resolves to true if the permission was granted, otherwise false.
+   * @returns Returns a promise that resolves to true if the permission was granted, otherwise false.
    */
-  const requestDownloadPermission = async () => {
+  const requestDownloadPermission = async (): Promise<boolean> => {
     try {
       const granted = await chrome.permissions.request({
         permissions: ['downloads'],
@@ -65,9 +64,9 @@ export function useScreenshotCapture(isAppRestricted) {
    * Handles the process of capturing a screenshot by sending a message to the background script.
    * Logs the success or failure of the capture process.
    *
-   * @returns {Promise<boolean>} Returns a promise that resolves to true if the screenshot was captured successfully, otherwise false.
+   * @returns Returns a promise that resolves to true if the screenshot was captured successfully, otherwise false.
    */
-  const handleCaptureScreenshot = async () => {
+  const handleCaptureScreenshot = async (): Promise<boolean> => {
     try {
       const success = await chrome.runtime.sendMessage({
         action: 'CAPTURE_SCREENSHOT',

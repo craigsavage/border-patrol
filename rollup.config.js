@@ -73,7 +73,10 @@ const commonPlugins = [
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
-    presets: [['@babel/preset-react', { runtime: 'automatic' }]],
+    presets: [
+      ['@babel/preset-react', { runtime: 'automatic' }],
+      '@babel/preset-typescript',
+    ],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   }),
   nodeResolve({
@@ -126,19 +129,19 @@ const commonPlugins = [
 // Define entry points with their formats (ES module or IIFE)
 const entryPoints = [
   {
-    input: 'src/background.js',
+    input: 'src/background.ts',
     output: 'background',
     format: 'es', // ES module
     cssFilename: null, // No CSS output for background script
   },
   {
-    input: 'src/scripts/main-content.js',
+    input: 'src/scripts/main-content.ts',
     output: 'scripts/main-content',
     format: 'iife', // IIFE
     cssFilename: 'main-content.css',
   },
   {
-    input: 'src/popup/menu.js',
+    input: 'src/popup/menu.tsx',
     output: 'popup/menu',
     format: 'iife', // IIFE
     cssFilename: 'menu.css',

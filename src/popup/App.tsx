@@ -2,16 +2,16 @@ import { Space, Divider, ConfigProvider, theme, Layout } from 'antd';
 
 // Hooks
 import { useExtensionSettings } from './hooks/useExtensionSettings';
-import { useScreenshotCapture } from './hooks/useScreenshotCapture.js';
-import { useDarkMode } from './hooks/useDarkMode.js';
+import { useScreenshotCapture } from './hooks/useScreenshotCapture';
+import { useDarkMode } from './hooks/useDarkMode';
 
 // Components
-import Header from './components/Header.jsx';
+import Header from './components/Header';
 import RestrictedMessage from './components/RestrictedMessage';
 import FeatureToggle from './components/FeatureToggle';
 import BorderSettings from './components/BorderSettings';
 import ScreenshotSection from './components/ScreenshotSection';
-import Footer from './components/Footer.jsx';
+import Footer from './components/Footer';
 
 /**
  * App component renders the popup UI for the extension.
@@ -23,10 +23,8 @@ import Footer from './components/Footer.jsx';
  * If the extension is restricted, only the RestrictedMessage is shown.
  * Otherwise, it displays toggles for Border and Inspector modes, border settings,
  * screenshot controls, and a footer.
- *
- * @returns {JSX.Element} Popup UI for the extension.
  */
-export default function App() {
+export default function App(): React.ReactElement {
   const {
     isRestricted,
     borderMode,
@@ -97,13 +95,13 @@ export default function App() {
             <BorderSettings
               borderSize={borderSize}
               borderStyle={borderStyle}
-              onUpdate={handleUpdateBorderSettings}
+              onUpdateBorderSettings={handleUpdateBorderSettings}
             />
 
             <Divider size='small' />
 
             <ScreenshotSection
-              hasPermission={hasDownloadPermission}
+              hasDownloadPermission={hasDownloadPermission}
               onRequestPermission={requestDownloadPermission}
               onCaptureScreenshot={handleCaptureScreenshot}
             />

@@ -1,13 +1,14 @@
 import { toSentenceCase } from './string-utils';
+import { FormatFontStackOptions } from '../../types/scripts/utils';
 
 /**
  * Formats width and height values for display.
  *
- * @param {number} width - The width of the element.
- * @param {number} height - The height of the element.
- * @returns {string} The formatted dimensions or 'N/A' if invalid.
+ * @param width - The width of the element.
+ * @param height - The height of the element.
+ * @returns The formatted dimensions or 'N/A' if invalid.
  */
-export function formatDimensions(width, height) {
+export function formatDimensions(width: number, height: number): string {
   if (isNaN(width) || isNaN(height)) {
     return 'N/A';
   }
@@ -17,10 +18,10 @@ export function formatDimensions(width, height) {
 /**
  * Formats a color value for display
  *
- * @param {string} color - The color value from computed styles
- * @returns {string} The formatted color value or an empty string if transparent or invalid
+ * @param color - The color value from computed styles
+ * @returns The formatted color value or an empty string if transparent or invalid
  */
-export function formatColorValue(color) {
+export function formatColorValue(color: string): string {
   const transparentValues = [
     'transparent',
     'rgba(0, 0, 0, 0)',
@@ -35,11 +36,14 @@ export function formatColorValue(color) {
 /**
  * Formats box model values for display
  *
- * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
- * @param {string} property - The CSS property to format (e.g., 'margin', 'padding')
- * @returns {string} The formatted box model values
+ * @param computedStyle - The computed style of the element
+ * @param property - The CSS property to format (e.g., 'margin', 'padding')
+ * @returns The formatted box model values
  */
-export function formatBoxModelValues(computedStyle, property) {
+export function formatBoxModelValues(
+  computedStyle: CSSStyleDeclaration,
+  property: string
+): string {
   const elementValue = computedStyle.getPropertyValue(property);
 
   if (!elementValue || elementValue === '0px') return '';
@@ -50,11 +54,12 @@ export function formatBoxModelValues(computedStyle, property) {
 /**
  * Gets the formatted border information from the computed style
  *
- * @param {CSSStyleDeclaration} computedStyle - The computed style of the element
- * @returns {string} The formatted border information (width style color) or an empty string if no border is present
+ * @param computedStyle - The computed style of the element
+ * @returns The formatted border information (width style color) or an empty string if no border is present
  */
-export function formatBorderInfo(computedStyle) {
-  const borders = {
+export function formatBorderInfo(computedStyle: CSSStyleDeclaration): string {
+  type BorderInfo = { width: string; style: string; color: string };
+  const borders: Record<string, BorderInfo> = {
     top: {
       width: computedStyle.borderTopWidth,
       style: computedStyle.borderTopStyle,
@@ -125,19 +130,16 @@ export function formatBorderInfo(computedStyle) {
 }
 
 /**
- * Formats a font stack string for display
+ * Formats a font stack string for display.
  *
- * @param {Object} options - The options object
- * @param {string} options.fontFamily - The font-family string from computed styles
- * @param {number} [options.maxFonts=3] - Maximum number of fonts to display
- * @param {boolean} [options.showFallback=true] - Whether to show "..." if there are more fonts than maxFonts
- * @returns {string} The formatted font stack
+ * @param options - The options object containing fontFamily, maxFonts, and showFallback.
+ * @returns The formatted font stack string, optionally truncated with ellipsis if more fonts exist than maxFonts.
  */
 export function formatFontStack({
   fontFamily,
   maxFonts = 3,
   showFallback = true,
-}) {
+}: FormatFontStackOptions): string {
   if (!fontFamily) return '';
 
   // Split the font family string by commas and trim whitespace
