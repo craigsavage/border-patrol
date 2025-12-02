@@ -40,7 +40,7 @@
     "description": "A solid border style."
   },
   "dashed": {
-    "message": "Guiones",
+    "message": "Discontinuo",
     "description": "A dashed border style."
   },
   "dotted": {
