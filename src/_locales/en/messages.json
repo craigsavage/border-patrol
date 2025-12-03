@@ -102,5 +102,13 @@
   "keyboardShortcuts": {
     "message": "Keyboard Shortcuts",
     "description": "Title for the keyboard shortcuts section."
+  },
+  "switchToDarkMode": {
+    "message": "Switch to Dark Mode",
+    "description": "Button text for switching to dark mode."
+  },
+  "switchToLightMode": {
+    "message": "Switch to Light Mode",
+    "description": "Button text for switching to light mode."
   }
 }

@@ -1,6 +1,6 @@
 import { Flex, Layout, Select, Typography } from 'antd';
-import { MoonFilled, SunFilled } from '@ant-design/icons';
 import type { FooterProps } from '../../types/popup/components';
+import DarkModeToggle from './DarkModeToggle';
 
 const { Link } = Typography;
 
@@ -11,12 +11,6 @@ const footerStyle: React.CSSProperties = {
   alignItems: 'center',
   textAlign: 'center',
   width: '100%',
-};
-
-const iconStyle: React.CSSProperties = {
-  color: 'var(--bp-gray)',
-  fontSize: '1.1rem',
-  cursor: 'pointer',
 };
 
 // Placeholder for version, will be replaced during build
@@ -52,17 +46,10 @@ export default function Footer({
       </Link>
 
       <div style={{ justifySelf: 'end' }}>
-        {isDarkMode ? (
-          <SunFilled
-            style={iconStyle}
-            onClick={() => onToggleDarkMode(false)}
-          />
-        ) : (
-          <MoonFilled
-            style={iconStyle}
-            onClick={() => onToggleDarkMode(true)}
-          />
-        )}
+        <DarkModeToggle
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={onToggleDarkMode}
+        />
       </div>
     </Layout.Footer>
   );

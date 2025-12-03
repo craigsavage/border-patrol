@@ -102,5 +102,13 @@
   "keyboardShortcuts": {
     "message": "Atajos de Teclado",
     "description": "Title for the keyboard shortcuts section."
+  },
+  "switchToDarkMode": {
+    "message": "Cambiar a Modo Oscuro",
+    "description": "Button text for switching to dark mode."
+  },
+  "switchToLightMode": {
+    "message": "Cambiar a Modo Claro",
+    "description": "Button text for switching to light mode."
   }
 }

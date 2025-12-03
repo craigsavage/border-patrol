@@ -32,6 +32,17 @@ export interface FooterProps {
   onToggleDarkMode: (checked: boolean) => void;
 }
 
+/**
+ * Props for DarkModeToggle component.
+ *
+ * @property isDarkMode - Indicates if dark mode is enabled.
+ * @property onToggleDarkMode - Callback function when the toggle is clicked.
+ */
+export interface DarkModeToggleProps {
+  isDarkMode: boolean;
+  onToggleDarkMode: (checked: boolean) => void;
+}
+
 /** A type representing a notification message. */
 export type NotificationType = {
   message: string;
