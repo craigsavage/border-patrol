@@ -6,10 +6,11 @@ const { Link } = Typography;
 
 const footerStyle: React.CSSProperties = {
   fontSize: '0.8rem',
-  display: 'flex',
+  display: 'grid',
+  gridTemplateColumns: '1fr auto 1fr',
   alignItems: 'center',
-  justifyContent: 'space-between',
   textAlign: 'center',
+  width: '100%',
 };
 
 const iconStyle: React.CSSProperties = {
@@ -31,42 +32,38 @@ export default function Footer({
 }: FooterProps): React.ReactElement {
   return (
     <Layout.Footer style={footerStyle}>
-      <Flex
-        gap='small'
-        align='center'
-        justify='space-between'
-        style={{ width: '100%' }}
+      <Select
+        defaultValue='en'
+        style={{ justifySelf: 'start' }}
+        size='small'
+        options={[
+          { value: 'en', label: 'EN' },
+          { value: 'es', label: 'ES' },
+        ]}
+      />
+
+      <Link
+        href='https://craigsavage.github.io/border-patrol/'
+        target='_blank'
+        aria-label='Border Patrol Website'
+        style={{ color: 'var(--bp-gray)', justifySelf: 'center' }}
       >
-        <Select
-          defaultValue='en'
-          size='small'
-          options={[
-            { value: 'en', label: 'EN' },
-            { value: 'es', label: 'ES' },
-          ]}
-        />
-        <Link
-          href='https://craigsavage.github.io/border-patrol/'
-          target='_blank'
-          aria-label='Border Patrol Website'
-          style={{ color: 'var(--bp-gray)' }}
-        >
-          Border Patrol <span className='version'>{version}</span>
-        </Link>
-        <span style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-          {isDarkMode ? (
-            <SunFilled
-              style={iconStyle}
-              onClick={() => onToggleDarkMode(false)}
-            />
-          ) : (
-            <MoonFilled
-              style={iconStyle}
-              onClick={() => onToggleDarkMode(true)}
-            />
-          )}
-        </span>
-      </Flex>
+        Border Patrol <span className='version'>{version}</span>
+      </Link>
+
+      <div style={{ justifySelf: 'end' }}>
+        {isDarkMode ? (
+          <SunFilled
+            style={iconStyle}
+            onClick={() => onToggleDarkMode(false)}
+          />
+        ) : (
+          <MoonFilled
+            style={iconStyle}
+            onClick={() => onToggleDarkMode(true)}
+          />
+        )}
+      </div>
     </Layout.Footer>
   );
 }
