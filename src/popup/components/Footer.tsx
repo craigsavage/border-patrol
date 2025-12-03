@@ -1,6 +1,7 @@
-import { Flex, Layout, Select, Typography } from 'antd';
+import { Layout, Select, Typography } from 'antd';
 import type { FooterProps } from '../../types/popup/components';
 import DarkModeToggle from './DarkModeToggle';
+import { useLocaleContext, LocaleCode } from '../../context/LocaleContext';
 
 const { Link } = Typography;
 
@@ -23,12 +24,16 @@ export default function Footer({
   isDarkMode,
   onToggleDarkMode,
 }: FooterProps): React.ReactElement {
+  const { locale, changeLocale } = useLocaleContext();
+
   return (
     <Layout.Footer style={footerStyle}>
       <Select
         defaultValue='en'
         style={{ color: 'var(--bp-gray)', justifySelf: 'start' }}
         size='small'
+        value={locale}
+        onChange={value => changeLocale(value as LocaleCode)}
         options={[
           { value: 'en', label: 'EN' },
           { value: 'es', label: 'ES' },

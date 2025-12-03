@@ -27,6 +27,11 @@ export interface ScreenshotSectionProps {
   onCaptureScreenshot: () => Promise<boolean>;
 }
 
+/** Props for Footer component.
+ *
+ * @property isDarkMode - Indicates if dark mode is enabled.
+ * @property onToggleDarkMode - Callback function when dark mode is toggled.
+ */
 export interface FooterProps {
   isDarkMode: boolean;
   onToggleDarkMode: (checked: boolean) => void;
