@@ -67,7 +67,7 @@ const commonPlugins = [
       process.env.NODE_ENV || 'production'
     ),
     __BP_APP_VERSION__: pkg.version
-      ? JSON.stringify('v' + pkg.version)
+      ? JSON.stringify(pkg.version)
       : JSON.stringify(''),
   }),
   babel({

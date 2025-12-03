@@ -9,7 +9,6 @@ const footerStyle: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: '1fr auto 1fr',
   alignItems: 'center',
-  textAlign: 'center',
   width: '100%',
 };
 
@@ -28,7 +27,7 @@ export default function Footer({
     <Layout.Footer style={footerStyle}>
       <Select
         defaultValue='en'
-        style={{ justifySelf: 'start' }}
+        style={{ color: 'var(--bp-gray)', justifySelf: 'start' }}
         size='small'
         options={[
           { value: 'en', label: 'EN' },
@@ -39,10 +38,12 @@ export default function Footer({
       <Link
         href='https://craigsavage.github.io/border-patrol/'
         target='_blank'
-        aria-label='Border Patrol Website'
+        aria-label='Border Patrol website'
         style={{ color: 'var(--bp-gray)', justifySelf: 'center' }}
       >
-        Border Patrol <span className='version'>{version}</span>
+        <span className='version' aria-label='Current extension version number'>
+          v{version}
+        </span>
       </Link>
 
       <div style={{ justifySelf: 'end' }}>

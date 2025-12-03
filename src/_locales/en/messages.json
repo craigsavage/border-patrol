@@ -110,5 +110,9 @@
   "switchToLightMode": {
     "message": "Switch to Light Mode",
     "description": "Button text for switching to light mode."
+  },
+  "currentVersion": {
+    "message": "Current extension version number: {version}",
+    "description": "Label for displaying the current version of the extension."
   }
 }
