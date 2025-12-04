@@ -1,5 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { LocaleCode } from '../types/translations';
+import {
+  LocaleCode,
+  ILocaleContext,
+  ILocaleProviderProps,
+} from '../types/translations';
 
 /** Key used to store the user's preferred locale in Chrome storage. */
 export const LOCALE_STORAGE_KEY = 'bp_user_locale';
@@ -9,26 +13,6 @@ export const DEFAULT_LOCALE = 'en';
 
 /** List of supported locales for the extension. */
 export const SUPPORTED_LOCALES: LocaleCode[] = ['en', 'es'];
-
-/**
- * Interface for the LocaleContext value.
- *
- * @property locale - The current locale code.
- * @property changeLocale - Function to change the current locale.
- */
-export interface ILocaleContext {
-  locale: LocaleCode;
-  changeLocale: (locale: LocaleCode) => void;
-}
-
-/**
- * Interface for the LocaleProvider props.
- *
- * @property children - The child components to render within the LocaleProvider.
- */
-export interface ILocaleProviderProps {
-  children: React.ReactNode;
-}
 
 // Create the context
 const LocaleContext = createContext<ILocaleContext>({
@@ -51,7 +35,11 @@ export function useLocaleContext(): ILocaleContext {
   return context;
 }
 
-// Hook to manage locale state
+/**
+ * Custom hook to manage and provide locale state.
+ *
+ * @returns The current locale context value.
+ */
 export function useLocale(): ILocaleContext {
   // Normalize browser language to base code (e.g., 'en-US' -> 'en')
   const browserLang = chrome.i18n.getUILanguage().split('-')[0] as LocaleCode;
