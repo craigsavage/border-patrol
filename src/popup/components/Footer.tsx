@@ -2,6 +2,7 @@ import { Layout, Select, Typography } from 'antd';
 import type { FooterProps } from '../../types/popup/components';
 import DarkModeToggle from './DarkModeToggle';
 import { useLocaleContext } from '../../context/LocaleContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { LocaleCode } from '../../types/translations';
 
 const { Link } = Typography;
@@ -26,6 +27,7 @@ export default function Footer({
   onToggleDarkMode,
 }: FooterProps): React.ReactElement {
   const { locale, changeLocale } = useLocaleContext();
+  const { translate } = useTranslation();
 
   return (
     <Layout.Footer style={footerStyle}>
@@ -44,10 +46,10 @@ export default function Footer({
       <Link
         href='https://craigsavage.github.io/border-patrol/'
         target='_blank'
-        aria-label='Border Patrol website'
+        aria-label={translate('borderPatrolWebsite')}
         style={{ color: 'var(--bp-gray)', justifySelf: 'center' }}
       >
-        <span className='version' aria-label='Current extension version number'>
+        <span className='version' aria-label={translate('currentVersion')}>
           v{version}
         </span>
       </Link>
