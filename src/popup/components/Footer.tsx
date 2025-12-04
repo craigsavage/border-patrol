@@ -1,7 +1,8 @@
 import { Layout, Select, Typography } from 'antd';
 import type { FooterProps } from '../../types/popup/components';
 import DarkModeToggle from './DarkModeToggle';
-import { useLocaleContext, LocaleCode } from '../../context/LocaleContext';
+import { useLocaleContext } from '../../context/LocaleContext';
+import { LocaleCode } from '../../types/translations';
 
 const { Link } = Typography;
 

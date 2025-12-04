@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { LocaleCode } from '../types/translations';
 
 /** Key used to store the user's preferred locale in Chrome storage. */
 export const LOCALE_STORAGE_KEY = 'bp_user_locale';
@@ -8,9 +9,6 @@ export const DEFAULT_LOCALE = 'en';
 
 /** List of supported locales for the extension. */
 export const SUPPORTED_LOCALES: LocaleCode[] = ['en', 'es'];
-
-/** Locale codes supported by the extension. */
-export type LocaleCode = 'en' | 'es';
 
 /**
  * Interface for the LocaleContext value.
