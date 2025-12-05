@@ -83,7 +83,7 @@ export default function AppContent(): React.ReactElement {
       )}
 
       <Divider size='middle' />
-      <Footer isDarkMode={isDarkMode} onToggleDarkMode={handleToggleDarkMode} />
+      <Footer />
     </Layout>
   );
 }

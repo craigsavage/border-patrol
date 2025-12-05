@@ -1,7 +1,6 @@
 import { Layout, Select, Typography } from 'antd';
-import type { FooterProps } from '../../types/popup/components';
 import DarkModeToggle from './DarkModeToggle';
-import { useLocaleContext } from '../../context/LocaleContext';
+import { useLocaleContext } from '../context/LocaleContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { LocaleCode } from '../../types/translations';
 
@@ -22,10 +21,7 @@ const version = __BP_APP_VERSION__;
  * Footer component for the popup.
  * Displays the Border Patrol website link and version number.
  */
-export default function Footer({
-  isDarkMode,
-  onToggleDarkMode,
-}: FooterProps): React.ReactElement {
+export default function Footer(): React.ReactElement {
   const { locale, changeLocale } = useLocaleContext();
   const { translate } = useTranslation();
 
@@ -56,10 +52,7 @@ export default function Footer({
       </Link>
 
       <div style={{ justifySelf: 'end' }}>
-        <DarkModeToggle
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={onToggleDarkMode}
-        />
+        <DarkModeToggle />
       </div>
     </Layout.Footer>
   );

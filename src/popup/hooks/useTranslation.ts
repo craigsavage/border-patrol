@@ -1,6 +1,6 @@
 import enMessages from '../../_locales/en/messages.json';
 import esMessages from '../../_locales/es/messages.json';
-import { useLocaleContext } from '../../context/LocaleContext';
+import { useLocaleContext } from '../context/LocaleContext';
 import { LocaleCode, MessagesType } from '../../types/translations';
 
 // Map of locale codes to their respective message objects

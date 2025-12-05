@@ -1,20 +1,18 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { DEFAULT_LOCALE } from '../../scripts/constants';
 import {
   LocaleCode,
   ILocaleContext,
   ILocaleProviderProps,
-} from '../types/translations';
+} from '../../types/translations';
 
 /** Key used to store the user's preferred locale in Chrome storage. */
 export const LOCALE_STORAGE_KEY = 'bp_user_locale';
 
-/** Default locale for the extension. */
-export const DEFAULT_LOCALE = 'en';
-
 /** List of supported locales for the extension. */
 export const SUPPORTED_LOCALES: LocaleCode[] = ['en', 'es'];
 
-// Create the context
+// Create the context for locale management
 const LocaleContext = createContext<ILocaleContext>({
   locale: 'en',
   changeLocale: (locale: LocaleCode) => {},
