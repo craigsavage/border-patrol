@@ -1,3 +1,8 @@
+/** Children only props interface for basic wrapper components. */
+export interface IChildrenProps {
+  children: React.ReactNode;
+}
+
 export interface RestrictedMessageProps {
   isVisible: boolean;
 }
@@ -25,11 +30,6 @@ export interface ScreenshotSectionProps {
   hasDownloadPermission: boolean;
   onRequestPermission: () => Promise<boolean>;
   onCaptureScreenshot: () => Promise<boolean>;
-}
-
-export interface FooterProps {
-  isDarkMode: boolean;
-  onToggleDarkMode: (checked: boolean) => void;
 }
 
 /** A type representing a notification message. */

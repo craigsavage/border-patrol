@@ -1,4 +1,5 @@
 import { Layout, theme, Typography } from 'antd';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { useToken } = theme;
 const { Title } = Typography;
@@ -6,6 +7,7 @@ const { Title } = Typography;
 /** Displays the header title for the popup. */
 export default function Header(): React.ReactElement {
   const { token } = useToken();
+  const { translate } = useTranslation();
 
   const titleStyle: React.CSSProperties = {
     fontFamily: '"Grandstander", "Inter", Arial, sans-serif',
@@ -23,7 +25,7 @@ export default function Header(): React.ReactElement {
   return (
     <Layout.Header>
       <Title level={1} style={titleStyle}>
-        Border Patrol
+        {translate('extensionName')}
       </Title>
     </Layout.Header>
   );
