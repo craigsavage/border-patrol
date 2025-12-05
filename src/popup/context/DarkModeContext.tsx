@@ -5,7 +5,9 @@ import { IChildrenProps } from 'types/popup/components';
 // Create the context for dark mode
 const DarkModeContext = createContext({
   isDarkMode: false,
-  handleToggleDarkMode: (checked: boolean) => {},
+  handleToggleDarkMode: (checked: boolean) => {
+    throw new Error('DarkModeContext not initialized');
+  },
 });
 
 /**

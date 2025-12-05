@@ -15,7 +15,9 @@ export const SUPPORTED_LOCALES: LocaleCode[] = ['en', 'es'];
 // Create the context for locale management
 const LocaleContext = createContext<ILocaleContext>({
   locale: 'en',
-  changeLocale: (locale: LocaleCode) => {},
+  changeLocale: (locale: LocaleCode) => {
+    throw new Error('LocaleContext not initialized');
+  },
 });
 
 /**
