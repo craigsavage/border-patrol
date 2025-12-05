@@ -28,7 +28,6 @@ export default function Footer(): React.ReactElement {
   return (
     <Layout.Footer style={footerStyle}>
       <Select
-        defaultValue='en'
         style={{ color: 'var(--bp-gray)', justifySelf: 'start' }}
         size='small'
         value={locale}

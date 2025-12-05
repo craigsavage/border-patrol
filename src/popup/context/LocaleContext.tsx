@@ -34,17 +34,23 @@ export function useLocaleContext(): ILocaleContext {
 }
 
 /**
+ * Get the initial locale based on the browser's UI language.
+ *
+ * @returns The initial locale code.
+ */
+function getInitialLocale(): LocaleCode {
+  // Normalize browser language to base code (e.g., 'en-US' -> 'en')
+  const browserLang = chrome.i18n.getUILanguage().split('-')[0] as LocaleCode;
+  return SUPPORTED_LOCALES.includes(browserLang) ? browserLang : DEFAULT_LOCALE;
+}
+
+/**
  * Custom hook to manage and provide locale state.
  *
  * @returns The current locale context value.
  */
 export function useLocale(): ILocaleContext {
-  // Normalize browser language to base code (e.g., 'en-US' -> 'en')
-  const browserLang = chrome.i18n.getUILanguage().split('-')[0] as LocaleCode;
-  const defaultLocale = SUPPORTED_LOCALES.includes(browserLang)
-    ? browserLang
-    : DEFAULT_LOCALE;
-  const [locale, setLocale] = useState<LocaleCode>(defaultLocale);
+  const [locale, setLocale] = useState<LocaleCode>(getInitialLocale());
 
   useEffect(() => {
     // Logic to load saved locale from storage can be added here
