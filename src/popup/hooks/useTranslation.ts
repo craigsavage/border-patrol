@@ -22,10 +22,21 @@ export function useTranslation() {
    * Translate a given key to the current locale.
    *
    * @param key - The message key to translate.
+   * @param variables - Optional variables to interpolate into the message.
    * @returns The translated message string.
    */
-  function translate(key: string): string {
-    return messages[key]?.message || key;
+  function translate(key: string, variables?: Record<string, string>): string {
+    let msg = messages[key]?.message || key;
+
+    // Replace variables in the message if provided
+    if (variables) {
+      Object.entries(variables).forEach(([varKey, varValue]) => {
+        const placeholder = `{${varKey}}`;
+        msg = msg.replace(new RegExp(placeholder, 'g'), varValue);
+      });
+    }
+
+    return msg;
   }
 
   return { translate };

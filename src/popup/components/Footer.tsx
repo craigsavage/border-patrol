@@ -45,7 +45,10 @@ export default function Footer(): React.ReactElement {
         aria-label={translate('borderPatrolWebsite')}
         style={{ color: 'var(--bp-gray)', justifySelf: 'center' }}
       >
-        <span className='version' aria-label={translate('currentVersion')}>
+        <span
+          className='version'
+          aria-label={translate('currentVersion', { version })}
+        >
           v{version}
         </span>
       </Link>
