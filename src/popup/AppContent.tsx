@@ -3,7 +3,6 @@ import { Space, Divider, Layout } from 'antd';
 // Hooks
 import { useExtensionSettings } from './hooks/useExtensionSettings';
 import { useScreenshotCapture } from './hooks/useScreenshotCapture';
-import { useDarkMode } from './hooks/useDarkMode';
 import { useTranslation } from './hooks/useTranslation';
 
 // Components
@@ -33,7 +32,6 @@ export default function AppContent(): React.ReactElement {
     handleCaptureScreenshot,
   } = useScreenshotCapture(isRestricted);
 
-  const { isDarkMode, handleToggleDarkMode } = useDarkMode();
   const { translate } = useTranslation();
 
   return (

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { IChildrenProps } from 'types/popup/components';
 
