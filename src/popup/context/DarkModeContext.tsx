@@ -1,9 +1,10 @@
 import { createContext, useContext } from 'react';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { IChildrenProps } from 'types/popup/components';
+import { IDarkModeContext } from 'types/popup/context';
 
 // Create the context for dark mode
-const DarkModeContext = createContext({
+const DarkModeContext = createContext<IDarkModeContext>({
   isDarkMode: false,
   handleToggleDarkMode: (checked: boolean) => {
     throw new Error('DarkModeContext not initialized');
@@ -15,7 +16,7 @@ const DarkModeContext = createContext({
  *
  * @returns The current dark mode context value.
  */
-export function useDarkModeContext() {
+export function useDarkModeContext(): IDarkModeContext {
   const context = useContext(DarkModeContext);
 
   if (!context) {
