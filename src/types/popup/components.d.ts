@@ -1,3 +1,8 @@
+/** Children only props interface for basic wrapper components. */
+export interface IChildrenProps {
+  children: React.ReactNode;
+}
+
 export interface RestrictedMessageProps {
   isVisible: boolean;
 }
