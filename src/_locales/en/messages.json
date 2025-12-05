@@ -1,7 +1,7 @@
 {
-  "borderPatrol": {
+  "extensionName": {
     "message": "Border Patrol",
-    "description": "The name of the extension."
+    "description": "The brand name of the extension."
   },
   "borderPatrolWebsite": {
     "message": "Border Patrol Website",
@@ -114,5 +114,13 @@
   "currentVersion": {
     "message": "Current extension version number: {version}",
     "description": "Label for displaying the current version of the extension."
+  },
+  "selectLanguage": {
+    "message": "Selects the language for the extension.",
+    "description": "Select for changing the language of the extension."
+  },
+  "none": {
+    "message": "None",
+    "description": "Indicates that no option is selected."
   }
 }

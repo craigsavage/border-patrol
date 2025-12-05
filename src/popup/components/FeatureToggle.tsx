@@ -1,6 +1,7 @@
 import { Flex, Switch, Typography } from 'antd';
 import type { FeatureToggleProps } from '../../types/popup/components';
 import ShortcutInfo from './ShortcutInfo';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { Text } = Typography;
 
@@ -13,14 +14,16 @@ export default function FeatureToggle({
   ariaLabel,
   commandName,
 }: FeatureToggleProps): React.ReactElement {
+  const { translate } = useTranslation();
+
   return (
     <>
       <Flex justify='space-between' align='center'>
         <Text strong>{label}</Text>
         <Switch
           id={id}
-          checkedChildren='Enabled'
-          unCheckedChildren='Disabled'
+          checkedChildren={translate('enabled')}
+          unCheckedChildren={translate('disabled')}
           checked={checked}
           onChange={onChange}
           aria-label={ariaLabel}

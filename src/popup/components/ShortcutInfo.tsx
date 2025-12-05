@@ -3,6 +3,7 @@ import { EditOutlined } from '@ant-design/icons';
 import type { ShortcutInfoProps } from '../../types/popup/components';
 import { SHORTCUTS_PAGE } from '../../scripts/constants';
 import { useExtensionSettings } from '../hooks/useExtensionSettings';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { Text } = Typography;
 
@@ -21,6 +22,7 @@ const iconStyle: React.CSSProperties = {
 export default function ShortcutInfo({
   command,
 }: ShortcutInfoProps): React.ReactElement {
+  const { translate } = useTranslation();
   const { shortcuts } = useExtensionSettings();
 
   /**
@@ -37,10 +39,10 @@ export default function ShortcutInfo({
 
   return (
     <Flex justify='space-between' align='center' style={{ marginTop: 4 }}>
-      <Text type='secondary'>Keyboard Shortcut:</Text>
+      <Text type='secondary'>{translate('keyboardShortcuts')}:</Text>
 
       <Flex align='center' gap={8}>
-        <Text type='secondary'>{shortcuts[command] || 'None'}</Text>
+        <Text type='secondary'>{shortcuts[command] || translate('none')}</Text>
         <EditOutlined style={iconStyle} onClick={openShortcutsPage} />
       </Flex>
     </Flex>

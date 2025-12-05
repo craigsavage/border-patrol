@@ -37,6 +37,7 @@ export default function Footer({
         size='small'
         value={locale}
         onChange={value => changeLocale(value as LocaleCode)}
+        aria-label={translate('selectLanguage')}
         options={[
           { value: 'en', label: 'EN' },
           { value: 'es', label: 'ES' },

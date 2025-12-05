@@ -1,10 +1,10 @@
 {
-  "borderPatrol": {
-    "message": "Patrulla Fronteriza",
-    "description": "The name of the extension."
+  "extensionName": {
+    "message": "Border Patrol",
+    "description": "The brand name of the extension."
   },
   "borderPatrolWebsite": {
-    "message": "Sitio web de Patrulla Fronteriza",
+    "message": "Sitio web de Border Patrol",
     "description": "Link text for the Border Patrol website."
   },
   "borderSettings": {
@@ -114,5 +114,13 @@
   "currentVersion": {
     "message": "Número de versión de la extensión actual: {version}",
     "description": "Label for displaying the current version of the extension."
+  },
+  "selectLanguage": {
+    "message": "Selecciona el idioma para la extensión.",
+    "description": "Select for changing the language of the extension."
+  },
+  "none": {
+    "message": "Ninguno",
+    "description": "Indicates that no option is selected."
   }
 }

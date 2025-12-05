@@ -7,6 +7,7 @@ import { LocaleProvider } from '../context/LocaleContext';
 import { useExtensionSettings } from './hooks/useExtensionSettings';
 import { useScreenshotCapture } from './hooks/useScreenshotCapture';
 import { useDarkMode } from './hooks/useDarkMode';
+import { useTranslation } from './hooks/useTranslation';
 
 // Components
 import Header from './components/Header';
@@ -42,6 +43,7 @@ export default function App(): React.ReactElement {
   } = useScreenshotCapture(isRestricted);
 
   const { isDarkMode, handleToggleDarkMode } = useDarkMode();
+  const { translate } = useTranslation();
 
   return (
     <LocaleProvider>
@@ -70,26 +72,26 @@ export default function App(): React.ReactElement {
           <RestrictedMessage isVisible={isRestricted} />
 
           {!isRestricted && (
-            <Space direction='vertical' size={4} style={{ width: '100%' }}>
+            <Space orientation='vertical' size={4} style={{ width: '100%' }}>
               <Space
-                direction='vertical'
+                orientation='vertical'
                 size='middle'
                 style={{ width: '100%' }}
               >
                 <FeatureToggle
-                  label='Border Mode'
+                  label={translate('borderMode')}
                   id='border-mode'
                   checked={borderMode}
                   onChange={handleToggleBorderMode}
-                  ariaLabel='Enable or disable borders'
+                  ariaLabel={translate('enableOrDisableBorders')}
                   commandName='toggle_border_patrol'
                 />
                 <FeatureToggle
-                  label='Inspector Mode'
+                  label={translate('inspectorMode')}
                   id='inspector-mode'
                   checked={inspectorMode}
                   onChange={handleToggleInspectorMode}
-                  ariaLabel='Enable or disable inspector mode'
+                  ariaLabel={translate('enableOrDisableInspectors')}
                   commandName='toggle_inspector_mode'
                 />
               </Space>
