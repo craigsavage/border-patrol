@@ -1,5 +1,4 @@
 import { Space, Divider, Layout } from 'antd';
-import AppProviders from './AppProviders';
 
 // Hooks
 import { useExtensionSettings } from './hooks/useExtensionSettings';
@@ -38,62 +37,53 @@ export default function AppContent(): React.ReactElement {
   const { translate } = useTranslation();
 
   return (
-    <AppProviders>
-      <Layout style={{ padding: '16px', width: '100%' }}>
-        <Header />
-        <Divider size='middle' />
+    <Layout style={{ padding: '16px', width: '100%' }}>
+      <Header />
+      <Divider size='middle' />
 
-        <RestrictedMessage isVisible={isRestricted} />
+      <RestrictedMessage isVisible={isRestricted} />
 
-        {!isRestricted && (
-          <Space orientation='vertical' size={4} style={{ width: '100%' }}>
-            <Space
-              orientation='vertical'
-              size='middle'
-              style={{ width: '100%' }}
-            >
-              <FeatureToggle
-                label={translate('borderMode')}
-                id='border-mode'
-                checked={borderMode}
-                onChange={handleToggleBorderMode}
-                ariaLabel={translate('enableOrDisableBorders')}
-                commandName='toggle_border_patrol'
-              />
-              <FeatureToggle
-                label={translate('inspectorMode')}
-                id='inspector-mode'
-                checked={inspectorMode}
-                onChange={handleToggleInspectorMode}
-                ariaLabel={translate('enableOrDisableInspectors')}
-                commandName='toggle_inspector_mode'
-              />
-            </Space>
-
-            <Divider size='small' />
-
-            <BorderSettings
-              borderSize={borderSize}
-              borderStyle={borderStyle}
-              onUpdateBorderSettings={handleUpdateBorderSettings}
+      {!isRestricted && (
+        <Space orientation='vertical' size={4} style={{ width: '100%' }}>
+          <Space orientation='vertical' size='middle' style={{ width: '100%' }}>
+            <FeatureToggle
+              label={translate('borderMode')}
+              id='border-mode'
+              checked={borderMode}
+              onChange={handleToggleBorderMode}
+              ariaLabel={translate('enableOrDisableBorders')}
+              commandName='toggle_border_patrol'
             />
-
-            <Divider size='small' />
-
-            <ScreenshotSection
-              hasDownloadPermission={hasDownloadPermission}
-              onRequestPermission={requestDownloadPermission}
-              onCaptureScreenshot={handleCaptureScreenshot}
+            <FeatureToggle
+              label={translate('inspectorMode')}
+              id='inspector-mode'
+              checked={inspectorMode}
+              onChange={handleToggleInspectorMode}
+              ariaLabel={translate('enableOrDisableInspectors')}
+              commandName='toggle_inspector_mode'
             />
           </Space>
-        )}
 
-        <Divider size='middle' />
-        <Footer
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={handleToggleDarkMode}
-        />
-      </Layout>
-    </AppProviders>
+          <Divider size='small' />
+
+          <BorderSettings
+            borderSize={borderSize}
+            borderStyle={borderStyle}
+            onUpdateBorderSettings={handleUpdateBorderSettings}
+          />
+
+          <Divider size='small' />
+
+          <ScreenshotSection
+            hasDownloadPermission={hasDownloadPermission}
+            onRequestPermission={requestDownloadPermission}
+            onCaptureScreenshot={handleCaptureScreenshot}
+          />
+        </Space>
+      )}
+
+      <Divider size='middle' />
+      <Footer isDarkMode={isDarkMode} onToggleDarkMode={handleToggleDarkMode} />
+    </Layout>
   );
 }
