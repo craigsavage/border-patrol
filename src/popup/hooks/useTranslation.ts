@@ -1,5 +1,6 @@
 import enMessages from '../../_locales/en/messages.json';
 import esMessages from '../../_locales/es/messages.json';
+import deMessages from '../../_locales/de/messages.json';
 import { useLocaleContext } from '../context/LocaleContext';
 import { LocaleCode, MessagesType } from '../../types/translations';
 
@@ -7,6 +8,7 @@ import { LocaleCode, MessagesType } from '../../types/translations';
 const localeMap: Record<LocaleCode, MessagesType> = {
   en: enMessages,
   es: esMessages,
+  de: deMessages,
 };
 
 /**

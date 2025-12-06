@@ -4,119 +4,119 @@
     "description": "The brand name of the extension."
   },
   "borderSettings": {
-    "message": "Border Settings",
+    "message": "Randeinstellungen",
     "description": "Title for the border settings section."
   },
   "borderMode": {
-    "message": "Border Mode",
+    "message": "Randmodus",
     "description": "Label for selecting the border mode."
   },
   "inspectorMode": {
-    "message": "Inspector Mode",
+    "message": "Inspektormodus",
     "description": "Label for toggling inspector mode."
   },
   "borderSize": {
-    "message": "Border Size",
+    "message": "Randgröße",
     "description": "Label for selecting the size of the border."
   },
   "borderStyle": {
-    "message": "Border Style",
+    "message": "Randstil",
     "description": "Label for selecting the style of the border."
   },
   "size": {
-    "message": "Size",
+    "message": "Größe",
     "description": "Generic label for size."
   },
   "style": {
-    "message": "Style",
+    "message": "Stil",
     "description": "Generic label for style."
   },
   "solid": {
-    "message": "Solid",
+    "message": "Durchgezogen",
     "description": "A solid border style."
   },
   "dashed": {
-    "message": "Dashed",
+    "message": "Gestrichelt",
     "description": "A dashed border style."
   },
   "dotted": {
-    "message": "Dotted",
+    "message": "Gepunktet",
     "description": "A dotted border style."
   },
   "double": {
-    "message": "Double",
+    "message": "Doppelt",
     "description": "A double border style."
   },
   "enabled": {
-    "message": "Enabled",
+    "message": "Aktiviert",
     "description": "Indicates that a feature or option is turned on."
   },
   "disabled": {
-    "message": "Disabled",
+    "message": "Deaktiviert",
     "description": "Indicates that a feature or option is turned off."
   },
   "enableOrDisableBorders": {
-    "message": "Enable or Disable Border Outlines",
+    "message": "Randumrisse aktivieren oder deaktivieren",
     "description": "Instruction to enable or disable borders."
   },
   "enableOrDisableInspectors": {
-    "message": "Enable or Disable Inspector Mode",
+    "message": "Inspektormodus aktivieren oder deaktivieren",
     "description": "Instruction to enable or disable inspectors."
   },
   "error": {
-    "message": "Error",
+    "message": "Fehler",
     "description": "Indicates that an error has occurred."
   },
   "restricted": {
-    "message": "Restricted",
+    "message": "Eingeschränkt",
     "description": "Indicates that access is restricted."
   },
   "restrictedDescription": {
-    "message": "This page is restricted.",
+    "message": "Diese Seite ist eingeschränkt.",
     "description": "Description shown when the extension is restricted from running on a page."
   },
   "grantPermission": {
-    "message": "Grant Permission",
+    "message": "Berechtigung erteilen",
     "description": "Button text for granting permission to the extension."
   },
   "capturing": {
-    "message": "Capturing",
+    "message": "Erfassen",
     "description": "Indicates that the extension is currently capturing data."
   },
   "takeScreenshot": {
-    "message": "Take Screenshot",
+    "message": "Screenshot machen",
     "description": "Button text for taking a screenshot."
   },
   "downloadPermissionRequired": {
-    "message": "Download permission required for screenshots",
+    "message": "Download-Berechtigung für Screenshots erforderlich",
     "description": "Indicates that download permission is required to take screenshots."
   },
   "downloadPermissionDenied": {
-    "message": "Download permission denied",
+    "message": "Download-Berechtigung verweigert",
     "description": "Indicates that download permission has been denied."
   },
   "keyboardShortcuts": {
-    "message": "Keyboard Shortcuts",
+    "message": "Tastenkombinationen",
     "description": "Title for the keyboard shortcuts section."
   },
   "switchToDarkMode": {
-    "message": "Switch to Dark Mode",
+    "message": "In den Dunkelmodus wechseln",
     "description": "Button text for switching to dark mode."
   },
   "switchToLightMode": {
-    "message": "Switch to Light Mode",
+    "message": "In den Lichtmodus wechseln",
     "description": "Button text for switching to light mode."
   },
   "currentVersion": {
-    "message": "Current extension version number: {version}",
+    "message": "Aktuelle Erweiterungsversion: {version}",
     "description": "Label for displaying the current version of the extension."
   },
   "selectLanguage": {
-    "message": "Selects the language for the extension.",
+    "message": "Sprache für die Erweiterung auswählen.",
     "description": "Select for changing the language of the extension."
   },
   "none": {
-    "message": "None",
+    "message": "Keine",
     "description": "Indicates that no option is selected."
   }
 }

@@ -14,6 +14,12 @@ const footerStyle: React.CSSProperties = {
   width: '100%',
 };
 
+const localeOptions = [
+  { value: 'en', label: 'EN' },
+  { value: 'es', label: 'ES' },
+  { value: 'de', label: 'DE' },
+];
+
 // Placeholder for version, will be replaced during build
 const version = __BP_APP_VERSION__;
 
@@ -33,24 +39,17 @@ export default function Footer(): React.ReactElement {
         value={locale}
         onChange={value => changeLocale(value as LocaleCode)}
         aria-label={translate('selectLanguage')}
-        options={[
-          { value: 'en', label: 'EN' },
-          { value: 'es', label: 'ES' },
-        ]}
+        options={localeOptions}
       />
 
       <Link
         href='https://craigsavage.github.io/border-patrol/'
         target='_blank'
-        aria-label={translate('borderPatrolWebsite')}
+        className='version'
+        aria-label={translate('currentVersion', { version })}
         style={{ color: 'var(--bp-gray)', justifySelf: 'center' }}
       >
-        <span
-          className='version'
-          aria-label={translate('currentVersion', { version })}
-        >
-          v{version}
-        </span>
+        v{version}
       </Link>
 
       <div style={{ justifySelf: 'end' }}>
