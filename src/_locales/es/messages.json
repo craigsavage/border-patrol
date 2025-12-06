@@ -3,10 +3,6 @@
     "message": "Border Patrol",
     "description": "The brand name of the extension."
   },
-  "borderPatrolWebsite": {
-    "message": "Sitio web de Border Patrol",
-    "description": "Link text for the Border Patrol website."
-  },
   "borderSettings": {
     "message": "Configuración de Bordes",
     "description": "Title for the border settings section."
