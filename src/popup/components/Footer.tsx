@@ -36,6 +36,7 @@ export default function Footer(): React.ReactElement {
         options={[
           { value: 'en', label: 'EN' },
           { value: 'es', label: 'ES' },
+          { value: 'de', label: 'DE' },
         ]}
       />
 
