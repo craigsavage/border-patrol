@@ -8,7 +8,7 @@
     "description": "The long brand name of the extension."
   },
   "extensionDescription": {
-    "message": "Débogueur box model CSS et outline d’éléments pour inspection rapide UI, visualisation de mise en page et dev frontend efficace.",
+    "message": "Débogueur CSS et outline d'éléments pour inspection UI, visualisation de layout et dev frontend efficace.",
     "description": "Extension description for manifest.json and Web Store SEO."
   },
   "toggleBorderModeCommand": {

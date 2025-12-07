@@ -8,7 +8,7 @@
     "description": "The long brand name of the extension."
   },
   "extensionDescription": {
-    "message": "Depurador de modelo CSS y delineador de elementos para inspección rápida de UI, visualización de layout y desarrollo frontend ágil.",
+    "message": "Depurador CSS y delineador para inspección rápida de UI, visualización de layout y desarrollo frontend ágil.",
     "description": "Extension description for manifest.json and Web Store SEO."
   },
   "toggleBorderModeCommand": {
