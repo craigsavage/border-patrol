@@ -10,11 +10,11 @@ import {
 export const LOCALE_STORAGE_KEY = 'bp_user_locale';
 
 /** List of supported locales for the extension. */
-export const SUPPORTED_LOCALES: LocaleCode[] = ['en', 'es', 'de'];
+export const SUPPORTED_LOCALES: LocaleCode[] = ['en', 'es', 'fr', 'de'];
 
 // Create the context for locale management
 const LocaleContext = createContext<ILocaleContext>({
-  locale: 'en',
+  locale: DEFAULT_LOCALE,
   changeLocale: (locale: LocaleCode) => {
     throw new Error('LocaleContext not initialized');
   },

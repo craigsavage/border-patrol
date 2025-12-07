@@ -17,6 +17,7 @@ const footerStyle: React.CSSProperties = {
 const localeOptions = [
   { value: 'en', label: 'EN' },
   { value: 'es', label: 'ES' },
+  { value: 'fr', label: 'FR' },
   { value: 'de', label: 'DE' },
 ];
 

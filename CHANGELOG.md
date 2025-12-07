@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.5.1] - 2025-12-06
+## [1.5.1] - 2025-12-07
 
 ### Added
 
-- Added translations for English, Spanish, and German.
+- Added translations for English, Spanish, French and German.
 - Added a language selector to the site footer.
 
 ## [1.5.0] - 2025-12-01
