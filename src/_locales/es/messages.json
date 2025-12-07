@@ -3,6 +3,10 @@
     "message": "Border Patrol",
     "description": "The brand name of the extension."
   },
+  "extensionLongName": {
+    "message": "Border Patrol – Depurador de Box Model CSS y Delineador de Elementos",
+    "description": "The long brand name of the extension."
+  },
   "extensionDescription": {
     "message": "Depurador de modelo CSS y delineador de elementos para inspección rápida de UI, visualización de layout y desarrollo frontend ágil.",
     "description": "Extension description for manifest.json and Web Store SEO."

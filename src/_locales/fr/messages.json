@@ -3,6 +3,10 @@
     "message": "Border Patrol",
     "description": "The brand name of the extension."
   },
+  "extensionLongName": {
+    "message": "Border Patrol – Débogueur du Box Model CSS et Outline des Éléments",
+    "description": "The long brand name of the extension."
+  },
   "extensionDescription": {
     "message": "Débogueur box model CSS et outline d’éléments pour inspection rapide UI, visualisation de mise en page et dev frontend efficace.",
     "description": "Extension description for manifest.json and Web Store SEO."
