@@ -50,7 +50,7 @@ export default function AppContent(): React.ReactElement {
               checked={borderMode}
               onChange={handleToggleBorderMode}
               ariaLabel={translate('enableOrDisableBorders')}
-              commandName='toggle_border_patrol'
+              commandName='toggle_border_mode'
             />
             <FeatureToggle
               label={translate('inspectorMode')}

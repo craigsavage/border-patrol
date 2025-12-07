@@ -7,6 +7,14 @@
     "message": "Inspect web layout instantly! Visualize element spacing & structure. Outlines webpage elements. For developers & designers.",
     "description": "Extension description for manifest.json."
   },
+  "toggleBorderModeCommand": {
+    "message": "Toggle Border Mode",
+    "description": "Command description for toggling Border Mode in manifest."
+  },
+  "toggleInspectorModeCommand": {
+    "message": "Toggle Inspector Mode",
+    "description": "Command description for toggling Inspector Mode in manifest."
+  },
   "borderSettings": {
     "message": "Border Settings",
     "description": "Title for the border settings section."

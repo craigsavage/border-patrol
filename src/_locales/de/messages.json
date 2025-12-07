@@ -7,6 +7,14 @@
     "message": "Untersuchen Sie das Weblayout sofort! Visualisieren Sie den Abstand und die Struktur der Elemente. Umreißt Webseiten-Elemente. Für Entwickler und Designer.",
     "description": "Extension description for manifest.json."
   },
+  "toggleBorderModeCommand": {
+    "message": "Randmodus umschalten",
+    "description": "Command description for toggling Border Mode in manifest."
+  },
+  "toggleInspectorModeCommand": {
+    "message": "Inspektormodus umschalten",
+    "description": "Command description for toggling Inspector Mode in manifest."
+  },
   "borderSettings": {
     "message": "Randeinstellungen",
     "description": "Title for the border settings section."
