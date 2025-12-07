@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
+import json from '@rollup/plugin-json';
 import { visualizer } from 'rollup-plugin-visualizer';
 import postcssRollup from 'rollup-plugin-postcss';
 import postcss from 'postcss';
@@ -67,9 +68,10 @@ const commonPlugins = [
       process.env.NODE_ENV || 'production'
     ),
     __BP_APP_VERSION__: pkg.version
-      ? JSON.stringify('v' + pkg.version)
+      ? JSON.stringify(pkg.version)
       : JSON.stringify(''),
   }),
+  json(),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
@@ -95,6 +97,7 @@ const commonPlugins = [
       { src: 'src/popup/*.html', dest: 'dist/popup' },
       { src: 'src/assets/icons/*.png', dest: 'dist/assets/icons' },
       { src: 'src/assets/fonts/*.woff2', dest: 'dist/assets/fonts' },
+      { src: 'src/_locales/**', dest: 'dist/_locales' },
       // Copy Ant Design styles
       {
         src: 'node_modules/antd/dist/reset.css',

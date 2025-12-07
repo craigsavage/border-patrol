@@ -1,22 +1,24 @@
-import { Layout, Typography } from 'antd';
-import { MoonFilled, SunFilled } from '@ant-design/icons';
-import type { FooterProps } from '../../types/popup/components';
+import { Layout, Select, Typography } from 'antd';
+import DarkModeToggle from './DarkModeToggle';
+import { useLocaleContext } from '../context/LocaleContext';
+import { useTranslation } from '../hooks/useTranslation';
+import { LocaleCode } from '../../types/translations';
 
 const { Link } = Typography;
 
 const footerStyle: React.CSSProperties = {
   fontSize: '0.8rem',
-  display: 'flex',
+  display: 'grid',
+  gridTemplateColumns: '1fr auto 1fr',
   alignItems: 'center',
-  justifyContent: 'space-between',
-  textAlign: 'center',
+  width: '100%',
 };
 
-const iconStyle: React.CSSProperties = {
-  color: 'var(--bp-gray)',
-  fontSize: '1.1rem',
-  cursor: 'pointer',
-};
+const localeOptions = [
+  { value: 'en', label: 'EN' },
+  { value: 'es', label: 'ES' },
+  { value: 'de', label: 'DE' },
+];
 
 // Placeholder for version, will be replaced during build
 const version = __BP_APP_VERSION__;
@@ -25,34 +27,34 @@ const version = __BP_APP_VERSION__;
  * Footer component for the popup.
  * Displays the Border Patrol website link and version number.
  */
-export default function Footer({
-  isDarkMode,
-  onToggleDarkMode,
-}: FooterProps): React.ReactElement {
+export default function Footer(): React.ReactElement {
+  const { locale, changeLocale } = useLocaleContext();
+  const { translate } = useTranslation();
+
   return (
     <Layout.Footer style={footerStyle}>
-      <span style={{ flex: 1 }}></span>
+      <Select
+        style={{ color: 'var(--bp-gray)', justifySelf: 'start' }}
+        size='small'
+        value={locale}
+        onChange={value => changeLocale(value as LocaleCode)}
+        aria-label={translate('selectLanguage')}
+        options={localeOptions}
+      />
+
       <Link
         href='https://craigsavage.github.io/border-patrol/'
         target='_blank'
-        aria-label='Border Patrol Website'
-        style={{ color: 'var(--bp-gray)' }}
+        className='version'
+        aria-label={translate('currentVersion', { version })}
+        style={{ color: 'var(--bp-gray)', justifySelf: 'center' }}
       >
-        Border Patrol <span className='version'>{version}</span>
+        v{version}
       </Link>
-      <span style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-        {isDarkMode ? (
-          <SunFilled
-            style={iconStyle}
-            onClick={() => onToggleDarkMode(false)}
-          />
-        ) : (
-          <MoonFilled
-            style={iconStyle}
-            onClick={() => onToggleDarkMode(true)}
-          />
-        )}
-      </span>
+
+      <div style={{ justifySelf: 'end' }}>
+        <DarkModeToggle />
+      </div>
     </Layout.Footer>
   );
 }

@@ -4,6 +4,7 @@ import type {
   ScreenshotSectionProps,
   NotificationType,
 } from '../../types/popup/components';
+import { useTranslation } from '../hooks/useTranslation';
 
 /**
  * A component that handles screenshot capture permission and capture process.
@@ -18,6 +19,7 @@ export default function ScreenshotSection({
   onRequestPermission,
   onCaptureScreenshot,
 }: ScreenshotSectionProps): React.ReactElement {
+  const { translate } = useTranslation();
   const [isCapturing, setIsCapturing] = useState<boolean>(false);
   const [notification, setNotification] = useState<NotificationType | null>(
     null
@@ -41,7 +43,7 @@ export default function ScreenshotSection({
       const granted = await onRequestPermission();
       if (!granted) {
         setNotification({
-          message: 'Download permission denied',
+          message: translate('downloadPermissionDenied'),
           type: 'error',
         });
         setTimeout(() => setNotification(null), 3000);
@@ -50,7 +52,7 @@ export default function ScreenshotSection({
     }
 
     setIsCapturing(true);
-    setNotification({ message: 'Capturing...', type: 'info' });
+    setNotification({ message: translate('capturing'), type: 'info' });
 
     try {
       const success = await onCaptureScreenshot();
@@ -78,14 +80,14 @@ export default function ScreenshotSection({
   };
 
   return (
-    <Space direction='vertical' style={{ width: '100%' }}>
+    <Space orientation='vertical' style={{ width: '100%' }}>
       {!hasDownloadPermission && (
         <Alert
-          message='Download permission required for screenshots'
+          title={translate('downloadPermissionRequired')}
           type='warning'
           action={
             <Button size='small' type='primary' onClick={onRequestPermission}>
-              Grant Permission
+              {translate('grantPermission')}
             </Button>
           }
           style={{ marginBottom: '8px' }}
@@ -93,7 +95,7 @@ export default function ScreenshotSection({
       )}
       {notification && (
         <Alert
-          message={notification.message}
+          title={notification.message}
           type={notification.type}
           style={{ width: '100%' }}
         />
@@ -104,7 +106,9 @@ export default function ScreenshotSection({
         disabled={isCapturing}
         block
       >
-        {isCapturing ? 'Capturing...' : '📸 Take Screenshot'}
+        {isCapturing
+          ? translate('capturing')
+          : '📸 ' + translate('takeScreenshot')}
       </Button>
     </Space>
   );

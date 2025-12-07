@@ -1,0 +1,122 @@
+{
+  "extensionName": {
+    "message": "Border Patrol",
+    "description": "The brand name of the extension."
+  },
+  "borderSettings": {
+    "message": "Border Settings",
+    "description": "Title for the border settings section."
+  },
+  "borderMode": {
+    "message": "Border Mode",
+    "description": "Label for selecting the border mode."
+  },
+  "inspectorMode": {
+    "message": "Inspector Mode",
+    "description": "Label for toggling inspector mode."
+  },
+  "borderSize": {
+    "message": "Border Size",
+    "description": "Label for selecting the size of the border."
+  },
+  "borderStyle": {
+    "message": "Border Style",
+    "description": "Label for selecting the style of the border."
+  },
+  "size": {
+    "message": "Size",
+    "description": "Generic label for size."
+  },
+  "style": {
+    "message": "Style",
+    "description": "Generic label for style."
+  },
+  "solid": {
+    "message": "Solid",
+    "description": "A solid border style."
+  },
+  "dashed": {
+    "message": "Dashed",
+    "description": "A dashed border style."
+  },
+  "dotted": {
+    "message": "Dotted",
+    "description": "A dotted border style."
+  },
+  "double": {
+    "message": "Double",
+    "description": "A double border style."
+  },
+  "enabled": {
+    "message": "Enabled",
+    "description": "Indicates that a feature or option is turned on."
+  },
+  "disabled": {
+    "message": "Disabled",
+    "description": "Indicates that a feature or option is turned off."
+  },
+  "enableOrDisableBorders": {
+    "message": "Enable or Disable Border Outlines",
+    "description": "Instruction to enable or disable borders."
+  },
+  "enableOrDisableInspectors": {
+    "message": "Enable or Disable Inspector Mode",
+    "description": "Instruction to enable or disable inspectors."
+  },
+  "error": {
+    "message": "Error",
+    "description": "Indicates that an error has occurred."
+  },
+  "restricted": {
+    "message": "Restricted",
+    "description": "Indicates that access is restricted."
+  },
+  "restrictedDescription": {
+    "message": "This page is restricted.",
+    "description": "Description shown when the extension is restricted from running on a page."
+  },
+  "grantPermission": {
+    "message": "Grant Permission",
+    "description": "Button text for granting permission to the extension."
+  },
+  "capturing": {
+    "message": "Capturing",
+    "description": "Indicates that the extension is currently capturing data."
+  },
+  "takeScreenshot": {
+    "message": "Take Screenshot",
+    "description": "Button text for taking a screenshot."
+  },
+  "downloadPermissionRequired": {
+    "message": "Download permission required for screenshots",
+    "description": "Indicates that download permission is required to take screenshots."
+  },
+  "downloadPermissionDenied": {
+    "message": "Download permission denied",
+    "description": "Indicates that download permission has been denied."
+  },
+  "keyboardShortcuts": {
+    "message": "Keyboard Shortcuts",
+    "description": "Title for the keyboard shortcuts section."
+  },
+  "switchToDarkMode": {
+    "message": "Switch to Dark Mode",
+    "description": "Button text for switching to dark mode."
+  },
+  "switchToLightMode": {
+    "message": "Switch to Light Mode",
+    "description": "Button text for switching to light mode."
+  },
+  "currentVersion": {
+    "message": "Current extension version number: {version}",
+    "description": "Label for displaying the current version of the extension."
+  },
+  "selectLanguage": {
+    "message": "Selects the language for the extension.",
+    "description": "Select for changing the language of the extension."
+  },
+  "none": {
+    "message": "None",
+    "description": "Indicates that no option is selected."
+  }
+}
