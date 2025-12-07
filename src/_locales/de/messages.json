@@ -4,8 +4,8 @@
     "description": "The brand name of the extension."
   },
   "extensionDescription": {
-    "message": "Untersuchen Sie das Weblayout sofort! Visualisieren Sie den Abstand und die Struktur der Elemente. Umreißt Webseiten-Elemente. Für Entwickler und Designer.",
-    "description": "Extension description for manifest.json."
+    "message": "CSS-Box-Model-Debugger & Element-Outliner für schnelle UI-Inspektion, Layout-Visualisierung und effiziente Frontend-Entwicklung.",
+    "description": "Extension description for manifest.json and Web Store SEO."
   },
   "toggleBorderModeCommand": {
     "message": "Randmodus umschalten",
