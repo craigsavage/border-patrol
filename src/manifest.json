@@ -1,11 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Border Patrol - CSS Outliner & Debugging Tool",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Inspect web layout instantly! Visualize element spacing & structure. Outlines webpage elements. For developers & designers.",
   "default_locale": "en",
-  "permissions": ["scripting", "storage", "activeTab", "downloads"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "scripting",
+    "storage",
+    "activeTab",
+    "downloads"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "action": {
     "default_title": "Border Patrol",
     "default_popup": "popup/menu.html"
@@ -44,7 +51,9 @@
         "assets/fonts/Inter-VariableFont_opsz_wght.woff2",
         "assets/fonts/Grandstander-VariableFont_wght.woff2"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
