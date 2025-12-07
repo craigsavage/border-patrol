@@ -3,6 +3,10 @@
     "message": "Border Patrol",
     "description": "The brand name of the extension."
   },
+  "extensionDescription": {
+    "message": "Inspectez instantanément la mise en page web ! Visualisez l'espacement et la structure des éléments. Contours des éléments de la page web. Pour les développeurs et les designers.",
+    "description": "Extension description for manifest.json."
+  },
   "borderSettings": {
     "message": "Paramètres de bordure",
     "description": "Title for the border settings section."

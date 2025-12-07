@@ -3,6 +3,10 @@
     "message": "Border Patrol",
     "description": "The brand name of the extension."
   },
+  "extensionDescription": {
+    "message": "¡Inspecciona el diseño web al instante! Visualiza el espaciado y la estructura de los elementos. Delinea los elementos de la página web. Para desarrolladores y diseñadores.",
+    "description": "Extension description for manifest.json."
+  },
   "borderSettings": {
     "message": "Configuración de Bordes",
     "description": "Title for the border settings section."
@@ -118,5 +122,3 @@
   "none": {
     "message": "Ninguno",
     "description": "Indicates that no option is selected."
-  }
-}

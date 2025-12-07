@@ -3,6 +3,10 @@
     "message": "Border Patrol",
     "description": "The brand name of the extension."
   },
+  "extensionDescription": {
+    "message": "Inspect web layout instantly! Visualize element spacing & structure. Outlines webpage elements. For developers & designers.",
+    "description": "Extension description for manifest.json."
+  },
   "borderSettings": {
     "message": "Border Settings",
     "description": "Title for the border settings section."

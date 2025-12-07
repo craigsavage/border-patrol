@@ -3,6 +3,10 @@
     "message": "Border Patrol",
     "description": "The brand name of the extension."
   },
+  "extensionDescription": {
+    "message": "Untersuchen Sie das Weblayout sofort! Visualisieren Sie den Abstand und die Struktur der Elemente. Umreißt Webseiten-Elemente. Für Entwickler und Designer.",
+    "description": "Extension description for manifest.json."
+  },
   "borderSettings": {
     "message": "Randeinstellungen",
     "description": "Title for the border settings section."
