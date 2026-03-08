@@ -80,7 +80,7 @@ const shadowScssPlugin = () => ({
     });
 
     const processedCss = await postcss(
-      [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean)
+      [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean),
     ).process(result.css, {
       from: id,
       to: id,
@@ -104,7 +104,7 @@ const commonPlugins = [
     preventAssignment: true,
     include: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
     'process.env.NODE_ENV': JSON.stringify(
-      process.env.NODE_ENV || 'production'
+      process.env.NODE_ENV || 'production',
     ),
     __BP_APP_VERSION__: pkg.version
       ? JSON.stringify(pkg.version)

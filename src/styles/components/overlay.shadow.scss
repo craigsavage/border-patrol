@@ -42,7 +42,11 @@ $bp-slate-400: #86a7bc;
   border: 1px solid rgba($bp-blue-300, 0.35);
   border-radius: 12px;
   background:
-    radial-gradient(circle at top right, rgba($bp-blue-400, 0.18), transparent 34%),
+    radial-gradient(
+      circle at top right,
+      rgba($bp-blue-400, 0.18),
+      transparent 34%
+    ),
     linear-gradient(180deg, rgba(12, 20, 31, 0.98), rgba(18, 33, 49, 0.96));
   box-shadow:
     0 14px 32px rgba(0, 0, 0, 0.34),
