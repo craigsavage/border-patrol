@@ -32,6 +32,7 @@ This repository is a Manifest V3 browser extension built with TypeScript, React,
 - Tab-specific state is stored in `chrome.storage.local` keyed by tab ID. Global settings like border size and style are also read from storage. Keep that split consistent unless the task requires redesign.
 - Be careful with content-script injection. Avoid duplicate injection logic and keep background-side checks in place.
 - Keep Manifest V3 compatibility. Do not introduce APIs or patterns that require persistent background pages.
+- The three primary feature modes are **Border Mode**, **Inspector Mode**, and **Measurement Mode**. Each has a toggle in the popup, a corresponding `TabState` field, a background message handler (`TOGGLE_*` from popup, `UPDATE_*` to content script), a content script module under `src/scripts/`, and a keyboard shortcut (`Alt+Shift+B/I/M`). Follow this same pattern when adding future modes.
 
 ## UI And Styling
 

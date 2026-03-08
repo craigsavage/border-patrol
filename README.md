@@ -9,6 +9,7 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 - **Instant Visual Outlining:** Apply color-coded outlines to _every_ HTML element on a page with a single click or shortcut. See nested structures and element boundaries at a glance.
 - **Visualize the Box Model:** Clearly visualize element boundaries, margins, and padding, helping you understand element spacing and dimensions.
 - **Detailed Element Inspector:** Activate Inspector Mode and simply hover over any element on the page to view a real-time overlay displaying its tag name, precise dimensions (`width` x `height`), and computed border, margin, and padding styles.
+- **Measurement Mode:** Click any two elements to instantly measure the pixel distance between them. Selected elements are highlighted with a color-coded overlay, and a dashed connector line with the distance in px is drawn between them. Press `Escape` to reset.
 - **Customizable Appearance:** Tailor the outlines to your preference by easily adjusting their size (from `1px` to `3px`) and style (`solid, dashed, dotted, double`) via the extension's intuitive popup menu.
 - **Screenshot Capture:** Easily capture and download screenshots of the current page with your outlined elements, perfect for documentation, bug reports, or sharing layout feedback with your team.
 - **Dark Mode:** Save your eyes by switching between Light and Dark mode in the popup menu.
@@ -27,6 +28,11 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 3. **Toggle Borders:** Click the "Toggle Borders" switch in the popup or use the keyboard shortcut to instantly outline all elements on the current page.
    - Adjust outline **size** and **style** using the controls under **Border Settings**.
 4. **Toggle Inspector Mode:** Use the "Toggle Inspector Mode" switch in the popup to activate the element information overlay. Hover over elements to see their details.
+5. **Toggle Measurement Mode:** Use the "Toggle Measurement Mode" switch in the popup to measure the distance between any two elements.
+   - Hover over an element to preview it with a blue highlight.
+   - Click to select it as the **first** element (green highlight + "1st" badge).
+   - Click a second element to select it (green highlight + "2nd" badge) — a dashed line and distance in `px` appear between them.
+   - Press `Escape` or click again to reset the selection.
 
 ### Keyboard Shortcut
 
@@ -34,6 +40,7 @@ Toggle Border Patrol ON or OFF instantly with a customizable keyboard shortcut.
 
 - Toggle Border Mode: `Alt` + `Shift` + `B` (Default)
 - Toggle Inspector Mode: `Alt` + `Shift` + `I` (Default)
+- Toggle Measurement Mode: `Alt` + `Shift` + `M` (Default)
 
 You can customize this shortcut in your Chrome browser by navigating to `chrome://extensions/shortcuts`.
 

@@ -34,6 +34,13 @@
         "mac": "Alt+Shift+I"
       },
       "description": "__MSG_toggleInspectorModeCommand__"
+    },
+    "toggle_measurement_mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+M",
+        "mac": "Alt+Shift+M"
+      },
+      "description": "__MSG_toggleMeasurementModeCommand__"
     }
   },
   "web_accessible_resources": [

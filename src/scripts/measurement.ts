@@ -287,6 +287,34 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     distanceLabel.style.display = 'block';
   }
 
+  /**
+   * Repositions all active selection highlights, badges, and the connector
+   * to their current viewport positions. Called on scroll and resize so
+   * overlays stay aligned with their target elements.
+   */
+  function repositionAll(): void {
+    if (firstSelected && firstHighlight) {
+      positionHighlight(firstHighlight, firstSelected, true);
+    }
+    if (firstSelected && firstBadge) {
+      positionBadge(firstBadge, firstSelected);
+    }
+    if (secondSelected && secondHighlight) {
+      positionHighlight(secondHighlight, secondSelected, true);
+    }
+    if (secondSelected && secondBadge) {
+      positionBadge(secondBadge, secondSelected);
+    }
+    if (firstSelected && secondSelected) {
+      drawConnector();
+    }
+  }
+
+  /** Handles scroll and resize events to keep overlays aligned with their elements. */
+  function scrollResizeHandler(): void {
+    repositionAll();
+  }
+
   /** Clears the current selection state and hides overlays. */
   function resetSelection(): void {
     firstSelected = null;
@@ -371,6 +399,8 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     document.addEventListener('mouseout', mouseOutHandler, true);
     document.addEventListener('click', clickHandler, true);
     document.addEventListener('keydown', keydownHandler, true);
+    window.addEventListener('scroll', scrollResizeHandler, true);
+    window.addEventListener('resize', scrollResizeHandler);
   }
 
   /** Removes event listeners. */
@@ -380,6 +410,8 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       document.removeEventListener('mouseout', mouseOutHandler, true);
       document.removeEventListener('click', clickHandler, true);
       document.removeEventListener('keydown', keydownHandler, true);
+      window.removeEventListener('scroll', scrollResizeHandler, true);
+      window.removeEventListener('resize', scrollResizeHandler);
     } catch (error) {
       Logger.error('Error removing measurement event listeners:', error);
     }

@@ -68,6 +68,7 @@ export default function AppContent(): React.ReactElement {
               checked={measurementMode}
               onChange={handleToggleMeasurementMode}
               ariaLabel={translate('enableOrDisableMeasurement')}
+              commandName='toggle_measurement_mode'
             />
           </Space>
 

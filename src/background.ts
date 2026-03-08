@@ -608,6 +608,31 @@ chrome.commands.onCommand.addListener(async (command: string) => {
       Logger.error(`Error toggling inspector mode for tab ${tabId}:`, error);
       return;
     }
+  }
+
+  // Toggle measurement mode for the active tab
+  else if (command === 'toggle_measurement_mode') {
+    let tabId;
+
+    try {
+      const activeTab = await getActiveTab();
+      if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url)) {
+        Logger.warn('Ignoring command on restricted or invalid tab.');
+        return;
+      }
+      tabId = activeTab.id;
+
+      const currentState = await getTabState(tabId);
+      const newState = !currentState.measurementMode;
+
+      await handleTabStateChange({
+        tabId,
+        states: { measurementMode: newState },
+      });
+    } catch (error) {
+      Logger.error(`Error toggling measurement mode for tab ${tabId}:`, error);
+      return;
+    }
   } else {
     Logger.warn('Unknown command received:', command);
   }
