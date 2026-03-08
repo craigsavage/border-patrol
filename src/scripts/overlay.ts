@@ -13,6 +13,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 (function () {
   let isInspectorModeEnabled: boolean = false; // Cache the inspector mode state
   let throttleTimeout: ReturnType<typeof setTimeout> | null = null;
+  let overlayTheme: 'dark' | 'light' = 'light';
 
   // Variables for overlay DOM elements
   let overlayContainer: HTMLElement | null = null;
@@ -26,6 +27,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
   const THROTTLE_DELAY = 16; // Delay in milliseconds (16ms = 60fps)
   const MAX_CLASS_DISPLAY_LENGTH = 50; // Maximum length of class names to display
   const OVERLAY_MARGIN = 10; // Margin from cursor position to overlay position
+  const OVERLAY_THEME_ATTRIBUTE = 'data-theme';
 
   // Colors for box model visualization (rgba with transparency)
   const MARGIN_COLOR = 'rgba(255, 165, 0, 0.3)'; // Orange
@@ -33,12 +35,52 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
   const PADDING_COLOR = 'rgba(0, 128, 0, 0.3)'; // Green
   const CONTENT_COLOR = 'rgba(0, 0, 255, 0.3)'; // Blue
 
+  /** Determines the overlay theme based on the dark mode setting */
+  function getOverlayTheme(isDarkMode?: boolean): 'dark' | 'light' {
+    return isDarkMode ? 'dark' : 'light';
+  }
+
+  /** Applies the current overlay theme to the overlay container by setting a data attribute. */
+  function applyOverlayTheme(): void {
+    if (!overlayContainer) return;
+
+    overlayContainer.setAttribute(OVERLAY_THEME_ATTRIBUTE, overlayTheme);
+  }
+
+  /** Loads the user's theme preference from Chrome storage and applies it to the overlay. */
+  async function loadOverlayTheme(): Promise<void> {
+    try {
+      const { darkMode } = await chrome.storage.local.get('darkMode');
+      overlayTheme = getOverlayTheme(darkMode);
+      applyOverlayTheme();
+      Logger.info('Overlay theme loaded:', overlayTheme);
+    } catch (error) {
+      Logger.error('Error loading overlay theme preference:', error);
+    }
+  }
+
   /**
-   * Handles the inspector mode update
-   * If enabled, it initializes the overlay DOM elements and adds event listeners.
-   * If disabled, it removes the event listeners and cleans up the DOM elements.
+   * Handles changes to storage, specifically looking for changes to the dark mode setting
+   * to update the overlay theme accordingly.
    *
-   * @param isEnabled - The state of the inspector mode
+   * @param changes - The changes in storage
+   * @param areaName - The area of storage that changed
+   */
+  function handleStorageChange(
+    changes: Record<string, chrome.storage.StorageChange>,
+    areaName: string,
+  ): void {
+    if (areaName !== 'local' || !changes.darkMode) return;
+
+    overlayTheme = getOverlayTheme(changes.darkMode.newValue);
+    applyOverlayTheme();
+    Logger.info('Overlay theme updated:', overlayTheme);
+  }
+
+  /**
+   * Handles inspector mode state changes, initializing or cleaning up overlay DOM and listeners.
+   *
+   * @param isEnabled - Whether inspector mode is enabled or not
    */
   function handleInspectorModeUpdate(isEnabled: boolean): void {
     Logger.info('Overlay received UPDATE_INSPECTOR_MODE:', isEnabled);
@@ -70,6 +112,8 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
     }
 
     if (!overlayContainer) return;
+
+    applyOverlayTheme();
 
     overlayRoot = overlayContainer.shadowRoot;
 
@@ -565,6 +609,10 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
   }
 
   // Recieve message to update inspector mode
+  chrome.storage.onChanged.addListener(handleStorageChange);
+
+  void loadOverlayTheme();
+
   chrome.runtime.onMessage.addListener(
     (
       request: any,

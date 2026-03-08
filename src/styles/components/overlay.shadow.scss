@@ -14,6 +14,77 @@ $bp-slate-400: #86a7bc;
   height: 100vh;
   pointer-events: none !important;
   z-index: 1000000 !important;
+  --bp-overlay-border: rgba(146, 199, 231, 0.35);
+  --bp-overlay-background:
+    radial-gradient(
+      circle at top right,
+      rgba(87, 169, 217, 0.18),
+      transparent 34%
+    ),
+    linear-gradient(180deg, rgba(12, 20, 31, 0.98), rgba(18, 33, 49, 0.96));
+  --bp-overlay-shadow: 0 14px 32px rgba(0, 0, 0, 0.34);
+  --bp-overlay-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --bp-overlay-text: #{$bp-blue-50};
+  --bp-target-border: rgba(146, 199, 231, 0.25);
+  --bp-target-background: rgba(87, 169, 217, 0.12);
+  --bp-target-text: #{$bp-blue-50};
+  --bp-meta-border: rgba(146, 199, 231, 0.12);
+  --bp-meta-background: rgba(255, 255, 255, 0.03);
+  --bp-meta-text: #{$bp-slate-200};
+  --bp-class-text: #{$bp-blue-200};
+  --bp-group-border: rgba(242, 248, 253, 0.08);
+  --bp-group-background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0)
+  );
+  --bp-group-title-border: rgba(146, 199, 231, 0.18);
+  --bp-group-title-background: rgba(87, 169, 217, 0.12);
+  --bp-group-title-text: #{$bp-blue-50};
+  --bp-label-text: #{$bp-slate-400};
+  --bp-color-swatch-border: rgba(255, 255, 255, 0.28);
+  --bp-footer-border: rgba(242, 248, 253, 0.2);
+  --bp-footer-text: #{$bp-blue-400};
+  --bp-footer-note-text: #{$bp-slate-400};
+}
+
+:host([data-theme='light']) {
+  --bp-overlay-border: rgba(87, 169, 217, 0.22);
+  --bp-overlay-background:
+    radial-gradient(
+      circle at top right,
+      rgba(87, 169, 217, 0.16),
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(238, 246, 252, 0.98)
+    );
+  --bp-overlay-shadow: 0 18px 40px rgba(16, 42, 65, 0.18);
+  --bp-overlay-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --bp-overlay-text: #10273b;
+  --bp-target-border: rgba(87, 169, 217, 0.2);
+  --bp-target-background: rgba(87, 169, 217, 0.1);
+  --bp-target-text: #14314b;
+  --bp-meta-border: rgba(87, 169, 217, 0.12);
+  --bp-meta-background: rgba(255, 255, 255, 0.76);
+  --bp-meta-text: #45657b;
+  --bp-class-text: #245678;
+  --bp-group-border: rgba(87, 169, 217, 0.14);
+  --bp-group-background: linear-gradient(
+    180deg,
+    rgba(87, 169, 217, 0.08),
+    rgba(255, 255, 255, 0)
+  );
+  --bp-group-title-border: rgba(87, 169, 217, 0.18);
+  --bp-group-title-background: rgba(87, 169, 217, 0.1);
+  --bp-group-title-text: #173754;
+  --bp-label-text: #58758a;
+  --bp-color-swatch-border: rgba(19, 42, 62, 0.2);
+  --bp-footer-border: rgba(87, 169, 217, 0.18);
+  --bp-footer-text: #25658b;
+  --bp-footer-note-text: #5e7c91;
 }
 
 *,
@@ -39,20 +110,12 @@ $bp-slate-400: #86a7bc;
   min-width: 220px;
   max-width: 320px;
   padding: 12px;
-  border: 1px solid rgba($bp-blue-300, 0.35);
+  border: 1px solid var(--bp-overlay-border);
   border-radius: 12px;
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba($bp-blue-400, 0.18),
-      transparent 34%
-    ),
-    linear-gradient(180deg, rgba(12, 20, 31, 0.98), rgba(18, 33, 49, 0.96));
-  box-shadow:
-    0 14px 32px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: var(--bp-overlay-background);
+  box-shadow: var(--bp-overlay-shadow), var(--bp-overlay-inset-shadow);
   backdrop-filter: blur(6px);
-  color: $bp-blue-50;
+  color: var(--bp-overlay-text);
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-style: normal;
@@ -108,10 +171,10 @@ $bp-slate-400: #86a7bc;
   min-width: 0;
   overflow: hidden;
   padding: 5px 10px;
-  border: 1px solid rgba($bp-blue-300, 0.25);
+  border: 1px solid var(--bp-target-border);
   border-radius: 999px;
-  background: rgba($bp-blue-400, 0.12);
-  color: $bp-blue-50;
+  background: var(--bp-target-background);
+  color: var(--bp-target-text);
   font-size: 11px;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -121,13 +184,13 @@ $bp-slate-400: #86a7bc;
 #bp-inspector-overlay .bp-overlay-meta {
   margin-bottom: 10px;
   padding: 8px 10px;
-  border: 1px solid rgba($bp-blue-300, 0.12);
+  border: 1px solid var(--bp-meta-border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bp-meta-background);
 }
 
 #bp-inspector-overlay .bp-overlay-meta-line {
-  color: $bp-slate-200;
+  color: var(--bp-meta-text);
 }
 
 #bp-inspector-overlay .bp-overlay-meta-line + .bp-overlay-meta-line {
@@ -135,18 +198,14 @@ $bp-slate-400: #86a7bc;
 }
 
 #bp-inspector-overlay .bp-class-value {
-  color: $bp-blue-200;
+  color: var(--bp-class-text);
 }
 
 #bp-inspector-overlay .bp-element-group {
   margin-top: 14px;
   padding: 10px 10px 0;
-  border-top: 1px solid rgba($bp-blue-50, 0.08);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.04),
-    rgba(255, 255, 255, 0)
-  );
+  border-top: 1px solid var(--bp-group-border);
+  background: var(--bp-group-background);
   border-radius: 10px 10px 0 0;
 }
 
@@ -155,10 +214,10 @@ $bp-slate-400: #86a7bc;
   align-items: center;
   margin-bottom: 8px;
   padding: 3px 8px;
-  border: 1px solid rgba($bp-blue-300, 0.18);
+  border: 1px solid var(--bp-group-title-border);
   border-radius: 999px;
-  background: rgba($bp-blue-400, 0.12);
-  color: $bp-blue-50;
+  background: var(--bp-group-title-background);
+  color: var(--bp-group-title-text);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -184,7 +243,7 @@ $bp-slate-400: #86a7bc;
 }
 
 #bp-inspector-overlay .bp-element-label {
-  color: $bp-slate-400;
+  color: var(--bp-label-text);
   font-size: 11px;
 }
 
@@ -192,7 +251,7 @@ $bp-slate-400: #86a7bc;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: $bp-blue-50;
+  color: var(--bp-overlay-text);
 }
 
 #bp-inspector-overlay .bp-color-element-box {
@@ -200,7 +259,7 @@ $bp-slate-400: #86a7bc;
   width: 12px;
   height: 12px;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 1px solid var(--bp-color-swatch-border);
   border-radius: 3px;
   vertical-align: middle;
 }
@@ -212,8 +271,8 @@ $bp-slate-400: #86a7bc;
   gap: 12px;
   margin-top: 16px;
   padding-top: 10px;
-  border-top: 1px dashed rgba($bp-blue-50, 0.2);
-  color: $bp-blue-400;
+  border-top: 1px dashed var(--bp-footer-border);
+  color: var(--bp-footer-text);
   font-size: 9px;
 }
 
@@ -225,5 +284,5 @@ $bp-slate-400: #86a7bc;
 }
 
 #bp-inspector-overlay .bp-footer-note {
-  color: $bp-slate-400;
+  color: var(--bp-footer-note-text);
 }
