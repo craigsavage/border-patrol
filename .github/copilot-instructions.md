@@ -20,7 +20,8 @@ This repository is a Manifest V3 browser extension built with TypeScript, React,
 
 - Prefer small, targeted changes that preserve the existing file layout and naming.
 - Follow the existing TypeScript style: strict typing, function components, async Chrome API calls, and early returns for guard clauses.
-- Keep comments sparse. Add them only where the logic is not obvious.
+- Add concise docstrings (JSDoc-style) to all exported functions and major helpers. Docstrings should briefly describe purpose, parameters, and return values where relevant.
+- Keep comments sparse elsewhere. Add them only where the logic is not obvious.
 - Reuse existing helpers before adding new ones.
 - Keep popup logic in hooks/components and extension runtime logic in background or content-script modules.
 
