@@ -139,18 +139,31 @@ $bp-slate-400: #86a7bc;
 }
 
 .bp-element-group {
-  margin-top: 10px;
-  padding-top: 8px;
+  margin-top: 14px;
+  padding: 10px 10px 0;
   border-top: 1px solid rgba($bp-blue-50, 0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0)
+  );
+  border-radius: 10px 10px 0 0;
 }
 
 .bp-element-group-title {
-  margin-bottom: 6px;
-  color: $bp-blue-200;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  border: 1px solid rgba($bp-blue-300, 0.18);
+  border-radius: 999px;
+  background: rgba($bp-blue-400, 0.12);
+  color: $bp-blue-50;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .bp-element-group ul {
@@ -197,17 +210,18 @@ $bp-slate-400: #86a7bc;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 12px;
-  padding-top: 8px;
+  margin-top: 16px;
+  padding-top: 10px;
   border-top: 1px dashed rgba($bp-blue-50, 0.2);
   color: $bp-blue-400;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .bp-branding {
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  font-size: 9px;
 }
 
 .bp-footer-note {
