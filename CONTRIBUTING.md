@@ -58,18 +58,18 @@ Code contributions are very welcome! If you'd like to contribute code, please fo
    git remote add upstream https://github.com/craigsavage/border-patrol.git
    ```
 
-4. **Sync with Upstream:** Before starting work, sync your local `main` branch with the latest changes from the main repository's `main` branch.
+4. **Sync with Upstream:** Before starting work, sync your local `dev` branch with the latest changes from the main repository's `dev` branch.
 
    ```bash
    git fetch upstream
-   git checkout main
-   git merge upstream/main
+   git checkout dev
+   git merge upstream/dev
    ```
 
-5. **Create a New Branch:** Create a new branch for your contribution based on `main`. Use a descriptive name related to your work.
+5. **Create a New Branch:** Create a new branch for your contribution based on `dev`. Use a descriptive name related to your work.
 
    ```bash
-   git checkout -b your-contribution-branch-name main
+   git checkout -b your-contribution-branch-name dev
    ```
 
 6. **Set up the Development Environment:**
@@ -95,8 +95,11 @@ Code contributions are very welcome! If you'd like to contribute code, please fo
     ```
 
 11. **Open a Pull Request (PR):** Go to the original [Border Patrol repository](https://github.com/craigsavage/border-patrol) on GitHub. You should see a prompt to compare & create a pull request from your new branch.
-    - **Ensure the pull request is targeting the `main` branch** of the main repository.
-    - Provide a clear title and description for your pull request, explaining the changes you've made. Reference any related issues by number (e.g., `Closes #42`, `Fixes #123`).
+
+- **Ensure the pull request is targeting the `dev` branch** of the main repository.
+- Provide a clear title and description for your pull request, explaining the changes you've made. Reference any related issues by number (e.g., `Closes #42`, `Fixes #123`).
+
+> **Note:** The `main` branch is reserved for releases only. All feature and bug fix pull requests should target the `dev` branch.
 
 #### Code Style
 
