@@ -283,12 +283,14 @@ chrome.runtime.onInstalled.addListener(
       const defaultGlobalSettings = {
         borderSize: DEFAULT_BORDER_SIZE,
         borderStyle: DEFAULT_BORDER_STYLE,
+        darkMode: false,
       };
 
       // Get the existing state from storage if it exists
       const existingStorage = await chrome.storage.local.get([
         'borderSize',
         'borderStyle',
+        'darkMode',
       ]);
 
       // Clear all storage data
