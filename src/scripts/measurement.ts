@@ -90,42 +90,75 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     }
     styles.textContent = MEASUREMENT_STYLES;
 
-    // Create hover highlight
-    hoverHighlight = createOverlayElement('bp-meas-hover');
+    // Reuse existing elements if already present (idempotent re-init)
+    hoverHighlight =
+      (measurementRoot.getElementById('bp-meas-hover') as HTMLElement | null) ??
+      createOverlayElement('bp-meas-hover');
 
-    // Create first selection highlight + badge
-    firstHighlight = createOverlayElement('bp-meas-first');
-    firstBadge = document.createElement('div');
-    firstBadge.id = 'bp-meas-first-badge';
-    firstBadge.className = 'bp-meas-badge bp-meas-badge--first';
-    firstBadge.textContent = '1st';
-    measurementRoot.appendChild(firstBadge);
+    firstHighlight =
+      (measurementRoot.getElementById('bp-meas-first') as HTMLElement | null) ??
+      createOverlayElement('bp-meas-first');
 
-    // Create second selection highlight + badge
-    secondHighlight = createOverlayElement('bp-meas-second');
-    secondBadge = document.createElement('div');
-    secondBadge.id = 'bp-meas-second-badge';
-    secondBadge.className = 'bp-meas-badge bp-meas-badge--second';
-    secondBadge.textContent = '2nd';
-    measurementRoot.appendChild(secondBadge);
+    firstBadge = measurementRoot.getElementById(
+      'bp-meas-first-badge',
+    ) as HTMLElement | null;
+    if (!firstBadge) {
+      firstBadge = document.createElement('div');
+      firstBadge.id = 'bp-meas-first-badge';
+      firstBadge.className = 'bp-meas-badge bp-meas-badge--first';
+      firstBadge.textContent = '1st';
+      measurementRoot.appendChild(firstBadge);
+    }
 
-    // Create SVG connector line
+    secondHighlight =
+      (measurementRoot.getElementById(
+        'bp-meas-second',
+      ) as HTMLElement | null) ?? createOverlayElement('bp-meas-second');
+
+    secondBadge = measurementRoot.getElementById(
+      'bp-meas-second-badge',
+    ) as HTMLElement | null;
+    if (!secondBadge) {
+      secondBadge = document.createElement('div');
+      secondBadge.id = 'bp-meas-second-badge';
+      secondBadge.className = 'bp-meas-badge bp-meas-badge--second';
+      secondBadge.textContent = '2nd';
+      measurementRoot.appendChild(secondBadge);
+    }
+
     const svgNS = 'http://www.w3.org/2000/svg';
-    connectorLine = document.createElementNS(
-      svgNS,
-      'svg',
-    ) as unknown as SVGElement;
-    (connectorLine as unknown as HTMLElement).id = 'bp-meas-connector';
-    connectorLine.setAttribute('class', 'bp-meas-connector');
-    measurementRoot.appendChild(connectorLine);
+    connectorLine =
+      (measurementRoot.getElementById(
+        'bp-meas-connector',
+      ) as unknown as SVGElement | null) ??
+      (() => {
+        const svg = document.createElementNS(
+          svgNS,
+          'svg',
+        ) as unknown as SVGElement;
+        (svg as unknown as HTMLElement).id = 'bp-meas-connector';
+        svg.setAttribute('class', 'bp-meas-connector');
+        measurementRoot!.appendChild(svg);
+        return svg;
+      })();
 
-    // Create distance label
-    distanceLabel = document.createElement('div');
-    distanceLabel.id = 'bp-meas-distance';
-    distanceLabel.className = 'bp-meas-distance';
-    measurementRoot.appendChild(distanceLabel);
+    distanceLabel = measurementRoot.getElementById(
+      'bp-meas-distance',
+    ) as HTMLElement | null;
+    if (!distanceLabel) {
+      distanceLabel = document.createElement('div');
+      distanceLabel.id = 'bp-meas-distance';
+      distanceLabel.className = 'bp-meas-distance';
+      measurementRoot.appendChild(distanceLabel);
+    }
 
-    hideAll();
+    // Restore selection visuals if elements were already selected before re-init,
+    // otherwise ensure everything starts hidden.
+    if (firstSelected || secondSelected) {
+      repositionAll();
+    } else {
+      hideAll();
+    }
   }
 
   /**
