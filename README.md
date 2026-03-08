@@ -20,11 +20,11 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 
 ### How to Use
 
-1.  Navigate to any webpage you want to inspect or debug.
-2.  Click the Border Patrol extension icon in your browser toolbar (_**Pro tip**: pin the extension so you can access it faster_).
-3.  **Toggle Borders:** Click the "Toggle Borders" switch in the popup or use the keyboard shortcut to instantly outline all elements on the current page.
-    - Adjust outline **size** and **style** using the controls under **Border Settings**.
-4.  **Toggle Inspector Mode:** Use the "Toggle Inspector Mode" switch in the popup to activate the element information overlay. Hover over elements to see their details.
+1. Navigate to any webpage you want to inspect or debug.
+2. Click the Border Patrol extension icon in your browser toolbar (_**Pro tip**: pin the extension so you can access it faster_).
+3. **Toggle Borders:** Click the "Toggle Borders" switch in the popup or use the keyboard shortcut to instantly outline all elements on the current page.
+   - Adjust outline **size** and **style** using the controls under **Border Settings**.
+4. **Toggle Inspector Mode:** Use the "Toggle Inspector Mode" switch in the popup to activate the element information overlay. Hover over elements to see their details.
 
 ### Keyboard Shortcut
 
@@ -39,7 +39,7 @@ You can customize this shortcut in your Chrome browser by navigating to `chrome:
 
 Border Patrol is an open-source project that thrives on community contributions, embracing transparency and collaboration. We welcome and value contributions, whether it's a new feature idea, bug fix, or code improvement, to continually enhance the project.
 
-Please see the [CONTRIBUTING](CONTRIBUTING.md) file for more detailed guidelines on contributing.
+Please see the [CONTRIBUTING](CONTRIBUTING.md) file for more detailed guidelines on contributing. Pull requests should target the `main` branch.
 
 ### Feedback and Support 💬
 
