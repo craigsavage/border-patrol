@@ -15,6 +15,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
   // Variables for overlay DOM elements
   let overlayContainer: HTMLElement | null = null;
+  let overlayRoot: ShadowRoot | null = null;
   let overlay: HTMLElement | null = null;
   let marginBox: HTMLElement | null = null;
   let borderBox: HTMLElement | null = null;
@@ -30,6 +31,135 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
   const BORDER_COLOR = 'rgba(255, 255, 0, 0.3)'; // Yellow
   const PADDING_COLOR = 'rgba(0, 128, 0, 0.3)'; // Green
   const CONTENT_COLOR = 'rgba(0, 0, 255, 0.3)'; // Blue
+  const OVERLAY_STYLES = `
+    :host {
+      all: initial;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none !important;
+      z-index: 1000000 !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    #bp-margin-box,
+    #bp-border-box,
+    #bp-padding-box,
+    #bp-content-box {
+      position: absolute !important;
+      pointer-events: none !important;
+      display: none;
+      z-index: 1000001 !important;
+    }
+
+    #bp-inspector-overlay {
+      position: absolute !important;
+      display: block !important;
+      min-width: 200px;
+      max-width: 260px;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.9) !important;
+      box-shadow: none;
+      color: #f2f8fd;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 1.4;
+      letter-spacing: normal;
+      text-transform: none;
+      text-decoration: none;
+      text-align: left;
+      text-shadow: none;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      pointer-events: none !important;
+      z-index: 1000002 !important;
+    }
+
+    #bp-inspector-overlay section,
+    #bp-inspector-overlay h4,
+    #bp-inspector-overlay ul,
+    #bp-inspector-overlay li,
+    #bp-inspector-overlay footer,
+    #bp-inspector-overlay strong,
+    #bp-inspector-overlay span {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      box-shadow: none;
+      color: inherit;
+      font: inherit;
+      letter-spacing: normal;
+      text-decoration: none;
+      text-transform: none;
+    }
+
+    #bp-inspector-overlay section {
+      display: block;
+    }
+
+    #bp-inspector-overlay strong {
+      font-weight: 600;
+    }
+
+    .bp-id-value {
+      color: #92c7e7;
+    }
+
+    .bp-element-group {
+      margin-top: 8px;
+    }
+
+    .bp-element-group-title {
+      color: #c5e0f2;
+    }
+
+    .bp-element-group ul {
+      list-style: none;
+      margin: 2px 0 0;
+      padding: 0;
+    }
+
+    .bp-element-group li {
+      margin-left: 4px;
+    }
+
+    .bp-element-label {
+      margin-right: 4px;
+      color: #999;
+    }
+
+    .bp-color-element-box {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 4px;
+      border: 1px solid #999;
+      border-radius: 2px;
+      vertical-align: middle;
+    }
+
+    .bp-overlay-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+      padding-top: 4px;
+      border-top: 1px dashed #f2f8fd;
+      color: #57a9d9;
+      font-size: 10px;
+    }
+  `;
 
   /**
    * Handles the inspector mode update
@@ -56,46 +186,78 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
   /** Initializes the DOM elements if they are not already initialized */
   function initializeOverlayDOM(): void {
-    // Check if overlay is already initialized
-    if (document.getElementById('bp-inspector-container')) {
-      overlayContainer = document.getElementById('bp-inspector-container');
-      overlay = document.getElementById('bp-inspector-overlay');
-      marginBox = document.getElementById('bp-margin-box');
-      borderBox = document.getElementById('bp-border-box');
-      paddingBox = document.getElementById('bp-padding-box');
-      contentBox = document.getElementById('bp-content-box');
-      return;
+    overlayContainer = document.getElementById(
+      'bp-inspector-container',
+    ) as HTMLElement | null;
+
+    if (!overlayContainer) {
+      overlayContainer = createAndAppend({
+        id: 'bp-inspector-container',
+        parent: document.body,
+      });
     }
 
-    // Initialize DOM elements
-    overlayContainer = createAndAppend({
-      id: 'bp-inspector-container',
-      parent: document.body,
-    });
     if (!overlayContainer) return;
 
-    overlay = createAndAppend({
-      id: 'bp-inspector-overlay',
-      parent: overlayContainer,
-    });
+    overlayRoot = overlayContainer.shadowRoot;
 
-    // Create box model elements
-    marginBox = createAndAppend({
-      id: 'bp-margin-box',
-      parent: overlayContainer,
-    });
-    borderBox = createAndAppend({
-      id: 'bp-border-box',
-      parent: overlayContainer,
-    });
-    paddingBox = createAndAppend({
-      id: 'bp-padding-box',
-      parent: overlayContainer,
-    });
-    contentBox = createAndAppend({
-      id: 'bp-content-box',
-      parent: overlayContainer,
-    });
+    if (!overlayRoot) {
+      overlayContainer.replaceChildren();
+      overlayRoot = overlayContainer.attachShadow({ mode: 'open' });
+    }
+
+    let overlayStyles = overlayRoot.getElementById(
+      'bp-inspector-styles',
+    ) as HTMLStyleElement | null;
+
+    if (!overlayStyles) {
+      overlayStyles = createAndAppend({
+        id: 'bp-inspector-styles',
+        parent: overlayRoot,
+        tagName: 'style',
+      }) as HTMLStyleElement | null;
+    }
+
+    if (overlayStyles) {
+      overlayStyles.textContent = OVERLAY_STYLES;
+    }
+
+    overlay = overlayRoot.getElementById('bp-inspector-overlay');
+    if (!overlay) {
+      overlay = createAndAppend({
+        id: 'bp-inspector-overlay',
+        parent: overlayRoot,
+      });
+    }
+
+    marginBox = overlayRoot.getElementById('bp-margin-box');
+    if (!marginBox) {
+      marginBox = createAndAppend({
+        id: 'bp-margin-box',
+        parent: overlayRoot,
+      });
+    }
+    borderBox = overlayRoot.getElementById('bp-border-box');
+    if (!borderBox) {
+      borderBox = createAndAppend({
+        id: 'bp-border-box',
+        parent: overlayRoot,
+      });
+    }
+    paddingBox = overlayRoot.getElementById('bp-padding-box');
+    if (!paddingBox) {
+      paddingBox = createAndAppend({
+        id: 'bp-padding-box',
+        parent: overlayRoot,
+      });
+    }
+    contentBox = overlayRoot.getElementById('bp-content-box');
+    if (!contentBox) {
+      contentBox = createAndAppend({
+        id: 'bp-content-box',
+        parent: overlayRoot,
+      });
+    }
 
     // Ensure all elements are hidden initially
     [overlay, marginBox, borderBox, paddingBox, contentBox].forEach(element => {
@@ -153,7 +315,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
    */
   function getOverlayPosition(
     event: MouseEvent,
-    overlayElement: HTMLElement | null
+    overlayElement: HTMLElement | null,
   ): { top: number; left: number } {
     if (!overlayElement) return { top: 0, left: 0 }; // Default values
 
@@ -190,7 +352,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
   function generateOverlayContent(
     element: HTMLElement,
     computedStyle: CSSStyleDeclaration,
-    rect: DOMRect
+    rect: DOMRect,
   ): string {
     if (!element || !computedStyle || !rect) return '';
 
@@ -198,7 +360,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
     const elementId = element.id ? `#${element.id}` : '';
     const elementClasses = getElementClassNames(
       element,
-      MAX_CLASS_DISPLAY_LENGTH
+      MAX_CLASS_DISPLAY_LENGTH,
     );
     const dimensions = formatDimensions(rect.width, rect.height);
     const margin = formatBoxModelValues(computedStyle, 'margin');
@@ -505,6 +667,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
     // Reset DOM element variables to null
     overlayContainer = null;
+    overlayRoot = null;
     overlay = null;
     marginBox = null;
     borderBox = null;
@@ -528,7 +691,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
     (
       request: any,
       sender: chrome.runtime.MessageSender,
-      sendResponse: (response?: any) => void
+      sendResponse: (response?: any) => void,
     ) => {
       Logger.info('Received message:', request);
 
@@ -549,6 +712,6 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
         Logger.error(`Error handling message:`, error);
         return false; // An error occurred
       }
-    }
+    },
   );
 })();
