@@ -7,7 +7,7 @@ import {
   formatBorderInfo,
   formatFontStack,
 } from './utils/overlay-formatters';
-import OVERLAY_STYLES from './overlay-styles';
+import OVERLAY_STYLES from '../styles/components/overlay.shadow.scss';
 import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
 (function () {
@@ -230,6 +230,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
     // Get element details
     const elementId = element.id ? `#${element.id}` : '';
+    const elementIdentifier = `${element.tagName.toLowerCase()}${elementId}`;
     const elementClasses = getElementClassNames(
       element,
       MAX_CLASS_DISPLAY_LENGTH,
@@ -333,8 +334,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
     // Generate the HTML content for the overlay
     return `
       <div class="bp-overlay-header">
-        <span class="bp-tag-chip">${element.tagName.toLowerCase()}</span>
-        ${elementId ? `<span class="bp-id-value">${elementId}</span>` : ''}
+        <span class="bp-target-name">${elementIdentifier}</span>
       </div>
 
       <section class="bp-overlay-meta">

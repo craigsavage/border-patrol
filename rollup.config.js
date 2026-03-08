@@ -8,6 +8,8 @@ import json from '@rollup/plugin-json';
 import { visualizer } from 'rollup-plugin-visualizer';
 import postcssRollup from 'rollup-plugin-postcss';
 import postcss from 'postcss';
+import path from 'path';
+import * as sass from 'sass';
 
 import postcssScss from 'postcss-scss';
 import autoprefixer from 'autoprefixer';
@@ -42,6 +44,7 @@ const onwarn = (warning, warn) => {
  */
 const postcssPlugin = outputPath => {
   return postcssRollup({
+    exclude: '**/*.shadow.scss',
     extract: outputPath,
     minimize: isProduction,
     sourceMap: !isProduction,
@@ -55,12 +58,48 @@ const postcssPlugin = outputPath => {
   });
 };
 
+/**
+ * Compiles SCSS files intended for shadow-root usage into CSS string modules.
+ *
+ * @returns {import('rollup').Plugin} Rollup plugin.
+ */
+const shadowScssPlugin = () => ({
+  name: 'shadow-scss-plugin',
+  resolveId(source, importer) {
+    if (!source.endsWith('.shadow.scss')) return null;
+
+    const baseDir = importer ? path.dirname(importer) : process.cwd();
+    return path.resolve(baseDir, source);
+  },
+  async load(id) {
+    if (!id.endsWith('.shadow.scss')) return null;
+
+    const result = sass.compile(id, {
+      style: isProduction ? 'compressed' : 'expanded',
+      silenceDeprecations: ['legacy-js-api'],
+    });
+
+    const processedCss = await postcss(
+      [autoprefixer(), isProduction ? cssnano() : null].filter(Boolean)
+    ).process(result.css, {
+      from: id,
+      to: id,
+    });
+
+    return {
+      code: `export default ${JSON.stringify(processedCss.css)};`,
+      map: { mappings: '' },
+    };
+  },
+});
+
 // Determine if we are in production mode
 const isProduction = process.env.NODE_ENV === 'production';
 console.log(`Building for ${isProduction ? 'production' : 'development'}...`);
 
 // Common plugins for all builds
 const commonPlugins = [
+  shadowScssPlugin(),
   replace({
     preventAssignment: true,
     include: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
@@ -84,7 +123,7 @@ const commonPlugins = [
   nodeResolve({
     browser: true,
     preferBuiltins: false,
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.css'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.css', '.scss'],
     moduleDirectories: ['node_modules'],
   }),
   commonjs({
