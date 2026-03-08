@@ -7,6 +7,7 @@ import {
   formatBorderInfo,
   formatFontStack,
 } from './utils/overlay-formatters';
+import OVERLAY_STYLES from './overlay-styles';
 import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
 (function () {
@@ -31,135 +32,6 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
   const BORDER_COLOR = 'rgba(255, 255, 0, 0.3)'; // Yellow
   const PADDING_COLOR = 'rgba(0, 128, 0, 0.3)'; // Green
   const CONTENT_COLOR = 'rgba(0, 0, 255, 0.3)'; // Blue
-  const OVERLAY_STYLES = `
-    :host {
-      all: initial;
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none !important;
-      z-index: 1000000 !important;
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    #bp-margin-box,
-    #bp-border-box,
-    #bp-padding-box,
-    #bp-content-box {
-      position: absolute !important;
-      pointer-events: none !important;
-      display: none;
-      z-index: 1000001 !important;
-    }
-
-    #bp-inspector-overlay {
-      position: absolute !important;
-      display: block !important;
-      min-width: 200px;
-      max-width: 260px;
-      padding: 6px 10px;
-      border: 0;
-      border-radius: 5px;
-      background: rgba(0, 0, 0, 0.9) !important;
-      box-shadow: none;
-      color: #f2f8fd;
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 1.4;
-      letter-spacing: normal;
-      text-transform: none;
-      text-decoration: none;
-      text-align: left;
-      text-shadow: none;
-      white-space: normal;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      pointer-events: none !important;
-      z-index: 1000002 !important;
-    }
-
-    #bp-inspector-overlay section,
-    #bp-inspector-overlay h4,
-    #bp-inspector-overlay ul,
-    #bp-inspector-overlay li,
-    #bp-inspector-overlay footer,
-    #bp-inspector-overlay strong,
-    #bp-inspector-overlay span {
-      margin: 0;
-      padding: 0;
-      border: 0;
-      background: none;
-      box-shadow: none;
-      color: inherit;
-      font: inherit;
-      letter-spacing: normal;
-      text-decoration: none;
-      text-transform: none;
-    }
-
-    #bp-inspector-overlay section {
-      display: block;
-    }
-
-    #bp-inspector-overlay strong {
-      font-weight: 600;
-    }
-
-    .bp-id-value {
-      color: #92c7e7;
-    }
-
-    .bp-element-group {
-      margin-top: 8px;
-    }
-
-    .bp-element-group-title {
-      color: #c5e0f2;
-    }
-
-    .bp-element-group ul {
-      list-style: none;
-      margin: 2px 0 0;
-      padding: 0;
-    }
-
-    .bp-element-group li {
-      margin-left: 4px;
-    }
-
-    .bp-element-label {
-      margin-right: 4px;
-      color: #999;
-    }
-
-    .bp-color-element-box {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      margin-right: 4px;
-      border: 1px solid #999;
-      border-radius: 2px;
-      vertical-align: middle;
-    }
-
-    .bp-overlay-footer {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 8px;
-      padding-top: 4px;
-      border-top: 1px dashed #f2f8fd;
-      color: #57a9d9;
-      font-size: 10px;
-    }
-  `;
 
   /**
    * Handles the inspector mode update
@@ -387,7 +259,6 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
           <li><span class="bp-element-label">Display:</span> ${
             computedStyle.display
           }</li>
-          <li><span class="bp-element-label">Dimensions:</span> ${dimensions}</li>
           ${
             margin &&
             `<li><span class="bp-element-label">Margin:</span> ${margin}</li>`
@@ -412,7 +283,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
           ${
             backgroundColor &&
             `<li><span class="bp-element-label">Background Color:</span>
-              <span class="bp-color-element-box" style="background-color: ${backgroundColor}"></span> ${backgroundColor}
+              <span class="bp-color-value"><span class="bp-color-element-box" style="background-color: ${backgroundColor}"></span>${backgroundColor}</span>
             </li>`
           }
           ${
@@ -443,8 +314,8 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
           ${
             computedStyle.color &&
             `<li><span class="bp-element-label">Color:</span>
-              <span class="bp-color-element-box" style="background-color: ${computedStyle.color}">
-              </span> ${computedStyle.color}
+              <span class="bp-color-value"><span class="bp-color-element-box" style="background-color: ${computedStyle.color}">
+              </span>${computedStyle.color}</span>
             </li>`
           }
           ${
@@ -461,13 +332,19 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
     // Generate the HTML content for the overlay
     return `
-      <section>
-        <strong>${element.tagName.toLowerCase()}</strong> <span class="bp-id-value">
-          ${elementId}
-        </span><br>
+      <div class="bp-overlay-header">
+        <span class="bp-tag-chip">${element.tagName.toLowerCase()}</span>
+        ${elementId ? `<span class="bp-id-value">${elementId}</span>` : ''}
+      </div>
+
+      <section class="bp-overlay-meta">
+        <div class="bp-overlay-meta-line">
+          <span class="bp-element-label">Dimensions</span>
+          <span>${dimensions}</span>
+        </div>
         ${
           elementClasses
-            ? `<span class="bp-element-label">Classes:</span> ${elementClasses}`
+            ? `<div class="bp-overlay-meta-line"><span class="bp-element-label">Classes</span> <span class="bp-class-value">${elementClasses}</span></div>`
             : ''
         }
       </section>
@@ -478,6 +355,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
       <footer class="bp-overlay-footer">
         <span class="bp-branding">Border Patrol</span>
+        <span class="bp-footer-note">Inspect Mode</span>
       </footer>
     `;
   }
