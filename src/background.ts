@@ -535,7 +535,7 @@ chrome.commands.onCommand.addListener(async (command: string) => {
   Logger.info('Command received:', command);
 
   // Toggle the border for the active tab
-  if (command === 'toggle_border_patrol') {
+  if (command === 'toggle_border_mode') {
     let tabId;
 
     try {

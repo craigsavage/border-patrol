@@ -1,20 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "Border Patrol - CSS Outliner & Debugging Tool",
+  "name": "__MSG_extensionLongName__",
   "version": "1.5.1",
-  "description": "Inspect web layout instantly! Visualize element spacing & structure. Outlines webpage elements. For developers & designers.",
+  "description": "__MSG_extensionDescription__",
   "default_locale": "en",
-  "permissions": [
-    "scripting",
-    "storage",
-    "activeTab",
-    "downloads"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "permissions": ["scripting", "storage", "activeTab", "downloads"],
+  "host_permissions": ["<all_urls>"],
   "action": {
-    "default_title": "Border Patrol",
+    "default_title": "__MSG_extensionName__",
     "default_popup": "popup/menu.html"
   },
   "background": {
@@ -28,19 +21,19 @@
     "128": "assets/icons/bp-icon-128.png"
   },
   "commands": {
-    "toggle_border_patrol": {
+    "toggle_border_mode": {
       "suggested_key": {
         "default": "Alt+Shift+B",
         "mac": "Alt+Shift+B"
       },
-      "description": "Toggle Border Patrol"
+      "description": "__MSG_toggleBorderModeCommand__"
     },
     "toggle_inspector_mode": {
       "suggested_key": {
         "default": "Alt+Shift+I",
         "mac": "Alt+Shift+I"
       },
-      "description": "Toggle Inspector Mode"
+      "description": "__MSG_toggleInspectorModeCommand__"
     }
   },
   "web_accessible_resources": [
@@ -51,9 +44,7 @@
         "assets/fonts/Inter-VariableFont_opsz_wght.woff2",
         "assets/fonts/Grandstander-VariableFont_wght.woff2"
       ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "matches": ["<all_urls>"]
     }
   ]
 }
