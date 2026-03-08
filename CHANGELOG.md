@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed issue with host page styles interfering with the extension's inspector overlay, ensuring a consistent and clear display of element information regardless of the website's own CSS.
+
 ## [1.5.1] - 2025-12-07
 
 ### Added

@@ -8,7 +8,7 @@
  */
 export type CreateAndAppendOptions = {
   id: string;
-  parent: HTMLElement;
+  parent: HTMLElement | ShadowRoot;
   tagName?: string;
   classNames?: string;
 };
