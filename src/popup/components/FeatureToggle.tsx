@@ -29,7 +29,7 @@ export default function FeatureToggle({
           aria-label={ariaLabel}
         />
       </Flex>
-      <ShortcutInfo command={commandName} />
+      {commandName && <ShortcutInfo command={commandName} />}
     </>
   );
 }

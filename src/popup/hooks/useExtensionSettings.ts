@@ -14,6 +14,7 @@ export function useExtensionSettings(): IExtensionSettings {
   const [isRestricted, setIsRestricted] = useState<boolean>(false);
   const [borderMode, setBorderMode] = useState<boolean>(false);
   const [inspectorMode, setInspectorMode] = useState<boolean>(false);
+  const [measurementMode, setMeasurementMode] = useState<boolean>(false);
   const [borderSize, setBorderSize] = useState<number>(1);
   const [borderStyle, setBorderStyle] = useState<string>('solid');
   const [tabId, setTabId] = useState<number | null>(null);
@@ -60,6 +61,28 @@ export function useExtensionSettings(): IExtensionSettings {
   };
 
   /**
+   * Toggles measurement mode on or off.
+   * Sends a message to the background script to handle the state toggle.
+   *
+   * @param checked The new state of the measurement mode toggle.
+   * @returns Resolves when the state is toggled.
+   */
+  const handleToggleMeasurementMode = async (
+    checked: boolean,
+  ): Promise<void> => {
+    setMeasurementMode(checked);
+    if (tabId) {
+      chrome.runtime.sendMessage({
+        action: 'TOGGLE_MEASUREMENT_MODE',
+        isEnabled: checked,
+        tabId: tabId,
+      });
+    } else {
+      Logger.warn('Cannot toggle measurement mode: tabId is null.');
+    }
+  };
+
+  /**
    * Updates the border settings.
    * Sends a message to the background script with the new settings.
    *
@@ -68,7 +91,7 @@ export function useExtensionSettings(): IExtensionSettings {
    */
   const handleUpdateBorderSettings = async (
     size: number,
-    style: string
+    style: string,
   ): Promise<void> => {
     setBorderSize(size);
     setBorderStyle(style);
@@ -104,6 +127,7 @@ export function useExtensionSettings(): IExtensionSettings {
 
         setBorderMode(data[tabIdString]?.borderMode ?? false);
         setInspectorMode(data[tabIdString]?.inspectorMode ?? false);
+        setMeasurementMode(data[tabIdString]?.measurementMode ?? false);
         setBorderSize(data.borderSize ?? 1);
         setBorderStyle(data.borderStyle ?? 'solid');
 
@@ -132,7 +156,7 @@ export function useExtensionSettings(): IExtensionSettings {
     const messageListener: MessageListenerType = (
       message,
       sender,
-      sendResponse
+      sendResponse,
     ) => {
       if (message.action === 'UPDATE_POPUP_STATE') {
         if (typeof message.borderMode !== 'undefined') {
@@ -140,6 +164,9 @@ export function useExtensionSettings(): IExtensionSettings {
         }
         if (typeof message.inspectorMode !== 'undefined') {
           setInspectorMode(message.inspectorMode);
+        }
+        if (typeof message.measurementMode !== 'undefined') {
+          setMeasurementMode(message.measurementMode);
         }
       }
     };
@@ -155,11 +182,13 @@ export function useExtensionSettings(): IExtensionSettings {
     isRestricted,
     borderMode,
     inspectorMode,
+    measurementMode,
     borderSize,
     borderStyle,
     shortcuts,
     handleToggleBorderMode,
     handleToggleInspectorMode,
+    handleToggleMeasurementMode,
     handleUpdateBorderSettings,
   };
 }
