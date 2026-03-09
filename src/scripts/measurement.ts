@@ -21,6 +21,8 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
   let secondBadge: HTMLElement | null = null;
   let connectorLine: SVGElement | null = null;
   let distanceLabel: HTMLElement | null = null;
+  let xDistanceLabel: HTMLElement | null = null;
+  let yDistanceLabel: HTMLElement | null = null;
   let firstSizeLabel: HTMLElement | null = null;
   let secondSizeLabel: HTMLElement | null = null;
 
@@ -154,6 +156,26 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       measurementRoot.appendChild(distanceLabel);
     }
 
+    xDistanceLabel = measurementRoot.getElementById(
+      'bp-meas-x-distance',
+    ) as HTMLElement | null;
+    if (!xDistanceLabel) {
+      xDistanceLabel = document.createElement('div');
+      xDistanceLabel.id = 'bp-meas-x-distance';
+      xDistanceLabel.className = 'bp-meas-distance';
+      measurementRoot.appendChild(xDistanceLabel);
+    }
+
+    yDistanceLabel = measurementRoot.getElementById(
+      'bp-meas-y-distance',
+    ) as HTMLElement | null;
+    if (!yDistanceLabel) {
+      yDistanceLabel = document.createElement('div');
+      yDistanceLabel.id = 'bp-meas-y-distance';
+      yDistanceLabel.className = 'bp-meas-distance';
+      measurementRoot.appendChild(yDistanceLabel);
+    }
+
     firstSizeLabel = measurementRoot.getElementById(
       'bp-meas-first-size',
     ) as HTMLElement | null;
@@ -208,6 +230,8 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       secondBadge,
       secondSizeLabel,
       distanceLabel,
+      xDistanceLabel,
+      yDistanceLabel,
     ].forEach(el => {
       if (el) el.style.display = 'none';
     });
@@ -270,78 +294,90 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
   }
 
   /**
-   * Returns the closest edge points between two DOMRects and the minimum
-   * edge-to-edge pixel distance between them.
+   * Returns the nearest edge anchor points between two DOMRects along with
+   * the individual horizontal and vertical gap distances between them.
    *
    * @param a - The first element's bounding rect.
    * @param b - The second element's bounding rect.
-   * @returns The closest point on each rect's boundary and the gap distance.
+   * @returns Edge anchor points on each rect and the x/y gap values.
    */
-  function getClosestEdgePoints(
+  function getEdgeData(
     a: DOMRect,
     b: DOMRect,
   ): {
     pointA: { x: number; y: number };
     pointB: { x: number; y: number };
-    distance: number;
+    xGap: number;
+    yGap: number;
   } {
     // Horizontal component
-    let ax: number, bx: number;
+    let ax: number, bx: number, xGap: number;
     if (a.right <= b.left) {
       ax = a.right;
       bx = b.left;
+      xGap = b.left - a.right;
     } else if (b.right <= a.left) {
       ax = a.left;
       bx = b.right;
+      xGap = a.left - b.right;
     } else {
       const xMid = (Math.max(a.left, b.left) + Math.min(a.right, b.right)) / 2;
       ax = xMid;
       bx = xMid;
+      xGap = 0;
     }
 
     // Vertical component
-    let ay: number, by: number;
+    let ay: number, by: number, yGap: number;
     if (a.bottom <= b.top) {
       ay = a.bottom;
       by = b.top;
+      yGap = b.top - a.bottom;
     } else if (b.bottom <= a.top) {
       ay = a.top;
       by = b.bottom;
+      yGap = a.top - b.bottom;
     } else {
       const yMid = (Math.max(a.top, b.top) + Math.min(a.bottom, b.bottom)) / 2;
       ay = yMid;
       by = yMid;
+      yGap = 0;
     }
-
-    const dx = bx - ax;
-    const dy = by - ay;
-    const distance = Math.round(Math.sqrt(dx * dx + dy * dy));
 
     return {
       pointA: { x: ax, y: ay },
       pointB: { x: bx, y: by },
-      distance,
+      xGap,
+      yGap,
     };
   }
 
-  /** Draws the SVG connector line and distance label between the two selected elements. */
+  /** Draws the SVG connector and distance label(s) between the two selected elements. */
   function drawConnector(): void {
-    if (!firstSelected || !secondSelected || !connectorLine || !distanceLabel)
+    if (
+      !firstSelected ||
+      !secondSelected ||
+      !connectorLine ||
+      !distanceLabel ||
+      !xDistanceLabel ||
+      !yDistanceLabel
+    )
       return;
 
     const rectA = firstSelected.getBoundingClientRect();
     const rectB = secondSelected.getBoundingClientRect();
-    const {
-      pointA: a,
-      pointB: b,
-      distance: dist,
-    } = getClosestEdgePoints(rectA, rectB);
+    const { pointA: a, pointB: b, xGap, yGap } = getEdgeData(rectA, rectB);
 
     const svgNS = 'http://www.w3.org/2000/svg';
     const svgEl = connectorLine as unknown as HTMLElement;
 
-    // If elements overlap, distance is 0 — hide connector, show label at overlap center
-    if (dist === 0) {
+    // Reset all labels
+    distanceLabel.style.display = 'none';
+    xDistanceLabel.style.display = 'none';
+    yDistanceLabel.style.display = 'none';
+
+    // Overlap case — elements share area on both axes
+    if (xGap === 0 && yGap === 0) {
       svgEl.style.display = 'none';
       const midX = (rectA.left + rectA.right + rectB.left + rectB.right) / 4;
       const midY = (rectA.top + rectA.bottom + rectB.top + rectB.bottom) / 4;
@@ -365,40 +401,98 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       `0 0 ${window.innerWidth} ${window.innerHeight}`,
     );
 
-    // Clear previous content
+    // Clear previous SVG content
     while (connectorLine.firstChild) {
       connectorLine.removeChild(connectorLine.firstChild);
     }
 
-    // Draw the line
-    const line = document.createElementNS(svgNS, 'line');
-    line.setAttribute('x1', String(a.x));
-    line.setAttribute('y1', String(a.y));
-    line.setAttribute('x2', String(b.x));
-    line.setAttribute('y2', String(b.y));
-    line.setAttribute('stroke', CONNECTOR_COLOR);
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('stroke-dasharray', '6 4');
-    connectorLine.appendChild(line);
+    if (xGap > 0 && yGap > 0) {
+      // L-shaped connector: horizontal segment then vertical segment
+      // Corner sits at (b.x, a.y) — horizontal from A, then vertical to B
+      const corner = { x: b.x, y: a.y };
 
-    // Draw endpoint circles
-    [a, b].forEach(point => {
-      const circle = document.createElementNS(svgNS, 'circle');
-      circle.setAttribute('cx', String(point.x));
-      circle.setAttribute('cy', String(point.y));
-      circle.setAttribute('r', '4');
-      circle.setAttribute('fill', CONNECTOR_COLOR);
-      connectorLine!.appendChild(circle);
-    });
+      const drawSegment = (
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+      ): void => {
+        const seg = document.createElementNS(svgNS, 'line');
+        seg.setAttribute('x1', String(x1));
+        seg.setAttribute('y1', String(y1));
+        seg.setAttribute('x2', String(x2));
+        seg.setAttribute('y2', String(y2));
+        seg.setAttribute('stroke', CONNECTOR_COLOR);
+        seg.setAttribute('stroke-width', '2');
+        seg.setAttribute('stroke-dasharray', '6 4');
+        connectorLine!.appendChild(seg);
+      };
 
-    // Position distance label at midpoint of the connector
-    const midX = (a.x + b.x) / 2;
-    const midY = (a.y + b.y) / 2;
-    distanceLabel.textContent = `${dist}px`;
-    distanceLabel.style.position = 'fixed';
-    distanceLabel.style.left = `${midX}px`;
-    distanceLabel.style.top = `${midY}px`;
-    distanceLabel.style.display = 'block';
+      // Horizontal: A edge → corner
+      drawSegment(a.x, a.y, corner.x, corner.y);
+      // Vertical: corner → B edge
+      drawSegment(corner.x, corner.y, b.x, b.y);
+
+      // Endpoint circles at A and B
+      [a, b].forEach(point => {
+        const circle = document.createElementNS(svgNS, 'circle');
+        circle.setAttribute('cx', String(point.x));
+        circle.setAttribute('cy', String(point.y));
+        circle.setAttribute('r', '4');
+        circle.setAttribute('fill', CONNECTOR_COLOR);
+        connectorLine!.appendChild(circle);
+      });
+
+      // Small dot at the corner
+      const cornerDot = document.createElementNS(svgNS, 'circle');
+      cornerDot.setAttribute('cx', String(corner.x));
+      cornerDot.setAttribute('cy', String(corner.y));
+      cornerDot.setAttribute('r', '3');
+      cornerDot.setAttribute('fill', CONNECTOR_COLOR);
+      cornerDot.setAttribute('opacity', '0.5');
+      connectorLine.appendChild(cornerDot);
+
+      // X label centred on the horizontal segment
+      xDistanceLabel.textContent = `${Math.round(xGap)}px`;
+      xDistanceLabel.style.position = 'fixed';
+      xDistanceLabel.style.left = `${(a.x + corner.x) / 2}px`;
+      xDistanceLabel.style.top = `${a.y}px`;
+      xDistanceLabel.style.display = 'block';
+
+      // Y label centred on the vertical segment
+      yDistanceLabel.textContent = `${Math.round(yGap)}px`;
+      yDistanceLabel.style.position = 'fixed';
+      yDistanceLabel.style.left = `${corner.x}px`;
+      yDistanceLabel.style.top = `${(corner.y + b.y) / 2}px`;
+      yDistanceLabel.style.display = 'block';
+    } else {
+      // Single-axis: one straight line with one label
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', String(a.x));
+      line.setAttribute('y1', String(a.y));
+      line.setAttribute('x2', String(b.x));
+      line.setAttribute('y2', String(b.y));
+      line.setAttribute('stroke', CONNECTOR_COLOR);
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('stroke-dasharray', '6 4');
+      connectorLine.appendChild(line);
+
+      [a, b].forEach(point => {
+        const circle = document.createElementNS(svgNS, 'circle');
+        circle.setAttribute('cx', String(point.x));
+        circle.setAttribute('cy', String(point.y));
+        circle.setAttribute('r', '4');
+        circle.setAttribute('fill', CONNECTOR_COLOR);
+        connectorLine!.appendChild(circle);
+      });
+
+      const dist = xGap > 0 ? Math.round(xGap) : Math.round(yGap);
+      distanceLabel.textContent = `${dist}px`;
+      distanceLabel.style.position = 'fixed';
+      distanceLabel.style.left = `${(a.x + b.x) / 2}px`;
+      distanceLabel.style.top = `${(a.y + b.y) / 2}px`;
+      distanceLabel.style.display = 'block';
+    }
   }
 
   /**
@@ -553,6 +647,8 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     secondSizeLabel = null;
     connectorLine = null;
     distanceLabel = null;
+    xDistanceLabel = null;
+    yDistanceLabel = null;
   }
 
   /**
