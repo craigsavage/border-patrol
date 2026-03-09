@@ -2,11 +2,13 @@ export interface IExtensionSettings {
   isRestricted: boolean;
   borderMode: boolean;
   inspectorMode: boolean;
+  measurementMode: boolean;
   borderSize: number;
   borderStyle: string;
   shortcuts: Record<string, string>;
   handleToggleBorderMode: (checked: boolean) => void;
   handleToggleInspectorMode: (checked: boolean) => void;
+  handleToggleMeasurementMode: (checked: boolean) => void;
   handleUpdateBorderSettings: (size: number, style: string) => void;
 }
 
@@ -15,9 +17,10 @@ export type MessageListenerType = (
     action: string;
     borderMode?: boolean;
     inspectorMode?: boolean;
+    measurementMode?: boolean;
   },
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: any) => void,
 ) => void;
 
 export interface IScreenshotCapture {

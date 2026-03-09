@@ -13,11 +13,6 @@ export interface FeatureToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   ariaLabel: string;
-  commandName: string;
-}
-
-export interface ShortcutInfoProps {
-  command: string;
 }
 
 export interface BorderSettingsProps {

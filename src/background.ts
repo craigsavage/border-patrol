@@ -43,7 +43,7 @@ async function getTabState(tabId: number): Promise<TabState> {
   } catch (error) {
     Logger.error(
       `Error retrieving tab state for tab ${tabId} from storage:`,
-      error
+      error,
     );
     // Return default state on error
     return { ...DEFAULT_TAB_STATE };
@@ -75,7 +75,7 @@ async function setTabState({
     });
     Logger.info(
       `Updated tab state for tab ${tabId} in storage:`,
-      cachedTabStates[tabIdString]
+      cachedTabStates[tabIdString],
     );
   } catch (error) {
     Logger.error(`Error setting tab state for tab ${tabId} in storage:`, error);
@@ -95,7 +95,8 @@ async function updateExtensionState(tabId: number): Promise<void> {
 
     const isRestricted = isRestrictedUrl(tab.url);
     const tabState = await getTabState(tabId);
-    const isActive = tabState.borderMode || tabState.inspectorMode;
+    const isActive =
+      tabState.borderMode || tabState.inspectorMode || tabState.measurementMode;
 
     // Set the extension title
     const title = isRestricted
@@ -190,6 +191,10 @@ async function sendContentScriptUpdates(tabId: number): Promise<void> {
     await chrome.tabs.sendMessage(tabId, {
       action: 'UPDATE_INSPECTOR_MODE',
       isEnabled: tabState.inspectorMode,
+    });
+    await chrome.tabs.sendMessage(tabId, {
+      action: 'UPDATE_MEASUREMENT_MODE',
+      isEnabled: tabState.measurementMode,
     });
     Logger.info(`Sent mode updates to tab ${tabId}:`, tabState);
 
@@ -303,7 +308,7 @@ chrome.runtime.onInstalled.addListener(
     } catch (error) {
       Logger.error('Error during onInstalled:', error);
     }
-  }
+  },
 );
 
 /**
@@ -317,7 +322,7 @@ chrome.tabs.onUpdated.addListener(
   async (
     tabId: number,
     changeInfo: { status?: string },
-    tab: chrome.tabs.Tab
+    tab: chrome.tabs.Tab,
   ) => {
     Logger.info('onUpdated', tabId, changeInfo, tab);
 
@@ -332,7 +337,7 @@ chrome.tabs.onUpdated.addListener(
         Logger.error(`Error in onUpdated for tab ${tabId}:`, error);
       }
     }
-  }
+  },
 );
 
 /**
@@ -369,14 +374,14 @@ chrome.tabs.onActivated.addListener(
       chrome.action.setTitle({ tabId, title: 'Border Patrol - Disabled' });
       chrome.action.setIcon({ tabId, path: ICON_PATHS.iconDisabled });
     }
-  }
+  },
 );
 
 // Handles clearing cache and storage on tab removal (when closing tabs)
 chrome.tabs.onRemoved.addListener(
   async (
     tabId: number,
-    removeInfo: { windowId: number; isWindowClosing: boolean }
+    removeInfo: { windowId: number; isWindowClosing: boolean },
   ) => {
     Logger.info('onRemoved', tabId, removeInfo);
 
@@ -390,7 +395,7 @@ chrome.tabs.onRemoved.addListener(
     } catch (error) {
       Logger.error(`Error clearing storage for tab ${tabId}:`, error);
     }
-  }
+  },
 );
 
 // Handles recieving messages from popup and content scripts
@@ -398,7 +403,7 @@ chrome.runtime.onMessage.addListener(
   async (
     request: any,
     sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: any) => void
+    sendResponse: (response?: any) => void,
   ) => {
     Logger.info('Received message:', request, 'from sender:', sender);
 
@@ -417,7 +422,7 @@ chrome.runtime.onMessage.addListener(
         const activeTabId = activeTab.id;
         Logger.info(
           `Handling popup message for active tab ${activeTabId}:`,
-          activeTab
+          activeTab,
         );
 
         // Receive message to toggle border mode
@@ -440,6 +445,16 @@ chrome.runtime.onMessage.addListener(
           });
           return true; // Indicate async handling
         }
+        // Receive message to toggle measurement mode
+        else if (request.action === 'TOGGLE_MEASUREMENT_MODE') {
+          const currentMeasurementState = await getTabState(activeTabId);
+          const newMeasurementState = !currentMeasurementState.measurementMode;
+          await handleTabStateChange({
+            tabId: activeTabId,
+            states: { measurementMode: newMeasurementState },
+          });
+          return true; // Indicate async handling
+        }
         // Receive message to update border settings
         else if (request.action === 'UPDATE_BORDER_SETTINGS') {
           // Get new border settings from request
@@ -459,7 +474,7 @@ chrome.runtime.onMessage.addListener(
             } catch (contentScriptError) {
               Logger.error(
                 `Error sending updated border settings to tab ${activeTabId}:`,
-                contentScriptError
+                contentScriptError,
               );
             }
           }
@@ -472,7 +487,7 @@ chrome.runtime.onMessage.addListener(
 
             if (!hasDownloadPermission) {
               Logger.warn(
-                'Attempted to take screenshot without download permission'
+                'Attempted to take screenshot without download permission',
               );
               return false;
             }
@@ -520,6 +535,12 @@ chrome.runtime.onMessage.addListener(
         sendResponse(tabState.inspectorMode);
         return true; // Indicate async handling
       }
+      // Recieve message to get measurement mode state
+      else if (request.action === 'GET_MEASUREMENT_MODE') {
+        const tabState = await getTabState(tabId);
+        sendResponse(tabState.measurementMode);
+        return true; // Indicate async handling
+      }
       // Recieve message to ping
       else if (request.action === 'PING') {
         // Respond to PING message for injection check
@@ -529,7 +550,7 @@ chrome.runtime.onMessage.addListener(
       // No action matched for content script message
       return false;
     }
-  }
+  },
 );
 
 // Handles keyboard shortcut commands
@@ -585,6 +606,31 @@ chrome.commands.onCommand.addListener(async (command: string) => {
       });
     } catch (error) {
       Logger.error(`Error toggling inspector mode for tab ${tabId}:`, error);
+      return;
+    }
+  }
+
+  // Toggle measurement mode for the active tab
+  else if (command === 'toggle_measurement_mode') {
+    let tabId;
+
+    try {
+      const activeTab = await getActiveTab();
+      if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url)) {
+        Logger.warn('Ignoring command on restricted or invalid tab.');
+        return;
+      }
+      tabId = activeTab.id;
+
+      const currentState = await getTabState(tabId);
+      const newState = !currentState.measurementMode;
+
+      await handleTabStateChange({
+        tabId,
+        states: { measurementMode: newState },
+      });
+    } catch (error) {
+      Logger.error(`Error toggling measurement mode for tab ${tabId}:`, error);
       return;
     }
   } else {
