@@ -4,13 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Fixed
-
-- Fixed issue with host page styles interfering with the extension's inspector overlay, ensuring a consistent and clear display of element information regardless of the website's own CSS.
-
 ### Added
 
 - Added a new Measurement Mode that allows users to click any two elements on the page and see the pixel distance between them, along with visual highlights and a connector line for better spatial understanding.
+
+### Changed
+
+- Synced Inspector Mode theme with the popup's dark mode setting for a more cohesive user experience.
+
+### Fixed
+
+- Fixed issue with host page styles interfering with the extension's inspector overlay, ensuring a consistent and clear display of element information regardless of the website's own CSS.
 
 ## [1.5.1] - 2025-12-07
 
