@@ -21,6 +21,8 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
   let secondBadge: HTMLElement | null = null;
   let connectorLine: SVGElement | null = null;
   let distanceLabel: HTMLElement | null = null;
+  let firstSizeLabel: HTMLElement | null = null;
+  let secondSizeLabel: HTMLElement | null = null;
 
   const HIGHLIGHT_COLOR = 'rgba(59, 130, 246, 0.15)';
   const OUTLINE_COLOR = 'rgba(59, 130, 246, 0.8)';
@@ -152,6 +154,26 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       measurementRoot.appendChild(distanceLabel);
     }
 
+    firstSizeLabel = measurementRoot.getElementById(
+      'bp-meas-first-size',
+    ) as HTMLElement | null;
+    if (!firstSizeLabel) {
+      firstSizeLabel = document.createElement('div');
+      firstSizeLabel.id = 'bp-meas-first-size';
+      firstSizeLabel.className = 'bp-meas-size bp-meas-size--first';
+      measurementRoot.appendChild(firstSizeLabel);
+    }
+
+    secondSizeLabel = measurementRoot.getElementById(
+      'bp-meas-second-size',
+    ) as HTMLElement | null;
+    if (!secondSizeLabel) {
+      secondSizeLabel = document.createElement('div');
+      secondSizeLabel.id = 'bp-meas-second-size';
+      secondSizeLabel.className = 'bp-meas-size bp-meas-size--second';
+      measurementRoot.appendChild(secondSizeLabel);
+    }
+
     // Restore selection visuals if elements were already selected before re-init,
     // otherwise ensure everything starts hidden.
     if (firstSelected || secondSelected) {
@@ -181,8 +203,10 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       hoverHighlight,
       firstHighlight,
       firstBadge,
+      firstSizeLabel,
       secondHighlight,
       secondBadge,
+      secondSizeLabel,
       distanceLabel,
     ].forEach(el => {
       if (el) el.style.display = 'none';
@@ -231,33 +255,73 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
   }
 
   /**
-   * Returns the center point of an element's bounding rect.
+   * Positions a size label below a target element and updates its text.
    *
-   * @param el - The element.
-   * @returns An object with x and y coordinates.
+   * @param label - The size label element.
+   * @param target - The target DOM element.
    */
-  function getCenter(el: HTMLElement): { x: number; y: number } {
-    const rect = el.getBoundingClientRect();
-    return {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
+  function positionSizeLabel(label: HTMLElement, target: HTMLElement): void {
+    const rect = target.getBoundingClientRect();
+    label.textContent = `${Math.round(rect.width)} × ${Math.round(rect.height)}px`;
+    label.style.position = 'fixed';
+    label.style.left = `${rect.left + rect.width / 2}px`;
+    label.style.top = `${rect.bottom + 4}px`;
+    label.style.display = 'block';
   }
 
   /**
-   * Calculates the Euclidean distance between two points.
+   * Returns the closest edge points between two DOMRects and the minimum
+   * edge-to-edge pixel distance between them.
    *
-   * @param a - First point.
-   * @param b - Second point.
-   * @returns The pixel distance, rounded.
+   * @param a - The first element's bounding rect.
+   * @param b - The second element's bounding rect.
+   * @returns The closest point on each rect's boundary and the gap distance.
    */
-  function calcDistance(
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-  ): number {
-    return Math.round(
-      Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2)),
-    );
+  function getClosestEdgePoints(
+    a: DOMRect,
+    b: DOMRect,
+  ): {
+    pointA: { x: number; y: number };
+    pointB: { x: number; y: number };
+    distance: number;
+  } {
+    // Horizontal component
+    let ax: number, bx: number;
+    if (a.right <= b.left) {
+      ax = a.right;
+      bx = b.left;
+    } else if (b.right <= a.left) {
+      ax = a.left;
+      bx = b.right;
+    } else {
+      const xMid = (Math.max(a.left, b.left) + Math.min(a.right, b.right)) / 2;
+      ax = xMid;
+      bx = xMid;
+    }
+
+    // Vertical component
+    let ay: number, by: number;
+    if (a.bottom <= b.top) {
+      ay = a.bottom;
+      by = b.top;
+    } else if (b.bottom <= a.top) {
+      ay = a.top;
+      by = b.bottom;
+    } else {
+      const yMid = (Math.max(a.top, b.top) + Math.min(a.bottom, b.bottom)) / 2;
+      ay = yMid;
+      by = yMid;
+    }
+
+    const dx = bx - ax;
+    const dy = by - ay;
+    const distance = Math.round(Math.sqrt(dx * dx + dy * dy));
+
+    return {
+      pointA: { x: ax, y: ay },
+      pointB: { x: bx, y: by },
+      distance,
+    };
   }
 
   /** Draws the SVG connector line and distance label between the two selected elements. */
@@ -265,12 +329,29 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     if (!firstSelected || !secondSelected || !connectorLine || !distanceLabel)
       return;
 
-    const a = getCenter(firstSelected);
-    const b = getCenter(secondSelected);
-    const dist = calcDistance(a, b);
+    const rectA = firstSelected.getBoundingClientRect();
+    const rectB = secondSelected.getBoundingClientRect();
+    const {
+      pointA: a,
+      pointB: b,
+      distance: dist,
+    } = getClosestEdgePoints(rectA, rectB);
 
     const svgNS = 'http://www.w3.org/2000/svg';
     const svgEl = connectorLine as unknown as HTMLElement;
+
+    // If elements overlap, distance is 0 — hide connector, show label at overlap center
+    if (dist === 0) {
+      svgEl.style.display = 'none';
+      const midX = (rectA.left + rectA.right + rectB.left + rectB.right) / 4;
+      const midY = (rectA.top + rectA.bottom + rectB.top + rectB.bottom) / 4;
+      distanceLabel.textContent = '0px';
+      distanceLabel.style.position = 'fixed';
+      distanceLabel.style.left = `${midX}px`;
+      distanceLabel.style.top = `${midY}px`;
+      distanceLabel.style.display = 'block';
+      return;
+    }
 
     // Size the SVG to cover the viewport
     svgEl.style.position = 'fixed';
@@ -310,7 +391,7 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       connectorLine!.appendChild(circle);
     });
 
-    // Position distance label at midpoint
+    // Position distance label at midpoint of the connector
     const midX = (a.x + b.x) / 2;
     const midY = (a.y + b.y) / 2;
     distanceLabel.textContent = `${dist}px`;
@@ -332,11 +413,17 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     if (firstSelected && firstBadge) {
       positionBadge(firstBadge, firstSelected);
     }
+    if (firstSelected && firstSizeLabel) {
+      positionSizeLabel(firstSizeLabel, firstSelected);
+    }
     if (secondSelected && secondHighlight) {
       positionHighlight(secondHighlight, secondSelected, true);
     }
     if (secondSelected && secondBadge) {
       positionBadge(secondBadge, secondSelected);
+    }
+    if (secondSelected && secondSizeLabel) {
+      positionSizeLabel(secondSizeLabel, secondSelected);
     }
     if (firstSelected && secondSelected) {
       drawConnector();
@@ -409,12 +496,14 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       if (hoverHighlight) hoverHighlight.style.display = 'none';
       if (firstHighlight) positionHighlight(firstHighlight, target, true);
       if (firstBadge) positionBadge(firstBadge, target);
+      if (firstSizeLabel) positionSizeLabel(firstSizeLabel, target);
     } else if (!secondSelected && target !== firstSelected) {
       // Second selection
       secondSelected = target;
       if (hoverHighlight) hoverHighlight.style.display = 'none';
       if (secondHighlight) positionHighlight(secondHighlight, target, true);
       if (secondBadge) positionBadge(secondBadge, target);
+      if (secondSizeLabel) positionSizeLabel(secondSizeLabel, target);
       drawConnector();
     }
   }
@@ -458,8 +547,10 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     hoverHighlight = null;
     firstHighlight = null;
     firstBadge = null;
+    firstSizeLabel = null;
     secondHighlight = null;
     secondBadge = null;
+    secondSizeLabel = null;
     connectorLine = null;
     distanceLabel = null;
   }
