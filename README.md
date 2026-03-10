@@ -25,7 +25,7 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 
 1. Navigate to any webpage you want to inspect or debug.
 2. Click the Border Patrol extension icon in your browser toolbar (_**Pro tip**: pin the extension so you can access it faster_).
-3. **Toggle Borders:** Click the "Toggle Borders" switch in the popup or use the keyboard shortcut to instantly outline all elements on the current page.
+3. **Border Mode**: Toggle the "Toggle Border Mode" switch to apply colorful outlines to all elements on the page. Use the "Border Settings" controls to adjust the outline size and style to your liking.
    - Adjust outline **size** and **style** using the controls under **Border Settings**.
 4. **Toggle Inspector Mode:** Use the "Toggle Inspector Mode" switch in the popup to activate the element information overlay. Hover over elements to see their details.
 5. **Toggle Measurement Mode:** Use the "Toggle Measurement Mode" switch in the popup to measure the distance between any two elements.
