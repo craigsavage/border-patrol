@@ -12,6 +12,7 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 - **Measurement Mode:** Click any two elements to instantly measure the pixel distance between them. Selected elements are highlighted with a color-coded overlay, and a dashed connector line with the distance in px is drawn between them. Press `Escape` to reset.
 - **Customizable Appearance:** Tailor the outlines to your preference by easily adjusting their size (from `1px` to `3px`) and style (`solid, dashed, dotted, double`) via the extension's intuitive popup menu.
 - **Screenshot Capture:** Easily capture and download screenshots of the current page with your outlined elements, perfect for documentation, bug reports, or sharing layout feedback with your team.
+- **Right-Click Context Menu:** Quickly toggle any mode directly from the browser's right-click context menu — no need to open the popup.
 - **Dark Mode:** Save your eyes by switching between Light and Dark mode in the popup menu.
 - **Language Support:** Currently supports translations for Spanish, French, and German. More to come...
 
@@ -24,8 +25,8 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 ### How to Use
 
 1. Navigate to any webpage you want to inspect or debug.
-2. Click the Border Patrol extension icon in your browser toolbar (_**Pro tip**: pin the extension so you can access it faster_).
-3. **Toggle Borders:** Click the "Toggle Borders" switch in the popup or use the keyboard shortcut to instantly outline all elements on the current page.
+2. Click the Border Patrol extension icon in your browser toolbar (_**Pro tip**: pin the extension so you can access it faster_), use a keyboard shortcut, or **right-click anywhere on the page** and select an option from the **Border Patrol** context menu.
+3. **Border Mode**: Toggle the "Toggle Border Mode" switch to apply colorful outlines to all elements on the page. Use the "Border Settings" controls to adjust the outline size and style to your liking.
    - Adjust outline **size** and **style** using the controls under **Border Settings**.
 4. **Toggle Inspector Mode:** Use the "Toggle Inspector Mode" switch in the popup to activate the element information overlay. Hover over elements to see their details.
 5. **Toggle Measurement Mode:** Use the "Toggle Measurement Mode" switch in the popup to measure the distance between any two elements.
@@ -34,7 +35,15 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
    - Click a second element to select it (green highlight + "2nd" badge) — a dashed line and distance in `px` appear between them.
    - Press `Escape` or click again to reset the selection.
 
-### Keyboard Shortcut
+### Right-Click Context Menu
+
+Right-click anywhere on a page to access the **Border Patrol** sub-menu and instantly toggle any mode without opening the popup:
+
+- **Toggle Border Mode**
+- **Toggle Inspector Mode**
+- **Toggle Measurement Mode**
+
+### Keyboard Shortcuts
 
 Toggle Border Patrol ON or OFF instantly with a customizable keyboard shortcut.
 
@@ -42,7 +51,7 @@ Toggle Border Patrol ON or OFF instantly with a customizable keyboard shortcut.
 - Toggle Inspector Mode: `Alt` + `Shift` + `I` (Default)
 - Toggle Measurement Mode: `Alt` + `Shift` + `M` (Default)
 
-You can customize this shortcut in your Chrome browser by navigating to `chrome://extensions/shortcuts`.
+You can customize these shortcuts in your Chrome browser by navigating to `chrome://extensions/shortcuts`.
 
 ### Contributing
 

@@ -276,6 +276,43 @@ async function captureAndDownloadScreenshot(windowId: number): Promise<void> {
 }
 
 /**
+ * Creates the "Border Patrol" context menu with sub-items to toggle each mode.
+ * Removes any existing items first to avoid duplicates on reinstall.
+ */
+function setupContextMenu(): void {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: 'bp-parent',
+      title: chrome.i18n.getMessage('extensionName'),
+      contexts: ['all'],
+    });
+
+    chrome.contextMenus.create({
+      id: 'bp-toggle-border-mode',
+      parentId: 'bp-parent',
+      title: chrome.i18n.getMessage('toggleBorderModeCommand'),
+      contexts: ['all'],
+    });
+
+    chrome.contextMenus.create({
+      id: 'bp-toggle-inspector-mode',
+      parentId: 'bp-parent',
+      title: chrome.i18n.getMessage('toggleInspectorModeCommand'),
+      contexts: ['all'],
+    });
+
+    chrome.contextMenus.create({
+      id: 'bp-toggle-measurement-mode',
+      parentId: 'bp-parent',
+      title: chrome.i18n.getMessage('toggleMeasurementModeCommand'),
+      contexts: ['all'],
+    });
+
+    Logger.info('Context menu created.');
+  });
+}
+
+/**
  * Executed when the extension is installed or updated.
  * Initializes default settings and potentially clears old per-tab state keys.
  */
@@ -308,6 +345,9 @@ chrome.runtime.onInstalled.addListener(
     } catch (error) {
       Logger.error('Error during onInstalled:', error);
     }
+
+    // Set up the right-click context menu
+    setupContextMenu();
   },
 );
 
@@ -637,3 +677,50 @@ chrome.commands.onCommand.addListener(async (command: string) => {
     Logger.warn('Unknown command received:', command);
   }
 });
+
+/**
+ * Handles clicks on the right-click context menu items.
+ * Toggles the corresponding mode for the tab the menu was opened on.
+ *
+ * @param info - Data about the menu item that was clicked.
+ * @param tab - The tab in which the menu was triggered.
+ */
+chrome.contextMenus.onClicked.addListener(
+  async (info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) => {
+    Logger.info('Context menu clicked:', info.menuItemId, tab);
+
+    if (!tab?.id || !tab?.url || isRestrictedUrl(tab.url)) {
+      Logger.warn('Context menu clicked on restricted or invalid tab.');
+      return;
+    }
+
+    const tabId = tab.id;
+
+    try {
+      if (info.menuItemId === 'bp-toggle-border-mode') {
+        const currentState = await getTabState(tabId);
+        await handleTabStateChange({
+          tabId,
+          states: { borderMode: !currentState.borderMode },
+        });
+      } else if (info.menuItemId === 'bp-toggle-inspector-mode') {
+        const currentState = await getTabState(tabId);
+        await handleTabStateChange({
+          tabId,
+          states: { inspectorMode: !currentState.inspectorMode },
+        });
+      } else if (info.menuItemId === 'bp-toggle-measurement-mode') {
+        const currentState = await getTabState(tabId);
+        await handleTabStateChange({
+          tabId,
+          states: { measurementMode: !currentState.measurementMode },
+        });
+      }
+    } catch (error) {
+      Logger.error(
+        `Error handling context menu click "${info.menuItemId}" for tab ${tabId}:`,
+        error,
+      );
+    }
+  },
+);
