@@ -42,48 +42,64 @@ When suggesting an enhancement, please include:
 
 Code contributions are very welcome! If you'd like to contribute code, please follow these steps:
 
-1.  **Fork the Repository:** Fork the [Border Patrol repository](https://github.com/craigsavage/border-patrol) to your personal GitHub account.
-2.  **Clone Your Fork:** Clone your forked repository to your local machine.
-    ```bash
-    git clone https://github.com/YOUR_GITHUB_USERNAME/border-patrol.git
-    cd border-patrol
-    ```
-    Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username.
-3.  **Set Up Upstream:** Add the original repository as an upstream remote to keep your fork updated.
-    ```bash
-    git remote add upstream https://github.com/craigsavage/border-patrol.git
-    ```
-4.  **Sync with Upstream:** Before starting work, sync your `dev` branch with the latest changes from the main repository's `dev` branch.
-    ```bash
-    git fetch upstream
-    git checkout dev
-    git merge upstream/dev
-    ```
-5.  **Create a New Branch:** Create a new branch for your contribution based on the `dev` branch. Use a descriptive name related to your work.
-    ```bash
-    git checkout -b your-contribution-branch-name dev
-    ```
-6.  **Set up the Development Environment:**
-    - Open Google Chrome.
-    - Go to `chrome://extensions/`.
-    - Enable "Developer mode" using the toggle switch in the top right.
-    - Click the "Load unpackaged" button in the top left.
-    - Select the root directory of your cloned Border Patrol repository on your local machine.
-    - The extension should now load in Chrome. You can test your changes locally. Click the refresh icon under the extension on `chrome://extensions/` to reload it after making code modifications.
-7.  **Implement Your Changes:** Write your code, fix the bug, or implement the feature in your new branch.
-8.  **Test Your Changes:** Thoroughly test your changes in the Chrome development environment to ensure they work correctly, address the intended issue or feature, and do not introduce new bugs. Test across different websites if relevant.
-9.  **Commit Your Changes:** Commit your changes with clear, descriptive commit messages. Aim for concise summaries in the first line and more detail in the body if needed.
-    ```bash
-    git add .
-    git commit -m "feat: Briefly describe your feature or fix"
-    ```
+1. **Fork the Repository:** Fork the [Border Patrol repository](https://github.com/craigsavage/border-patrol) to your personal GitHub account.
+2. **Clone Your Fork:** Clone your forked repository to your local machine.
+
+   ```bash
+   git clone https://github.com/YOUR_GITHUB_USERNAME/border-patrol.git
+   cd border-patrol
+   ```
+
+   Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username.
+
+3. **Set Up Upstream:** Add the original repository as an upstream remote to keep your fork updated.
+
+   ```bash
+   git remote add upstream https://github.com/craigsavage/border-patrol.git
+   ```
+
+4. **Sync with Upstream:** Before starting work, sync your local `dev` branch with the latest changes from the main repository's `dev` branch.
+
+   ```bash
+   git fetch upstream
+   git checkout dev
+   git merge upstream/dev
+   ```
+
+5. **Create a New Branch:** Create a new branch for your contribution based on `dev`. Use a descriptive name related to your work.
+
+   ```bash
+   git checkout -b your-contribution-branch-name dev
+   ```
+
+6. **Set up the Development Environment:**
+   - Open Google Chrome.
+   - Go to `chrome://extensions/`.
+   - Enable "Developer mode" using the toggle switch in the top right.
+   - Click the "Load unpackaged" button in the top left.
+   - Select the root directory of your cloned Border Patrol repository on your local machine.
+   - The extension should now load in Chrome. You can test your changes locally. Click the refresh icon under the extension on `chrome://extensions/` to reload it after making code modifications.
+7. **Implement Your Changes:** Write your code, fix the bug, or implement the feature in your new branch.
+8. **Test Your Changes:** Thoroughly test your changes in the Chrome development environment to ensure they work correctly, address the intended issue or feature, and do not introduce new bugs. Test across different websites if relevant.
+9. **Commit Your Changes:** Commit your changes with clear, descriptive commit messages. Aim for concise summaries in the first line and more detail in the body if needed.
+
+   ```bash
+   git add .
+   git commit -m "feat: Briefly describe your feature or fix"
+   ```
+
 10. **Push Your Branch:** Push your branch to your fork on GitHub.
+
     ```bash
     git push origin your-contribution-branch-name
     ```
+
 11. **Open a Pull Request (PR):** Go to the original [Border Patrol repository](https://github.com/craigsavage/border-patrol) on GitHub. You should see a prompt to compare & create a pull request from your new branch.
-    - **Ensure the pull request is targeting the `dev` branch** of the main repository.
-    - Provide a clear title and description for your pull request, explaining the changes you've made. Reference any related issues by number (e.g., `Closes #42`, `Fixes #123`).
+
+- **Ensure the pull request is targeting the `dev` branch** of the main repository.
+- Provide a clear title and description for your pull request, explaining the changes you've made. Reference any related issues by number (e.g., `Closes #42`, `Fixes #123`).
+
+> **Note:** The `main` branch is reserved for releases only. All feature and bug fix pull requests should target the `dev` branch.
 
 #### Code Style
 

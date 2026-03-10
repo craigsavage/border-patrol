@@ -1,11 +1,19 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extensionLongName__",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "__MSG_extensionDescription__",
   "default_locale": "en",
-  "permissions": ["scripting", "storage", "activeTab", "downloads"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "scripting",
+    "storage",
+    "activeTab",
+    "downloads",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "action": {
     "default_title": "__MSG_extensionName__",
     "default_popup": "popup/menu.html"
@@ -34,6 +42,13 @@
         "mac": "Alt+Shift+I"
       },
       "description": "__MSG_toggleInspectorModeCommand__"
+    },
+    "toggle_measurement_mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+M",
+        "mac": "Alt+Shift+M"
+      },
+      "description": "__MSG_toggleMeasurementModeCommand__"
     }
   },
   "web_accessible_resources": [
@@ -44,7 +59,9 @@
         "assets/fonts/Inter-VariableFont_opsz_wght.woff2",
         "assets/fonts/Grandstander-VariableFont_wght.woff2"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

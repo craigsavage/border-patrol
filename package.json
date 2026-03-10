@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "border-patrol",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Are you tired of digging through complex CSS and hovering endlessly in DevTools just to figure out element boundaries, margins, and padding? **Border Patrol** is the free and open-source Chrome extension built to solve that frustration!",
   "main": "src/background.js",
   "scripts": {
@@ -68,7 +68,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "antd": "^6.0.1",
+    "antd": "^6.3.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   }

@@ -134,5 +134,25 @@
   "none": {
     "message": "None",
     "description": "Indicates that no option is selected."
+  },
+  "measurementMode": {
+    "message": "Measurement Mode",
+    "description": "Label for toggling measurement mode."
+  },
+  "enableOrDisableMeasurement": {
+    "message": "Enable or Disable Measurement Mode",
+    "description": "Instruction to enable or disable measurement mode."
+  },
+  "measurementFirst": {
+    "message": "1st",
+    "description": "Badge label for the first selected element in measurement mode."
+  },
+  "measurementSecond": {
+    "message": "2nd",
+    "description": "Badge label for the second selected element in measurement mode."
+  },
+  "toggleMeasurementModeCommand": {
+    "message": "Toggle Measurement Mode",
+    "description": "Command description for toggling Measurement Mode in manifest."
   }
 }

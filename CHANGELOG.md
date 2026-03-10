@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-03-09
+
+### Added
+
+- Added a new Measurement Mode that allows users to click any two elements on the page and see the pixel distance between them, along with visual highlights and a connector line for better spatial understanding.
+- Added a right-click context menu for quick access to toggle Border Mode, Inspector Mode, and Measurement Mode without needing to open the popup.
+
+### Changed
+
+- Synced Inspector Mode theme with the popup's dark mode setting for a more cohesive user experience.
+
+### Fixed
+
+- Fixed issue with host page styles interfering with the extension's inspector overlay, ensuring a consistent and clear display of element information regardless of the website's own CSS.
+
 ## [1.5.1] - 2025-12-07
 
 ### Added

@@ -19,10 +19,12 @@ export default function AppContent(): React.ReactElement {
     isRestricted,
     borderMode,
     inspectorMode,
+    measurementMode,
     borderSize,
     borderStyle,
     handleToggleBorderMode,
     handleToggleInspectorMode,
+    handleToggleMeasurementMode,
     handleUpdateBorderSettings,
   } = useExtensionSettings();
 
@@ -50,7 +52,6 @@ export default function AppContent(): React.ReactElement {
               checked={borderMode}
               onChange={handleToggleBorderMode}
               ariaLabel={translate('enableOrDisableBorders')}
-              commandName='toggle_border_mode'
             />
             <FeatureToggle
               label={translate('inspectorMode')}
@@ -58,7 +59,13 @@ export default function AppContent(): React.ReactElement {
               checked={inspectorMode}
               onChange={handleToggleInspectorMode}
               ariaLabel={translate('enableOrDisableInspectors')}
-              commandName='toggle_inspector_mode'
+            />
+            <FeatureToggle
+              label={translate('measurementMode')}
+              id='measurement-mode'
+              checked={measurementMode}
+              onChange={handleToggleMeasurementMode}
+              ariaLabel={translate('enableOrDisableMeasurement')}
             />
           </Space>
 

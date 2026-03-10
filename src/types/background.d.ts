@@ -7,6 +7,7 @@
 export type TabState = {
   borderMode: boolean;
   inspectorMode: boolean;
+  measurementMode: boolean;
 };
 
 /**
