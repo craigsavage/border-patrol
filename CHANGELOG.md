@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added a new Measurement Mode that allows users to click any two elements on the page and see the pixel distance between them, along with visual highlights and a connector line for better spatial understanding.
+- Added a right-click context menu for quick access to toggle Border Mode, Inspector Mode, and Measurement Mode without needing to open the popup.
 
 ### Changed
 
