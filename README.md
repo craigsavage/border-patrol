@@ -11,7 +11,9 @@ It's a powerful visual debugging tool that instantly reveals the structure and b
 - **Detailed Element Inspector:** Activate Inspector Mode and simply hover over any element on the page to view a real-time overlay displaying its tag name, precise dimensions (`width` x `height`), and computed border, margin, and padding styles.
 - **Measurement Mode:** Click any two elements to instantly measure the pixel distance between them. Selected elements are highlighted with a color-coded overlay, and a dashed connector line with the distance in px is drawn between them. Press `Escape` to reset.
 - **Customizable Appearance:** Tailor the outlines to your preference by easily adjusting their size (from `1px` to `3px`) and style (`solid, dashed, dotted, double`) via the extension's intuitive popup menu.
-- **Screenshot Capture:** Easily capture and download screenshots of the current page with your outlined elements, perfect for documentation, bug reports, or sharing layout feedback with your team.
+- **Screenshot Capture:** Capture screenshots of the page with Border Mode outlines applied. Choose between two modes:
+  - **Visible**: Captures only the currently visible portion of the page (the viewport).
+  - **Full Page**: Captures the entire scrollable page, automatically scrolling and stitching together all content (even content outside the viewport). This is ideal for documentation, bug reports, or sharing a complete layout snapshot.
 - **Right-Click Context Menu:** Quickly toggle any mode directly from the browser's right-click context menu — no need to open the popup.
 - **Dark Mode:** Save your eyes by switching between Light and Dark mode in the popup menu.
 - **Language Support:** Currently supports translations for Spanish, French, and German. More to come...
