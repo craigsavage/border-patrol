@@ -9,11 +9,10 @@
     "storage",
     "activeTab",
     "downloads",
-    "contextMenus"
+    "contextMenus",
+    "offscreen"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "host_permissions": ["<all_urls>"],
   "action": {
     "default_title": "__MSG_extensionName__",
     "default_popup": "popup/menu.html"
@@ -59,9 +58,7 @@
         "assets/fonts/Inter-VariableFont_opsz_wght.woff2",
         "assets/fonts/Grandstander-VariableFont_wght.woff2"
       ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "matches": ["<all_urls>"]
     }
   ]
 }

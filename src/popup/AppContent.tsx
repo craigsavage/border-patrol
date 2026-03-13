@@ -32,6 +32,7 @@ export default function AppContent(): React.ReactElement {
     hasDownloadPermission,
     requestDownloadPermission,
     handleCaptureScreenshot,
+    handleCaptureFullScreenshot,
   } = useScreenshotCapture(isRestricted);
 
   const { translate } = useTranslation();
@@ -83,6 +84,7 @@ export default function AppContent(): React.ReactElement {
             hasDownloadPermission={hasDownloadPermission}
             onRequestPermission={requestDownloadPermission}
             onCaptureScreenshot={handleCaptureScreenshot}
+            onCaptureFullScreenshot={handleCaptureFullScreenshot}
           />
         </Space>
       )}

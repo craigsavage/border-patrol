@@ -5,3 +5,4 @@ import '../styles/main-content.scss';
 import './border';
 import './overlay';
 import './measurement';
+import './fullpage';

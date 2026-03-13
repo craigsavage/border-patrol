@@ -25,6 +25,7 @@ export interface ScreenshotSectionProps {
   hasDownloadPermission: boolean;
   onRequestPermission: () => Promise<boolean>;
   onCaptureScreenshot: () => Promise<boolean>;
+  onCaptureFullScreenshot: () => Promise<boolean>;
 }
 
 /** A type representing a notification message. */

@@ -276,6 +276,138 @@ async function captureAndDownloadScreenshot(windowId: number): Promise<void> {
 }
 
 /**
+ * Ensures that the offscreen document used for canvas stitching exists.
+ * Creates it only if no offscreen context is already open.
+ */
+async function ensureOffscreenDocument(): Promise<void> {
+  const url = chrome.runtime.getURL('offscreen/offscreen.html');
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: [chrome.runtime.ContextType.OFFSCREEN_DOCUMENT],
+    documentUrls: [url],
+  });
+  if (existingContexts.length > 0) return;
+
+  await chrome.offscreen.createDocument({
+    url,
+    reasons: [chrome.offscreen.Reason.DOM_SCRAPING],
+    justification: 'Canvas stitching for full-page screenshot',
+  });
+}
+
+interface StitchFrame {
+  dataUrl: string;
+  x: number;
+  y: number;
+}
+
+/**
+ * Scrolls a tab through its full height and width, captures each viewport,
+ * stitches the frames in an offscreen document, then downloads the result.
+ *
+ * @param tabId - The ID of the tab to capture.
+ * @param windowId - The window ID used by captureVisibleTab.
+ */
+async function captureAndDownloadFullPageScreenshot(
+  tabId: number,
+  windowId: number,
+): Promise<void> {
+  const format = 'png';
+
+  // 1. Get full page dimensions and save the original scroll position.
+  const dims = (await chrome.tabs.sendMessage(tabId, {
+    action: 'GET_PAGE_DIMENSIONS',
+  })) as {
+    scrollHeight: number;
+    scrollWidth: number;
+    viewportHeight: number;
+    viewportWidth: number;
+    scrollX: number;
+    scrollY: number;
+  };
+
+  Logger.info('Full-page capture: page dimensions', dims);
+
+  const {
+    scrollHeight,
+    scrollWidth,
+    viewportHeight,
+    viewportWidth,
+    scrollX: origX,
+    scrollY: origY,
+  } = dims;
+
+  const frames: StitchFrame[] = [];
+
+  try {
+    // 2. Loop through rows and columns, capturing each viewport-sized region.
+    for (let y = 0; y < scrollHeight; y += viewportHeight) {
+      for (let x = 0; x < scrollWidth; x += viewportWidth) {
+        // Scroll the page and wait for repaint.
+        const actual = (await chrome.tabs.sendMessage(tabId, {
+          action: 'SCROLL_TO',
+          x,
+          y,
+        })) as { scrollX: number; scrollY: number };
+
+        // Capture the visible area after scrolling.
+        const dataUrl = await chrome.tabs.captureVisibleTab(windowId, {
+          format,
+        });
+
+        frames.push({ dataUrl, x: actual.scrollX, y: actual.scrollY });
+        Logger.info(
+          `Full-page capture: frame at (${actual.scrollX}, ${actual.scrollY})`,
+        );
+      }
+    }
+  } finally {
+    // 3. Restore the original scroll position regardless of errors.
+    await chrome.tabs.sendMessage(tabId, {
+      action: 'RESTORE_SCROLL',
+      x: origX,
+      y: origY,
+    });
+  }
+
+  // 4. Stitch frames in the offscreen document.
+  await ensureOffscreenDocument();
+
+  const stitchResponse = await new Promise<{
+    dataUrl?: string;
+    error?: string;
+  }>(resolve => {
+    chrome.runtime.sendMessage(
+      {
+        action: 'STITCH_FRAMES',
+        frames,
+        totalWidth: scrollWidth,
+        totalHeight: scrollHeight,
+        viewportWidth,
+        viewportHeight,
+      },
+      response => resolve(response),
+    );
+  });
+
+  if (stitchResponse.error || !stitchResponse.dataUrl) {
+    throw new Error(
+      `Full-page stitch failed: ${stitchResponse.error ?? 'no data URL returned'}`,
+    );
+  }
+
+  // 5. Download the stitched image.
+  const filename = getTimestampedScreenshotFilename(format);
+  await chrome.downloads.download({
+    url: stitchResponse.dataUrl,
+    filename,
+    saveAs: true,
+    conflictAction: 'uniquify',
+  });
+
+  Logger.info('Full-page screenshot downloaded:', filename);
+}
+
+/**
  * Creates the "Border Patrol" context menu with sub-items to toggle each mode.
  * Removes any existing items first to avoid duplicates on reinstall.
  */
@@ -544,6 +676,34 @@ chrome.runtime.onMessage.addListener(
           } catch (error) {
             Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);
             return false; // Indicate failure
+          }
+        }
+        // Handle full-page screenshot request from popup
+        else if (request.action === 'CAPTURE_FULL_SCREENSHOT') {
+          try {
+            const hasDownloadPermission = await hasPermission('downloads');
+
+            if (!hasDownloadPermission) {
+              Logger.warn(
+                'Attempted to take full-page screenshot without download permission',
+              );
+              return false;
+            }
+
+            if (!activeTab || !activeTab.id || !activeTab.windowId) {
+              Logger.error('No active tab available for full-page screenshot');
+              return false;
+            }
+
+            await captureAndDownloadFullPageScreenshot(
+              activeTab.id,
+              activeTab.windowId,
+            );
+            sendResponse(true);
+            return true;
+          } catch (error) {
+            Logger.error('Error in CAPTURE_FULL_SCREENSHOT handler:', error);
+            return false;
           }
         } else {
           Logger.warn('Received unknown message from popup:', request);

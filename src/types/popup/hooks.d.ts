@@ -28,6 +28,7 @@ export interface IScreenshotCapture {
   checkDownloadPermission: () => Promise<boolean>;
   requestDownloadPermission: () => Promise<boolean>;
   handleCaptureScreenshot: () => Promise<boolean>;
+  handleCaptureFullScreenshot: () => Promise<boolean>;
 }
 
 export interface IDarkMode {
