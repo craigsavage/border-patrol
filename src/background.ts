@@ -301,6 +301,15 @@ interface StitchFrame {
 }
 
 /**
+ * Returns a promise that resolves after the specified number of milliseconds.
+ *
+ * @param ms - Milliseconds to wait.
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
  * Scrolls a tab through its full height and width, captures each viewport,
  * stitches the frames in an offscreen document, then downloads the result.
  *
@@ -312,6 +321,10 @@ async function captureAndDownloadFullPageScreenshot(
   windowId: number,
 ): Promise<void> {
   const format = 'png';
+
+  // Chrome's captureVisibleTab is rate-limited to ~2 calls/second.
+  // We enforce a minimum interval between captures to avoid the quota error.
+  const MIN_CAPTURE_INTERVAL_MS = 600;
 
   // 1. Get full page dimensions and save the original scroll position.
   const dims = (await chrome.tabs.sendMessage(tabId, {
@@ -340,6 +353,8 @@ async function captureAndDownloadFullPageScreenshot(
 
   try {
     // 2. Loop through rows and columns, capturing each viewport-sized region.
+    let lastCaptureTime = 0;
+
     for (let y = 0; y < scrollHeight; y += viewportHeight) {
       for (let x = 0; x < scrollWidth; x += viewportWidth) {
         // Scroll the page and wait for repaint.
@@ -349,10 +364,17 @@ async function captureAndDownloadFullPageScreenshot(
           y,
         })) as { scrollX: number; scrollY: number };
 
+        // Enforce the minimum interval between captureVisibleTab calls.
+        const elapsed = Date.now() - lastCaptureTime;
+        if (elapsed < MIN_CAPTURE_INTERVAL_MS) {
+          await sleep(MIN_CAPTURE_INTERVAL_MS - elapsed);
+        }
+
         // Capture the visible area after scrolling.
         const dataUrl = await chrome.tabs.captureVisibleTab(windowId, {
           format,
         });
+        lastCaptureTime = Date.now();
 
         frames.push({ dataUrl, x: actual.scrollX, y: actual.scrollY });
         Logger.info(
