@@ -13,6 +13,7 @@ interface StitchFramesRequest {
   totalHeight: number;
   viewportWidth: number;
   viewportHeight: number;
+  devicePixelRatio: number;
 }
 
 /**
@@ -33,11 +34,16 @@ function loadImage(dataUrl: string): Promise<HTMLImageElement> {
 /**
  * Stitches multiple screenshot frames onto a canvas and returns the result as a data URL.
  *
- * @param frames - Array of frame objects with dataUrl and position (x, y).
- * @param totalWidth - The total width of the full-page canvas in pixels.
- * @param totalHeight - The total height of the full-page canvas in pixels.
- * @param viewportWidth - The width of the captured viewport (used for clipping edge frames).
- * @param viewportHeight - The height of the captured viewport (used for clipping edge frames).
+ * Each frame captured by captureVisibleTab is in physical pixels (CSS pixels × dpr).
+ * The canvas is therefore sized in physical pixels too, and all draw coordinates
+ * are scaled by dpr so frames land in the correct position.
+ *
+ * @param frames - Array of frame objects with dataUrl and CSS-pixel position (x, y).
+ * @param totalWidth - Total page width in CSS pixels.
+ * @param totalHeight - Total page height in CSS pixels.
+ * @param viewportWidth - Viewport width in CSS pixels.
+ * @param viewportHeight - Viewport height in CSS pixels.
+ * @param dpr - Device pixel ratio of the captured tab.
  * @returns A promise that resolves to a PNG data URL of the stitched image.
  */
 async function stitchFrames(
@@ -46,10 +52,12 @@ async function stitchFrames(
   totalHeight: number,
   viewportWidth: number,
   viewportHeight: number,
+  dpr: number,
 ): Promise<string> {
   const canvas = document.createElement('canvas');
-  canvas.width = totalWidth;
-  canvas.height = totalHeight;
+  // Size the canvas in physical pixels.
+  canvas.width = Math.round(totalWidth * dpr);
+  canvas.height = Math.round(totalHeight * dpr);
   const ctx = canvas.getContext('2d');
 
   if (!ctx) {
@@ -59,21 +67,20 @@ async function stitchFrames(
   for (const frame of frames) {
     const img = await loadImage(frame.dataUrl);
 
-    // Clip the drawn region to the actual page area — the last row/col may be
-    // smaller than a full viewport if the page doesn't divide evenly.
-    const drawWidth = Math.min(viewportWidth, totalWidth - frame.x);
-    const drawHeight = Math.min(viewportHeight, totalHeight - frame.y);
+    // Physical-pixel clip: last row/col may be a partial viewport.
+    const drawWidth = Math.min(viewportWidth, totalWidth - frame.x) * dpr;
+    const drawHeight = Math.min(viewportHeight, totalHeight - frame.y) * dpr;
 
     ctx.drawImage(
       img,
       0,
       0,
       drawWidth,
-      drawHeight, // source rect (from top-left of captured viewport)
-      frame.x,
-      frame.y,
+      drawHeight, // source rect (physical pixels from top-left of frame)
+      Math.round(frame.x * dpr), // destination x (physical pixels on full canvas)
+      Math.round(frame.y * dpr), // destination y
       drawWidth,
-      drawHeight, // destination rect on the full canvas
+      drawHeight, // destination size
     );
   }
 
@@ -93,6 +100,7 @@ chrome.runtime.onMessage.addListener(
       frames: request.frames.length,
       totalWidth: request.totalWidth,
       totalHeight: request.totalHeight,
+      devicePixelRatio: request.devicePixelRatio,
     });
 
     stitchFrames(
@@ -101,6 +109,7 @@ chrome.runtime.onMessage.addListener(
       request.totalHeight,
       request.viewportWidth,
       request.viewportHeight,
+      request.devicePixelRatio ?? 1,
     )
       .then(dataUrl => {
         Logger.info('Offscreen: stitching complete');

@@ -336,6 +336,7 @@ async function captureAndDownloadFullPageScreenshot(
     viewportWidth: number;
     scrollX: number;
     scrollY: number;
+    devicePixelRatio: number;
   };
 
   Logger.info('Full-page capture: page dimensions', dims);
@@ -347,9 +348,13 @@ async function captureAndDownloadFullPageScreenshot(
     viewportWidth,
     scrollX: origX,
     scrollY: origY,
+    devicePixelRatio,
   } = dims;
 
   const frames: StitchFrame[] = [];
+
+  // Hide fixed/sticky elements so they don't repeat in every captured frame.
+  await chrome.tabs.sendMessage(tabId, { action: 'HIDE_FIXED_ELEMENTS' });
 
   try {
     // 2. Loop through rows and columns, capturing each viewport-sized region.
@@ -383,7 +388,8 @@ async function captureAndDownloadFullPageScreenshot(
       }
     }
   } finally {
-    // 3. Restore the original scroll position regardless of errors.
+    // 3. Restore fixed/sticky elements and the original scroll position.
+    await chrome.tabs.sendMessage(tabId, { action: 'RESTORE_FIXED_ELEMENTS' });
     await chrome.tabs.sendMessage(tabId, {
       action: 'RESTORE_SCROLL',
       x: origX,
@@ -406,6 +412,7 @@ async function captureAndDownloadFullPageScreenshot(
         totalHeight: scrollHeight,
         viewportWidth,
         viewportHeight,
+        devicePixelRatio,
       },
       response => resolve(response),
     );
