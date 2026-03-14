@@ -59,7 +59,7 @@ You can customize these shortcuts in your Chrome browser by navigating to `chrom
 
 Border Patrol is an open-source project that thrives on community contributions, embracing transparency and collaboration. We welcome and value contributions, whether it's a new feature idea, bug fix, or code improvement, to continually enhance the project.
 
-Please see the [CONTRIBUTING](CONTRIBUTING.md) file for more detailed guidelines on contributing. Pull requests should target the `develop` branch.
+Please see the [CONTRIBUTING](CONTRIBUTING.md) file for more detailed guidelines on contributing. Pull requests should target the `dev` branch.
 
 ### Feedback and Support 💬
 
