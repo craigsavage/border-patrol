@@ -16,6 +16,10 @@ interface StitchFramesRequest {
   devicePixelRatio: number;
 }
 
+interface PingRequest {
+  action: 'OFFSCREEN_PING';
+}
+
 /**
  * Loads an image from a data URL.
  *
@@ -95,10 +99,15 @@ async function stitchFrames(
 // Listen for the STITCH_FRAMES message from the background service worker
 chrome.runtime.onMessage.addListener(
   (
-    request: StitchFramesRequest,
+    request: StitchFramesRequest | PingRequest,
     _sender: chrome.runtime.MessageSender,
-    sendResponse: (response: { dataUrl?: string; error?: string }) => void,
+    sendResponse: (response: unknown) => void,
   ) => {
+    if (request.action === 'OFFSCREEN_PING') {
+      sendResponse({ ready: true });
+      return false;
+    }
+
     if (request.action !== 'STITCH_FRAMES') return false;
 
     Logger.info('Offscreen: received STITCH_FRAMES request', {

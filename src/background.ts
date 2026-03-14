@@ -294,6 +294,33 @@ async function ensureOffscreenDocument(): Promise<void> {
   });
 }
 
+/**
+ * Polls the offscreen document with an OFFSCREEN_PING until it responds or
+ * the maximum number of attempts is exhausted. This guards against the race
+ * where createDocument() resolves before the offscreen page has registered
+ * its onMessage listener.
+ *
+ * @param maxAttempts - Maximum ping attempts before giving up.
+ * @param intervalMs - Delay between attempts in milliseconds.
+ */
+async function waitForOffscreenReady(
+  maxAttempts = 20,
+  intervalMs = 50,
+): Promise<void> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'OFFSCREEN_PING',
+      });
+      if (response?.ready) return;
+    } catch {
+      // Offscreen listener not yet registered; retry after a short delay.
+    }
+    await sleep(intervalMs);
+  }
+  Logger.warn('Offscreen document did not become ready in time');
+}
+
 interface StitchFrame {
   dataUrl: string;
   x: number;
@@ -403,6 +430,7 @@ async function captureAndDownloadFullPageScreenshot(
 
   // 4. Stitch frames in the offscreen document.
   await ensureOffscreenDocument();
+  await waitForOffscreenReady();
 
   const stitchResponse = await new Promise<{
     dataUrl?: string;

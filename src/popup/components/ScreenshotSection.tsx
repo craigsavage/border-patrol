@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { Button, Space, Alert, Segmented } from 'antd';
-import type {
-  ScreenshotSectionProps,
-  NotificationType,
-} from '../../types/popup/components';
+import { Button, Space, Segmented } from 'antd';
+import type { ScreenshotSectionProps } from '../../types/popup/components';
 import { useTranslation } from '../hooks/useTranslation';
 
 type CaptureMode = 'visible' | 'fullPage';
@@ -27,9 +24,6 @@ export default function ScreenshotSection({
   const { translate } = useTranslation();
   const [isCapturing, setIsCapturing] = useState<boolean>(false);
   const [captureMode, setCaptureMode] = useState<CaptureMode>('visible');
-  const [notification, setNotification] = useState<NotificationType | null>(
-    null,
-  );
 
   /**
    * Handles the screenshot capture process for the selected mode.
@@ -40,18 +34,10 @@ export default function ScreenshotSection({
   const handleTakeScreenshot = async () => {
     if (!hasDownloadPermission) {
       const granted = await onRequestPermission();
-      if (!granted) {
-        setNotification({
-          message: translate('downloadPermissionDenied'),
-          type: 'error',
-        });
-        setTimeout(() => setNotification(null), 3000);
-        return;
-      }
+      if (!granted) return;
     }
 
     setIsCapturing(true);
-    setNotification({ message: translate('capturing'), type: 'info' });
 
     try {
       if (captureMode === 'fullPage') {
@@ -63,41 +49,11 @@ export default function ScreenshotSection({
       console.error('Error in handleTakeScreenshot:', error);
     } finally {
       setIsCapturing(false);
-      setNotification(null);
     }
   };
 
   return (
     <Space orientation='vertical' style={{ width: '100%' }}>
-      {!hasDownloadPermission && (
-        <Alert
-          title={translate('downloadPermissionRequired')}
-          type='warning'
-          action={
-            <Button size='small' type='primary' onClick={onRequestPermission}>
-              {translate('grantPermission')}
-            </Button>
-          }
-          style={{ marginBottom: '8px' }}
-        />
-      )}
-      <Segmented
-        block
-        value={captureMode}
-        onChange={value => setCaptureMode(value as CaptureMode)}
-        options={[
-          { label: translate('screenshotModeVisible'), value: 'visible' },
-          { label: translate('screenshotModeFullPage'), value: 'fullPage' },
-        ]}
-        disabled={isCapturing}
-      />
-      {notification && (
-        <Alert
-          title={notification.message}
-          type={notification.type}
-          style={{ width: '100%' }}
-        />
-      )}
       <Button
         type='primary'
         onClick={handleTakeScreenshot}
@@ -108,6 +64,16 @@ export default function ScreenshotSection({
           ? translate('capturing')
           : '📸 ' + translate('takeScreenshot')}
       </Button>
+      <Segmented
+        block
+        value={captureMode}
+        onChange={value => setCaptureMode(value as CaptureMode)}
+        options={[
+          { label: translate('screenshotModeVisible'), value: 'visible' },
+          { label: translate('screenshotModeFullPage'), value: 'fullPage' },
+        ]}
+        disabled={isCapturing}
+      />
     </Space>
   );
 }
