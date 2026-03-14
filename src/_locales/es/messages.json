@@ -103,6 +103,14 @@
     "message": "Tomar Captura de Pantalla",
     "description": "Button text for taking a screenshot."
   },
+  "screenshotModeVisible": {
+    "message": "Visible",
+    "description": "Segmented control option for capturing only the visible area of the page."
+  },
+  "screenshotModeFullPage": {
+    "message": "Página Completa",
+    "description": "Segmented control option for capturing the full scrollable page."
+  },
   "downloadPermissionRequired": {
     "message": "Se requiere permiso de descarga para capturas de pantalla",
     "description": "Indicates that download permission is required to take screenshots."

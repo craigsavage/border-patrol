@@ -137,6 +137,7 @@ const commonPlugins = [
       { src: 'src/assets/icons/*.png', dest: 'dist/assets/icons' },
       { src: 'src/assets/fonts/*.woff2', dest: 'dist/assets/fonts' },
       { src: 'src/_locales/**', dest: 'dist/_locales' },
+      { src: 'src/offscreen/offscreen.html', dest: 'dist/offscreen' },
       // Copy Ant Design styles
       {
         src: 'node_modules/antd/dist/reset.css',
@@ -187,6 +188,12 @@ const entryPoints = [
     output: 'popup/menu',
     format: 'iife', // IIFE
     cssFilename: 'menu.css',
+  },
+  {
+    input: 'src/offscreen/offscreen.ts',
+    output: 'offscreen/offscreen',
+    format: 'iife', // IIFE
+    cssFilename: null,
   },
 ];
 

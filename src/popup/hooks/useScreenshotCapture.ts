@@ -10,7 +10,7 @@ import Logger from '../../scripts/utils/logger';
  * @returns An object containing functions to check, request, and handle screenshot capture permissions.
  */
 export function useScreenshotCapture(
-  isAppRestricted: boolean
+  isAppRestricted: boolean,
 ): IScreenshotCapture {
   const [hasDownloadPermission, setHasDownloadPermission] =
     useState<boolean>(false);
@@ -79,6 +79,24 @@ export function useScreenshotCapture(
     }
   };
 
+  /**
+   * Handles capturing a full-page (scroll-and-stitch) screenshot by sending a message to the background script.
+   *
+   * @returns Returns a promise that resolves to true if the screenshot was captured successfully, otherwise false.
+   */
+  const handleCaptureFullScreenshot = async (): Promise<boolean> => {
+    try {
+      const success = await chrome.runtime.sendMessage({
+        action: 'CAPTURE_FULL_SCREENSHOT',
+      });
+      Logger.info('Full-page screenshot capture response:', success);
+      return success;
+    } catch (error) {
+      Logger.error('Error capturing full-page screenshot:', error);
+      return false;
+    }
+  };
+
   // Check download permission on mount if the app is not restricted
   useEffect(() => {
     if (!isAppRestricted) {
@@ -91,5 +109,6 @@ export function useScreenshotCapture(
     checkDownloadPermission,
     requestDownloadPermission,
     handleCaptureScreenshot,
+    handleCaptureFullScreenshot,
   };
 }

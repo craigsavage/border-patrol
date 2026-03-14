@@ -103,6 +103,14 @@
     "message": "Screenshot machen",
     "description": "Button text for taking a screenshot."
   },
+  "screenshotModeVisible": {
+    "message": "Sichtbar",
+    "description": "Segmented control option for capturing only the visible area of the page."
+  },
+  "screenshotModeFullPage": {
+    "message": "Ganze Seite",
+    "description": "Segmented control option for capturing the full scrollable page."
+  },
   "downloadPermissionRequired": {
     "message": "Download-Berechtigung für Screenshots erforderlich",
     "description": "Indicates that download permission is required to take screenshots."
