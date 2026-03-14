@@ -326,6 +326,10 @@ async function captureAndDownloadFullPageScreenshot(
   // We enforce a minimum interval between captures to avoid the quota error.
   const MIN_CAPTURE_INTERVAL_MS = 600;
 
+  // Ensure the fullpage content script is present before sending any messages.
+  // On freshly-installed or never-activated tabs, the listener won't exist yet.
+  await ensureScriptIsInjected(tabId);
+
   // 1. Get full page dimensions and save the original scroll position.
   const dims = (await chrome.tabs.sendMessage(tabId, {
     action: 'GET_PAGE_DIMENSIONS',

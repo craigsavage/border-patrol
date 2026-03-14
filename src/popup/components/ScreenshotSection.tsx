@@ -38,15 +38,6 @@ export default function ScreenshotSection({
    * to either the visible-area or full-page capture handler.
    */
   const handleTakeScreenshot = async () => {
-    if (
-      !onRequestPermission ||
-      !onCaptureScreenshot ||
-      !onCaptureFullScreenshot
-    ) {
-      console.error('Screenshot capture handlers are not available');
-      return;
-    }
-
     if (!hasDownloadPermission) {
       const granted = await onRequestPermission();
       if (!granted) {

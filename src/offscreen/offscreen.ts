@@ -68,8 +68,13 @@ async function stitchFrames(
     const img = await loadImage(frame.dataUrl);
 
     // Physical-pixel clip: last row/col may be a partial viewport.
-    const drawWidth = Math.min(viewportWidth, totalWidth - frame.x) * dpr;
-    const drawHeight = Math.min(viewportHeight, totalHeight - frame.y) * dpr;
+    // Round to integer physical pixels to avoid seams/blur when dpr is non-integer.
+    const drawWidth = Math.round(
+      Math.min(viewportWidth, totalWidth - frame.x) * dpr,
+    );
+    const drawHeight = Math.round(
+      Math.min(viewportHeight, totalHeight - frame.y) * dpr,
+    );
 
     ctx.drawImage(
       img,
