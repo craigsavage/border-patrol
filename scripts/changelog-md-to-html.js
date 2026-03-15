@@ -4,7 +4,7 @@ import prettier from 'prettier';
 
 // Define input and output paths for the changelog conversion
 const changelogMarkdownPath = 'CHANGELOG.md';
-const changelogHtmlPath = 'docs/changelog.html';
+const changelogHtmlPath = 'landing/changelog.html';
 
 // Read the markdown file
 const markdown = readFileSync(changelogMarkdownPath, 'utf-8');
