@@ -96,7 +96,10 @@ async function updateExtensionState(tabId: number): Promise<void> {
     const isRestricted = isRestrictedUrl(tab.url);
     const tabState = await getTabState(tabId);
     const isActive =
-      tabState.borderMode || tabState.inspectorMode || tabState.measurementMode || tabState.rulerMode;
+      tabState.borderMode ||
+      tabState.inspectorMode ||
+      tabState.measurementMode ||
+      tabState.rulerMode;
 
     // Set the extension title
     const title = isRestricted

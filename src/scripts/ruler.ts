@@ -33,18 +33,18 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   function getColors(): RulerColors {
     if (isDarkMode) {
       return {
-        bg: '#1c4e70',       // bp-blue-800
-        border: '#1d5a87',   // bp-blue-700
-        tick: '#92c7e7',     // bp-blue-300
-        label: '#c5e0f2',    // bp-blue-200
+        bg: '#1c4e70', // bp-blue-800
+        border: '#1d5a87', // bp-blue-700
+        tick: '#92c7e7', // bp-blue-300
+        label: '#c5e0f2', // bp-blue-200
         crosshair: '#aa4465', // bp-blush-600
       };
     }
     return {
-      bg: '#f2f8fd',        // bp-blue-50
-      border: '#c5e0f2',    // bp-blue-200
-      tick: '#57a9d9',      // bp-blue-400
-      label: '#1d5a87',     // bp-blue-700
+      bg: '#f2f8fd', // bp-blue-50
+      border: '#c5e0f2', // bp-blue-200
+      tick: '#57a9d9', // bp-blue-400
+      label: '#1d5a87', // bp-blue-700
       crosshair: '#aa4465', // bp-blush-600
     };
   }
@@ -198,11 +198,20 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
           : Math.round(ph * 0.3);
 
       ctx.fillStyle = colors.tick;
-      ctx.fillRect(x, ph - tickH - Math.max(1, dpr), Math.max(1, Math.round(dpr)), tickH);
+      ctx.fillRect(
+        x,
+        ph - tickH - Math.max(1, dpr),
+        Math.max(1, Math.round(dpr)),
+        tickH,
+      );
 
       if (isMajor) {
         ctx.fillStyle = colors.label;
-        ctx.fillText(String(page), x + Math.round(2 * dpr), Math.round(2 * dpr));
+        ctx.fillText(
+          String(page),
+          x + Math.round(2 * dpr),
+          Math.round(2 * dpr),
+        );
       }
     }
 
@@ -260,7 +269,12 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
           : Math.round(pw * 0.3);
 
       ctx.fillStyle = colors.tick;
-      ctx.fillRect(pw - tickW - Math.max(1, dpr), y, tickW, Math.max(1, Math.round(dpr)));
+      ctx.fillRect(
+        pw - tickW - Math.max(1, dpr),
+        y,
+        tickW,
+        Math.max(1, Math.round(dpr)),
+      );
 
       if (isMajor) {
         ctx.save();
