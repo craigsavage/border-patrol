@@ -19,6 +19,7 @@ export interface BorderSettingsProps {
   borderSize: number;
   borderStyle: string;
   onUpdateBorderSettings: (size: number, style: string) => void;
+  compact?: boolean;
 }
 
 export interface ScreenshotSectionProps {
