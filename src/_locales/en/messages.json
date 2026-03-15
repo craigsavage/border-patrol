@@ -162,5 +162,17 @@
   "toggleMeasurementModeCommand": {
     "message": "Toggle Measurement Mode",
     "description": "Command description for toggling Measurement Mode in manifest."
+  },
+  "rulerMode": {
+    "message": "Ruler Mode",
+    "description": "Label for toggling ruler mode."
+  },
+  "enableOrDisableRuler": {
+    "message": "Enable or Disable Ruler Mode",
+    "description": "Instruction to enable or disable ruler mode."
+  },
+  "toggleRulerModeCommand": {
+    "message": "Toggle Ruler Mode",
+    "description": "Command description for toggling Ruler Mode in manifest."
   }
 }
