@@ -182,6 +182,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
     ctx.font = `${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
 
     for (let page = startPage; page <= endPage; page += 50) {
       const screen = page - scrollX;
@@ -207,11 +208,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
       if (isMajor) {
         ctx.fillStyle = colors.label;
-        ctx.fillText(
-          String(page),
-          x + Math.round(2 * dpr),
-          Math.round(2 * dpr),
-        );
+        ctx.fillText(String(page), x, Math.round(2 * dpr));
       }
     }
 
@@ -280,9 +277,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         ctx.save();
         ctx.fillStyle = colors.label;
         ctx.textBaseline = 'middle';
-        ctx.textAlign = 'right';
+        ctx.textAlign = 'center';
         // Translate to the tick position and rotate -90° so number reads top-to-bottom from the ruler
-        ctx.translate(Math.round(pw * 0.5), y - Math.round(2 * dpr));
+        ctx.translate(Math.round(pw * 0.5), y);
         ctx.rotate(-Math.PI / 2);
         ctx.fillText(String(page), 0, 0);
         ctx.restore();
