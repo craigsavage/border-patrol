@@ -4,7 +4,6 @@ import { useTranslation } from '../hooks/useTranslation';
 
 /**
  * Component for border settings. Allows users to adjust the border size and style.
- * When `compact` is true, renders without the Card wrapper for use inside collapsed panels.
  */
 export default function BorderSettings({
   borderSize,
@@ -31,8 +30,11 @@ export default function BorderSettings({
   };
 
   const form = (
-    <Form layout='vertical' name='borderSettings'>
-      <Form.Item label={translate('size')} style={{ marginBottom: '4px' }}>
+    <Form layout='vertical' name='borderSettings' size='small'>
+      <Form.Item
+        label={translate('size')}
+        style={{ marginBottom: '4px', paddingBottom: '4px' }}
+      >
         <Slider
           min={1}
           max={3}
@@ -44,13 +46,15 @@ export default function BorderSettings({
         />
       </Form.Item>
 
-      <Form.Item label={translate('style')} style={{ marginBottom: '4px' }}>
+      <Form.Item
+        label={translate('style')}
+        style={{ marginBottom: '4px', paddingBottom: '4px' }}
+      >
         <Select
           value={borderStyle}
           onChange={handleStyleChange}
           aria-label={translate('borderStyle')}
           style={{ width: '100%' }}
-          size='small'
           options={[
             { value: 'solid', label: translate('solid') },
             { value: 'dashed', label: translate('dashed') },
