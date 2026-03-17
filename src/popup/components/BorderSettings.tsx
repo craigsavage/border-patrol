@@ -1,4 +1,4 @@
-import { Form, Slider, Select, Card } from 'antd';
+import { Form, Slider, Select } from 'antd';
 import type { BorderSettingsProps } from '../../types/popup/components';
 import { useTranslation } from '../hooks/useTranslation';
 
