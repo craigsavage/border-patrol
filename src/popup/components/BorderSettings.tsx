@@ -9,7 +9,6 @@ export default function BorderSettings({
   borderSize,
   borderStyle,
   onUpdateBorderSettings,
-  compact = false,
 }: BorderSettingsProps): React.ReactElement {
   const { translate } = useTranslation();
 
@@ -29,12 +28,9 @@ export default function BorderSettings({
     onUpdateBorderSettings(borderSize, value);
   };
 
-  const form = (
+  return (
     <Form layout='vertical' name='borderSettings' size='small'>
-      <Form.Item
-        label={translate('size')}
-        style={{ marginBottom: '4px', paddingBottom: '4px' }}
-      >
+      <Form.Item label={translate('size')} style={{ marginBottom: '4px' }}>
         <Slider
           min={1}
           max={3}
@@ -46,10 +42,7 @@ export default function BorderSettings({
         />
       </Form.Item>
 
-      <Form.Item
-        label={translate('style')}
-        style={{ marginBottom: '4px', paddingBottom: '4px' }}
-      >
+      <Form.Item label={translate('style')} style={{ marginBottom: '4px' }}>
         <Select
           value={borderStyle}
           onChange={handleStyleChange}
@@ -64,19 +57,5 @@ export default function BorderSettings({
         />
       </Form.Item>
     </Form>
-  );
-
-  if (compact) {
-    return form;
-  }
-
-  return (
-    <Card
-      title={translate('borderSettings')}
-      size='small'
-      style={{ width: '100%' }}
-    >
-      {form}
-    </Card>
   );
 }

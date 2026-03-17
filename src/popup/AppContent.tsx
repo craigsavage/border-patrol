@@ -77,7 +77,6 @@ export default function AppContent(): React.ReactElement {
                   label: translate('borderSettings'),
                   children: (
                     <BorderSettings
-                      compact
                       borderSize={borderSize}
                       borderStyle={borderStyle}
                       onUpdateBorderSettings={handleUpdateBorderSettings}

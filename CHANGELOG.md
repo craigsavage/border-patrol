@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - Added a new "Full Page" screenshot mode that captures the entire scrollable page, not just the visible viewport. This provides users with more comprehensive capture options for documentation and sharing.
 - Added a new "Visible Area" screenshot mode that captures only the currently visible portion of the page, allowing for quicker captures when the full page isn't needed. (Default mode)
 
+### Changed
+
+- Moved "Border Settings" into a collapsible panel within the popup for a cleaner and more organized UI. The settings are now hidden by default and can be expanded when needed.
+
 ## [1.6.0] - 2026-03-09
 
 ### Added
