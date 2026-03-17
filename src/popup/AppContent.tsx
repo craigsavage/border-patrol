@@ -1,4 +1,5 @@
-import { Space, Divider, Layout } from 'antd';
+import { useState, useEffect } from 'react';
+import { Space, Divider, Layout, Collapse } from 'antd';
 
 // Hooks
 import { useExtensionSettings } from './hooks/useExtensionSettings';
@@ -37,6 +38,12 @@ export default function AppContent(): React.ReactElement {
 
   const { translate } = useTranslation();
 
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(borderMode);
+
+  useEffect(() => {
+    setSettingsOpen(borderMode);
+  }, [borderMode]);
+
   return (
     <Layout style={{ padding: '16px', width: '100%' }}>
       <Header />
@@ -54,6 +61,30 @@ export default function AppContent(): React.ReactElement {
               onChange={handleToggleBorderMode}
               ariaLabel={translate('enableOrDisableBorders')}
             />
+            <Collapse
+              size='small'
+              activeKey={settingsOpen ? ['settings'] : []}
+              onChange={keys =>
+                setSettingsOpen(
+                  Array.isArray(keys)
+                    ? keys.includes('settings')
+                    : keys === 'settings',
+                )
+              }
+              items={[
+                {
+                  key: 'settings',
+                  label: translate('borderSettings'),
+                  children: (
+                    <BorderSettings
+                      borderSize={borderSize}
+                      borderStyle={borderStyle}
+                      onUpdateBorderSettings={handleUpdateBorderSettings}
+                    />
+                  ),
+                },
+              ]}
+            />
             <FeatureToggle
               label={translate('inspectorMode')}
               id='inspector-mode'
@@ -69,14 +100,6 @@ export default function AppContent(): React.ReactElement {
               ariaLabel={translate('enableOrDisableMeasurement')}
             />
           </Space>
-
-          <Divider size='small' />
-
-          <BorderSettings
-            borderSize={borderSize}
-            borderStyle={borderStyle}
-            onUpdateBorderSettings={handleUpdateBorderSettings}
-          />
 
           <Divider size='small' />
 
