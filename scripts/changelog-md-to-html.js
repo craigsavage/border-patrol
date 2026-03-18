@@ -14,6 +14,7 @@ const changelogHtml = marked.parse(markdown);
 
 // Basic HTML template
 const htmlTemplate = `
+<!-- NOTE: This file is auto-generated. Do not edit directly. -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
