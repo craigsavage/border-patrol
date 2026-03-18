@@ -51,9 +51,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         bg: '#333', // bp-dark-gray
         border: '#555', // mid-gray border
         tick: '#92c7e7', // bp-blue-300
-        tickDim: '#555', // same as border — barely visible inside selection
+        tickDim: '#6b7280', // mid-gray — muted but still readable inside selection
         label: '#c5e0f2', // bp-blue-200
-        labelDim: 'rgba(197, 224, 242, 0.25)', // bp-blue-200 at 25%
+        labelDim: 'rgba(197, 224, 242, 0.5)', // bp-blue-200 at 50%
         crosshair: '#aa4465', // bp-blush-600
         selectionFill: 'rgba(146, 199, 231, 0.3)', // bp-blue-300 at 30%
         selectionEdge: '#92c7e7', // bp-blue-300
@@ -63,9 +63,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       bg: '#f2f8fd', // bp-blue-50
       border: '#c5e0f2', // bp-blue-200
       tick: '#57a9d9', // bp-blue-400
-      tickDim: '#c5e0f2', // bp-blue-200 — recedes inside selection
+      tickDim: '#8ab7d3', // bp-blue-350 — lighter than tick but not invisible
       label: '#1d5a87', // bp-blue-700
-      labelDim: 'rgba(29, 90, 135, 0.25)', // bp-blue-700 at 25%
+      labelDim: 'rgba(29, 90, 135, 0.5)', // bp-blue-700 at 50%
       crosshair: '#aa4465', // bp-blush-600
       selectionFill: 'rgba(42, 125, 181, 0.5)', // bp-blue-500 at 50%
       selectionEdge: '#2a7db5', // bp-blue-500
@@ -283,29 +283,28 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       ctx.fillStyle = colors.selectionEdge;
       ctx.textBaseline = 'top';
       const labelY = Math.round(2 * dpr);
+      // Minimum canvas-pixel gap needed to fit a label outside; anything less forces inside.
+      const MIN_OUTSIDE = Math.round(20 * dpr);
+      const GAP = Math.round(4 * dpr);
 
-      // Start label — right-aligned just before the edge line, or left-aligned if at canvas start
+      // Start label — outside (to the left) unless the edge is too close to the canvas boundary
       const startLabelText = String(Math.round(rect.left));
-      if (startCanvasX > 2 * dpr) {
+      if (startCanvasX >= MIN_OUTSIDE) {
         ctx.textAlign = 'right';
-        ctx.fillText(startLabelText, startCanvasX - Math.round(dpr), labelY);
+        ctx.fillText(startLabelText, startCanvasX - GAP, labelY);
       } else {
         ctx.textAlign = 'left';
-        ctx.fillText(
-          startLabelText,
-          startCanvasX + Math.round(2 * dpr),
-          labelY,
-        );
+        ctx.fillText(startLabelText, startCanvasX + GAP, labelY);
       }
 
-      // End label — left-aligned just after the edge line, or right-aligned if at canvas end
+      // End label — outside (to the right) unless the edge is too close to the canvas right boundary
       const endLabelText = String(Math.round(rect.right));
-      if (endCanvasX < pw - 2 * dpr) {
+      if (endCanvasX <= pw - MIN_OUTSIDE) {
         ctx.textAlign = 'left';
-        ctx.fillText(endLabelText, endCanvasX + Math.round(2 * dpr), labelY);
+        ctx.fillText(endLabelText, endCanvasX + GAP, labelY);
       } else {
         ctx.textAlign = 'right';
-        ctx.fillText(endLabelText, endCanvasX - Math.round(dpr), labelY);
+        ctx.fillText(endLabelText, endCanvasX - GAP, labelY);
       }
     }
 
@@ -429,37 +428,37 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
       // Labels: page Y coordinate at each edge, rotated -90°
       ctx.fillStyle = colors.selectionEdge;
+      // Minimum canvas-pixel gap needed to fit a label outside; anything less forces inside.
+      const MIN_OUTSIDE = Math.round(20 * dpr);
+      const GAP = Math.round(4 * dpr);
 
-      // Start (top) label
+      // Start (top) label — outside means above the start line (negative rotated-x direction)
       const startLabelText = String(Math.round(rect.top));
       ctx.save();
       ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
       ctx.translate(Math.round(pw * 0.5), startCanvasY);
       ctx.rotate(-Math.PI / 2);
-      // Position label above the edge line (to its left when reading the rotated text)
-      if (startCanvasY > 2 * dpr) {
+      if (startCanvasY >= MIN_OUTSIDE) {
         ctx.textAlign = 'right';
-        ctx.fillText(startLabelText, -Math.round(dpr), 0);
+        ctx.fillText(startLabelText, -GAP, 0);
       } else {
         ctx.textAlign = 'left';
-        ctx.fillText(startLabelText, Math.round(2 * dpr), 0);
+        ctx.fillText(startLabelText, GAP, 0);
       }
       ctx.restore();
 
-      // End (bottom) label
+      // End (bottom) label — outside means below the end line (positive rotated-x direction)
       const endLabelText = String(Math.round(rect.bottom));
       ctx.save();
       ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
       ctx.translate(Math.round(pw * 0.5), endCanvasY);
       ctx.rotate(-Math.PI / 2);
-      if (endCanvasY < ph - 2 * dpr) {
+      if (endCanvasY <= ph - MIN_OUTSIDE) {
         ctx.textAlign = 'left';
-        ctx.fillText(endLabelText, Math.round(2 * dpr), 0);
+        ctx.fillText(endLabelText, GAP, 0);
       } else {
         ctx.textAlign = 'right';
-        ctx.fillText(endLabelText, -Math.round(dpr), 0);
+        ctx.fillText(endLabelText, -GAP, 0);
       }
       ctx.restore();
     }
