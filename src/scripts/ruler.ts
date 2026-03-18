@@ -33,8 +33,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   function getColors(): RulerColors {
     if (isDarkMode) {
       return {
-        bg: '#1c4e70', // bp-blue-800
-        border: '#1d5a87', // bp-blue-700
+        bg: '#333', // bp-dark-gray
+        border: '#555', // mid-gray border
         tick: '#92c7e7', // bp-blue-300
         label: '#c5e0f2', // bp-blue-200
         crosshair: '#aa4465', // bp-blush-600
@@ -216,7 +216,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     if (mouseX >= 0) {
       const cx = Math.round(mouseX * dpr);
       ctx.fillStyle = colors.crosshair;
-      ctx.fillRect(cx, 0, Math.max(1, Math.round(dpr)), ph);
+      ctx.fillRect(cx, 0, Math.max(2, Math.round(2 * dpr)), ph);
     }
   }
 
@@ -290,7 +290,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     if (mouseY >= 0) {
       const cy = Math.round(mouseY * dpr);
       ctx.fillStyle = colors.crosshair;
-      ctx.fillRect(0, cy, pw, Math.max(1, Math.round(dpr)));
+      ctx.fillRect(0, cy, pw, Math.max(2, Math.round(2 * dpr)));
     }
   }
 
