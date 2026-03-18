@@ -10,6 +10,17 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
   const RULER_SIZE = 20; // CSS pixels — thickness of each ruler bar
 
+  // Selection highlight state, fed by bp-measurement-selection events
+  interface SelectedPageRect {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    width: number;
+    height: number;
+  }
+  let selectedRects: SelectedPageRect[] = [];
+
   // Shadow DOM refs
   let rulerContainer: HTMLElement | null = null;
   let rulerRoot: ShadowRoot | null = null;
@@ -23,6 +34,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     tick: string;
     label: string;
     crosshair: string;
+    selectionFill: string;
+    selectionEdge: string;
   }
 
   /**
@@ -38,6 +51,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         tick: '#92c7e7', // bp-blue-300
         label: '#c5e0f2', // bp-blue-200
         crosshair: '#aa4465', // bp-blush-600
+        selectionFill: 'rgba(146, 199, 231, 0.3)', // bp-blue-300 at 30%
+        selectionEdge: '#92c7e7', // bp-blue-300
       };
     }
     return {
@@ -46,6 +61,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       tick: '#57a9d9', // bp-blue-400
       label: '#1d5a87', // bp-blue-700
       crosshair: '#aa4465', // bp-blush-600
+      selectionFill: 'rgba(87, 169, 217, 0.3)', // bp-blue-400 at 30%
+      selectionEdge: '#2a7db5', // bp-blue-500
     };
   }
 
@@ -212,6 +229,57 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       }
     }
 
+    // Selection range highlights from Measurement Mode
+    ctx.font = `bold ${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
+    for (const rect of selectedRects) {
+      const startScreenX = rect.left - scrollX;
+      const endScreenX = rect.right - scrollX;
+      const startCanvasX = Math.round(startScreenX * dpr);
+      const endCanvasX = Math.round(endScreenX * dpr);
+      const rangeW = endCanvasX - startCanvasX;
+      if (rangeW <= 0 || endCanvasX < 0 || startCanvasX > pw) continue;
+
+      // Filled band across the ruler height (excluding the bottom border pixel)
+      ctx.fillStyle = colors.selectionFill;
+      const clampedStart = Math.max(0, startCanvasX);
+      const clampedEnd = Math.min(pw, endCanvasX);
+      ctx.fillRect(clampedStart, 0, clampedEnd - clampedStart, ph - Math.max(1, dpr));
+
+      // Edge lines at start and end
+      ctx.fillStyle = colors.selectionEdge;
+      if (startCanvasX >= 0 && startCanvasX <= pw) {
+        ctx.fillRect(startCanvasX, 0, Math.max(1, Math.round(dpr)), ph);
+      }
+      if (endCanvasX >= 0 && endCanvasX <= pw) {
+        ctx.fillRect(endCanvasX, 0, Math.max(1, Math.round(dpr)), ph);
+      }
+
+      // Labels: page X coordinate at each edge
+      ctx.fillStyle = colors.selectionEdge;
+      ctx.textBaseline = 'top';
+      const labelY = Math.round(2 * dpr);
+
+      // Start label — right-aligned just before the edge line, or left-aligned if at canvas start
+      const startLabelText = String(Math.round(rect.left));
+      if (startCanvasX > 2 * dpr) {
+        ctx.textAlign = 'right';
+        ctx.fillText(startLabelText, startCanvasX - Math.round(dpr), labelY);
+      } else {
+        ctx.textAlign = 'left';
+        ctx.fillText(startLabelText, startCanvasX + Math.round(2 * dpr), labelY);
+      }
+
+      // End label — left-aligned just after the edge line, or right-aligned if at canvas end
+      const endLabelText = String(Math.round(rect.right));
+      if (endCanvasX < pw - 2 * dpr) {
+        ctx.textAlign = 'left';
+        ctx.fillText(endLabelText, endCanvasX + Math.round(2 * dpr), labelY);
+      } else {
+        ctx.textAlign = 'right';
+        ctx.fillText(endLabelText, endCanvasX - Math.round(dpr), labelY);
+      }
+    }
+
     // Blush crosshair line at mouse position
     if (mouseX >= 0) {
       const cx = Math.round(mouseX * dpr);
@@ -286,6 +354,68 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       }
     }
 
+    // Selection range highlights from Measurement Mode
+    ctx.font = `bold ${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
+    for (const rect of selectedRects) {
+      const startScreenY = rect.top - scrollY;
+      const endScreenY = rect.bottom - scrollY;
+      const startCanvasY = Math.round(startScreenY * dpr);
+      const endCanvasY = Math.round(endScreenY * dpr);
+      const rangeH = endCanvasY - startCanvasY;
+      if (rangeH <= 0 || endCanvasY < 0 || startCanvasY > ph) continue;
+
+      // Filled band across the ruler width (excluding the right border pixel)
+      ctx.fillStyle = colors.selectionFill;
+      const clampedStart = Math.max(0, startCanvasY);
+      const clampedEnd = Math.min(ph, endCanvasY);
+      ctx.fillRect(0, clampedStart, pw - Math.max(1, dpr), clampedEnd - clampedStart);
+
+      // Edge lines at top and bottom
+      ctx.fillStyle = colors.selectionEdge;
+      if (startCanvasY >= 0 && startCanvasY <= ph) {
+        ctx.fillRect(0, startCanvasY, pw, Math.max(1, Math.round(dpr)));
+      }
+      if (endCanvasY >= 0 && endCanvasY <= ph) {
+        ctx.fillRect(0, endCanvasY, pw, Math.max(1, Math.round(dpr)));
+      }
+
+      // Labels: page Y coordinate at each edge, rotated -90°
+      ctx.fillStyle = colors.selectionEdge;
+
+      // Start (top) label
+      const startLabelText = String(Math.round(rect.top));
+      ctx.save();
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.translate(Math.round(pw * 0.5), startCanvasY);
+      ctx.rotate(-Math.PI / 2);
+      // Position label above the edge line (to its left when reading the rotated text)
+      if (startCanvasY > 2 * dpr) {
+        ctx.textAlign = 'right';
+        ctx.fillText(startLabelText, -Math.round(dpr), 0);
+      } else {
+        ctx.textAlign = 'left';
+        ctx.fillText(startLabelText, Math.round(2 * dpr), 0);
+      }
+      ctx.restore();
+
+      // End (bottom) label
+      const endLabelText = String(Math.round(rect.bottom));
+      ctx.save();
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.translate(Math.round(pw * 0.5), endCanvasY);
+      ctx.rotate(-Math.PI / 2);
+      if (endCanvasY < ph - 2 * dpr) {
+        ctx.textAlign = 'left';
+        ctx.fillText(endLabelText, Math.round(2 * dpr), 0);
+      } else {
+        ctx.textAlign = 'right';
+        ctx.fillText(endLabelText, -Math.round(dpr), 0);
+      }
+      ctx.restore();
+    }
+
     // Blush crosshair line at mouse position
     if (mouseY >= 0) {
       const cy = Math.round(mouseY * dpr);
@@ -341,10 +471,28 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     scheduleRedraw();
   }
 
+  /**
+   * Handles bp-measurement-selection events dispatched by measurement.ts.
+   * Updates the stored selected page-coordinate rects and schedules a redraw.
+   *
+   * @param event - The CustomEvent carrying firstRect and secondRect.
+   */
+  function handleMeasurementSelection(event: Event): void {
+    const { firstRect, secondRect } = (event as CustomEvent).detail as {
+      firstRect: SelectedPageRect | null;
+      secondRect: SelectedPageRect | null;
+    };
+    selectedRects = [];
+    if (firstRect) selectedRects.push(firstRect);
+    if (secondRect) selectedRects.push(secondRect);
+    scheduleRedraw();
+  }
+
   function addEventListeners(): void {
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('bp-measurement-selection', handleMeasurementSelection);
     chrome.storage.onChanged.addListener(handleStorageChange);
   }
 
@@ -352,6 +500,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     document.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('scroll', handleScroll);
     window.removeEventListener('resize', handleResize);
+    window.removeEventListener('bp-measurement-selection', handleMeasurementSelection);
     chrome.storage.onChanged.removeListener(handleStorageChange);
   }
 
@@ -410,6 +559,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       removeElements();
       mouseX = -1;
       mouseY = -1;
+      selectedRects = [];
     }
   }
 
