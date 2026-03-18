@@ -84,7 +84,7 @@ async function setTabState({
 
 /**
  * Updates the extension state (icon and title) based on the active tab's state.
- * The extension is considered enabled if either borderMode or inspectorMode is enabled for the active tab.
+ * The extension is considered enabled if any mode is enabled for the active tab.
  *
  * @param tabId - The ID of the active tab.
  */
@@ -96,7 +96,10 @@ async function updateExtensionState(tabId: number): Promise<void> {
     const isRestricted = isRestrictedUrl(tab.url);
     const tabState = await getTabState(tabId);
     const isActive =
-      tabState.borderMode || tabState.inspectorMode || tabState.measurementMode;
+      tabState.borderMode ||
+      tabState.inspectorMode ||
+      tabState.measurementMode ||
+      tabState.rulerMode;
 
     // Set the extension title
     const title = isRestricted
@@ -195,6 +198,10 @@ async function sendContentScriptUpdates(tabId: number): Promise<void> {
     await chrome.tabs.sendMessage(tabId, {
       action: 'UPDATE_MEASUREMENT_MODE',
       isEnabled: tabState.measurementMode,
+    });
+    await chrome.tabs.sendMessage(tabId, {
+      action: 'UPDATE_RULER_MODE',
+      isEnabled: tabState.rulerMode,
     });
     Logger.info(`Sent mode updates to tab ${tabId}:`, tabState);
 
@@ -501,6 +508,13 @@ function setupContextMenu(): void {
       contexts: ['all'],
     });
 
+    chrome.contextMenus.create({
+      id: 'bp-toggle-ruler-mode',
+      parentId: 'bp-parent',
+      title: chrome.i18n.getMessage('toggleRulerModeCommand'),
+      contexts: ['all'],
+    });
+
     Logger.info('Context menu created.');
   });
 }
@@ -688,6 +702,16 @@ chrome.runtime.onMessage.addListener(
           });
           return true; // Indicate async handling
         }
+        // Receive message to toggle ruler mode
+        else if (request.action === 'TOGGLE_RULER_MODE') {
+          const currentRulerState = await getTabState(activeTabId);
+          const newRulerState = !currentRulerState.rulerMode;
+          await handleTabStateChange({
+            tabId: activeTabId,
+            states: { rulerMode: newRulerState },
+          });
+          return true; // Indicate async handling
+        }
         // Receive message to update border settings
         else if (request.action === 'UPDATE_BORDER_SETTINGS') {
           // Get new border settings from request
@@ -784,25 +808,31 @@ chrome.runtime.onMessage.addListener(
         sendResponse(tabId);
         return true; // Indicate async handling
       }
-      // Recieve message to get border mode state
+      // Receive message to get border mode state
       else if (request.action === 'GET_BORDER_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.borderMode);
         return true; // Indicate async handling
       }
-      // Recieve message to get inspector mode state
+      // Receive message to get inspector mode state
       else if (request.action === 'GET_INSPECTOR_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.inspectorMode);
         return true; // Indicate async handling
       }
-      // Recieve message to get measurement mode state
+      // Receive message to get measurement mode state
       else if (request.action === 'GET_MEASUREMENT_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.measurementMode);
         return true; // Indicate async handling
       }
-      // Recieve message to ping
+      // Receive message to get ruler mode state
+      else if (request.action === 'GET_RULER_MODE') {
+        const tabState = await getTabState(tabId);
+        sendResponse(tabState.rulerMode);
+        return true; // Indicate async handling
+      }
+      // Receive message to ping
       else if (request.action === 'PING') {
         // Respond to PING message for injection check
         sendResponse({ status: 'PONG' });
@@ -894,6 +924,31 @@ chrome.commands.onCommand.addListener(async (command: string) => {
       Logger.error(`Error toggling measurement mode for tab ${tabId}:`, error);
       return;
     }
+  }
+
+  // Toggle ruler mode for the active tab
+  else if (command === 'toggle_ruler_mode') {
+    let tabId;
+
+    try {
+      const activeTab = await getActiveTab();
+      if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url)) {
+        Logger.warn('Ignoring command on restricted or invalid tab.');
+        return;
+      }
+      tabId = activeTab.id;
+
+      const currentState = await getTabState(tabId);
+      const newState = !currentState.rulerMode;
+
+      await handleTabStateChange({
+        tabId,
+        states: { rulerMode: newState },
+      });
+    } catch (error) {
+      Logger.error(`Error toggling ruler mode for tab ${tabId}:`, error);
+      return;
+    }
   } else {
     Logger.warn('Unknown command received:', command);
   }
@@ -935,6 +990,12 @@ chrome.contextMenus.onClicked.addListener(
         await handleTabStateChange({
           tabId,
           states: { measurementMode: !currentState.measurementMode },
+        });
+      } else if (info.menuItemId === 'bp-toggle-ruler-mode') {
+        const currentState = await getTabState(tabId);
+        await handleTabStateChange({
+          tabId,
+          states: { rulerMode: !currentState.rulerMode },
         });
       }
     } catch (error) {

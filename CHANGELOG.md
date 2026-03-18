@@ -7,7 +7,8 @@ All notable changes to this project will be documented in this file.
 #### Added
 
 - Added a new "Full Page" screenshot mode that captures the entire scrollable page, not just the visible viewport. This provides users with more comprehensive capture options for documentation and sharing.
-- Added a new "Visible Area" screenshot mode that captures only the currently visible portion of the page, allowing for quicker captures when the full page isn't needed. (Default mode)
+- Added options to switch between "Full Page" and "Visible" screenshot modes, allowing users to choose the most suitable capture method for their needs. (Default: "Visible")
+- Added "Ruler Mode" that displays horizontal and vertical rulers along the edges of the viewport, showing pixel measurements to help with layout and spacing analysis.
 
 ### Changed
 

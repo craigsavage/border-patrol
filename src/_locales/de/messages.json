@@ -162,5 +162,17 @@
   "toggleMeasurementModeCommand": {
     "message": "Messmodus umschalten",
     "description": "Command description for toggling Measurement Mode in manifest."
+  },
+  "rulerMode": {
+    "message": "Lineal-Modus",
+    "description": "Label for toggling ruler mode."
+  },
+  "enableOrDisableRuler": {
+    "message": "Lineal-Modus aktivieren oder deaktivieren",
+    "description": "Instruction to enable or disable ruler mode."
+  },
+  "toggleRulerModeCommand": {
+    "message": "Lineal-Modus umschalten",
+    "description": "Command description for toggling Ruler Mode in manifest."
   }
 }

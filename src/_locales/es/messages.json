@@ -162,5 +162,17 @@
   "toggleMeasurementModeCommand": {
     "message": "Alternar Modo de Medición",
     "description": "Command description for toggling Measurement Mode in manifest."
+  },
+  "rulerMode": {
+    "message": "Modo Regla",
+    "description": "Label for toggling ruler mode."
+  },
+  "enableOrDisableRuler": {
+    "message": "Activar o desactivar el modo regla",
+    "description": "Instruction to enable or disable ruler mode."
+  },
+  "toggleRulerModeCommand": {
+    "message": "Alternar Modo Regla",
+    "description": "Command description for toggling Ruler Mode in manifest."
   }
 }

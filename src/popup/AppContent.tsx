@@ -21,11 +21,13 @@ export default function AppContent(): React.ReactElement {
     borderMode,
     inspectorMode,
     measurementMode,
+    rulerMode,
     borderSize,
     borderStyle,
     handleToggleBorderMode,
     handleToggleInspectorMode,
     handleToggleMeasurementMode,
+    handleToggleRulerMode,
     handleUpdateBorderSettings,
   } = useExtensionSettings();
 
@@ -98,6 +100,13 @@ export default function AppContent(): React.ReactElement {
               checked={measurementMode}
               onChange={handleToggleMeasurementMode}
               ariaLabel={translate('enableOrDisableMeasurement')}
+            />
+            <FeatureToggle
+              label={translate('rulerMode')}
+              id='ruler-mode'
+              checked={rulerMode}
+              onChange={handleToggleRulerMode}
+              ariaLabel={translate('enableOrDisableRuler')}
             />
           </Space>
 

@@ -48,6 +48,13 @@
         "mac": "Alt+Shift+M"
       },
       "description": "__MSG_toggleMeasurementModeCommand__"
+    },
+    "toggle_ruler_mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+R",
+        "mac": "Alt+Shift+R"
+      },
+      "description": "__MSG_toggleRulerModeCommand__"
     }
   },
   "web_accessible_resources": [
