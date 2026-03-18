@@ -61,7 +61,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       tick: '#57a9d9', // bp-blue-400
       label: '#1d5a87', // bp-blue-700
       crosshair: '#aa4465', // bp-blush-600
-      selectionFill: 'rgba(87, 169, 217, 0.3)', // bp-blue-400 at 30%
+      selectionFill: 'rgba(42, 125, 181, 0.5)', // bp-blue-500 at 50%
       selectionEdge: '#2a7db5', // bp-blue-500
     };
   }
@@ -243,7 +243,12 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       ctx.fillStyle = colors.selectionFill;
       const clampedStart = Math.max(0, startCanvasX);
       const clampedEnd = Math.min(pw, endCanvasX);
-      ctx.fillRect(clampedStart, 0, clampedEnd - clampedStart, ph - Math.max(1, dpr));
+      ctx.fillRect(
+        clampedStart,
+        0,
+        clampedEnd - clampedStart,
+        ph - Math.max(1, dpr),
+      );
 
       // Edge lines at start and end
       ctx.fillStyle = colors.selectionEdge;
@@ -266,7 +271,11 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         ctx.fillText(startLabelText, startCanvasX - Math.round(dpr), labelY);
       } else {
         ctx.textAlign = 'left';
-        ctx.fillText(startLabelText, startCanvasX + Math.round(2 * dpr), labelY);
+        ctx.fillText(
+          startLabelText,
+          startCanvasX + Math.round(2 * dpr),
+          labelY,
+        );
       }
 
       // End label — left-aligned just after the edge line, or right-aligned if at canvas end
@@ -368,7 +377,12 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       ctx.fillStyle = colors.selectionFill;
       const clampedStart = Math.max(0, startCanvasY);
       const clampedEnd = Math.min(ph, endCanvasY);
-      ctx.fillRect(0, clampedStart, pw - Math.max(1, dpr), clampedEnd - clampedStart);
+      ctx.fillRect(
+        0,
+        clampedStart,
+        pw - Math.max(1, dpr),
+        clampedEnd - clampedStart,
+      );
 
       // Edge lines at top and bottom
       ctx.fillStyle = colors.selectionEdge;
@@ -472,19 +486,38 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   }
 
   /**
-   * Handles bp-measurement-selection events dispatched by measurement.ts.
-   * Updates the stored selected page-coordinate rects and schedules a redraw.
+   * Handles click events for ruler selection highlighting.
+   * Clicking any page element replaces the previous ruler selection with that element's bounds.
+   * Does not consume the event so normal page behaviour is preserved.
    *
-   * @param event - The CustomEvent carrying firstRect and secondRect.
+   * @param event - The mouse event.
    */
-  function handleMeasurementSelection(event: Event): void {
-    const { firstRect, secondRect } = (event as CustomEvent).detail as {
-      firstRect: SelectedPageRect | null;
-      secondRect: SelectedPageRect | null;
-    };
-    selectedRects = [];
-    if (firstRect) selectedRects.push(firstRect);
-    if (secondRect) selectedRects.push(secondRect);
+  function handleRulerClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target || !(target instanceof HTMLElement)) return;
+
+    // Ignore clicks on the ruler itself and other BP UI containers
+    if (
+      rulerContainer &&
+      (rulerContainer === target || rulerContainer.contains(target))
+    )
+      return;
+    for (const id of ['bp-measurement-container', 'bp-inspector-container']) {
+      const el = document.getElementById(id);
+      if (el && (el === target || el.contains(target))) return;
+    }
+
+    const r = target.getBoundingClientRect();
+    selectedRects = [
+      {
+        left: r.left + window.scrollX,
+        right: r.right + window.scrollX,
+        top: r.top + window.scrollY,
+        bottom: r.bottom + window.scrollY,
+        width: r.width,
+        height: r.height,
+      },
+    ];
     scheduleRedraw();
   }
 
@@ -492,7 +525,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
-    window.addEventListener('bp-measurement-selection', handleMeasurementSelection);
+    document.addEventListener('click', handleRulerClick, true);
     chrome.storage.onChanged.addListener(handleStorageChange);
   }
 
@@ -500,7 +533,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     document.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('scroll', handleScroll);
     window.removeEventListener('resize', handleResize);
-    window.removeEventListener('bp-measurement-selection', handleMeasurementSelection);
+    document.removeEventListener('click', handleRulerClick, true);
     chrome.storage.onChanged.removeListener(handleStorageChange);
   }
 

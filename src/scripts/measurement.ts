@@ -529,40 +529,12 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
     repositionAll();
   }
 
-  /**
-   * Dispatches a custom window event with the current selection's page-coordinate rects
-   * so other modules (e.g., ruler) can react to selection changes.
-   */
-  function dispatchSelectionEvent(): void {
-    const toPageRect = (el: HTMLElement | null) => {
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return {
-        left: r.left + window.scrollX,
-        right: r.right + window.scrollX,
-        top: r.top + window.scrollY,
-        bottom: r.bottom + window.scrollY,
-        width: r.width,
-        height: r.height,
-      };
-    };
-    window.dispatchEvent(
-      new CustomEvent('bp-measurement-selection', {
-        detail: {
-          firstRect: toPageRect(firstSelected),
-          secondRect: toPageRect(secondSelected),
-        },
-      }),
-    );
-  }
-
   /** Clears the current selection state and hides overlays. */
   function resetSelection(): void {
     firstSelected = null;
     secondSelected = null;
     hoveredElement = null;
     hideAll();
-    dispatchSelectionEvent();
   }
 
   /**
@@ -619,7 +591,6 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       if (firstHighlight) positionHighlight(firstHighlight, target, true);
       if (firstBadge) positionBadge(firstBadge, target);
       if (firstSizeLabel) positionSizeLabel(firstSizeLabel, target);
-      dispatchSelectionEvent();
     } else if (!secondSelected && target !== firstSelected) {
       // Second selection
       secondSelected = target;
@@ -628,7 +599,6 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       if (secondBadge) positionBadge(secondBadge, target);
       if (secondSizeLabel) positionSizeLabel(secondSizeLabel, target);
       drawConnector();
-      dispatchSelectionEvent();
     }
   }
 
@@ -697,12 +667,6 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
       removeEventListeners();
       resetSelection();
       removeElements();
-      // Ensure ruler clears any selection highlight even after DOM cleanup
-      window.dispatchEvent(
-        new CustomEvent('bp-measurement-selection', {
-          detail: { firstRect: null, secondRect: null },
-        }),
-      );
     }
   }
 
