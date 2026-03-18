@@ -202,17 +202,13 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     ctx.fillRect(0, ph - Math.max(1, dpr), pw, Math.max(1, dpr));
 
     // Pre-compute selection edges and ranges in canvas space
-    const LABEL_PROXIMITY = Math.round(25 * dpr);
     const selRangesX = selectedRects.map(r => ({
       start: Math.round((r.left - scrollX) * dpr),
       end: Math.round((r.right - scrollX) * dpr),
     }));
-    const selEdgesX = selRangesX.flatMap(r => [r.start, r.end]);
 
     const isInsideSelX = (x: number): boolean =>
       selRangesX.some(r => x > r.start && x < r.end);
-    const tooCloseToSelEdgeX = (x: number): boolean =>
-      selEdgesX.some(ex => Math.abs(x - ex) < LABEL_PROXIMITY);
 
     // Ticks and labels — iterate page coordinates aligned to 50 px grid
     const startPage = Math.floor(scrollX / 50) * 50;
@@ -221,6 +217,52 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     ctx.font = `${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     ctx.textBaseline = 'top';
     ctx.textAlign = 'center';
+
+    // Build axis-aligned bounding boxes (in canvas px) for each selection edge label
+    // so regular major labels that would overlap them can be suppressed.
+    const GAP_H = Math.round(4 * dpr);
+    const HALF_LABEL_H = Math.round(11 * dpr); // approx half-width of a centred major label
+    const MIN_OUTSIDE_H = Math.round(20 * dpr);
+    interface LabelBoundsH {
+      left: number;
+      right: number;
+    }
+    const selEdgeLabelBoundsX: LabelBoundsH[] = [];
+    selRangesX.forEach((r, i) => {
+      const src = selectedRects[i];
+      const startW = ctx.measureText(String(Math.round(src.left))).width;
+      const endW = ctx.measureText(String(Math.round(src.right))).width;
+      // Start label: outside means to the left of r.start
+      if (r.start >= MIN_OUTSIDE_H) {
+        selEdgeLabelBoundsX.push({
+          left: r.start - GAP_H - startW,
+          right: r.start - GAP_H,
+        });
+      } else {
+        selEdgeLabelBoundsX.push({
+          left: r.start + GAP_H,
+          right: r.start + GAP_H + startW,
+        });
+      }
+      // End label: outside means to the right of r.end
+      if (r.end <= pw - MIN_OUTSIDE_H) {
+        selEdgeLabelBoundsX.push({
+          left: r.end + GAP_H,
+          right: r.end + GAP_H + endW,
+        });
+      } else {
+        selEdgeLabelBoundsX.push({
+          left: r.end - GAP_H - endW,
+          right: r.end - GAP_H,
+        });
+      }
+    });
+
+    // Returns true if a centred major label at canvas position x would overlap any selection edge label
+    const overlapsSelEdgeLabelX = (x: number): boolean =>
+      selEdgeLabelBoundsX.some(
+        b => x + HALF_LABEL_H > b.left && x - HALF_LABEL_H < b.right,
+      );
 
     for (let page = startPage; page <= endPage; page += 50) {
       const screen = page - scrollX;
@@ -245,7 +287,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         tickH,
       );
 
-      if (isMajor && !tooCloseToSelEdgeX(x)) {
+      if (isMajor && !overlapsSelEdgeLabelX(x)) {
         ctx.fillStyle = inside ? colors.labelDim : colors.label;
         ctx.fillText(String(page), x, Math.round(2 * dpr));
       }
@@ -345,22 +387,65 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     ctx.fillRect(pw - Math.max(1, dpr), 0, Math.max(1, dpr), ph);
 
     // Pre-compute selection edges and ranges in canvas space
-    const LABEL_PROXIMITY = Math.round(25 * dpr);
     const selRangesY = selectedRects.map(r => ({
       start: Math.round((r.top - scrollY) * dpr),
       end: Math.round((r.bottom - scrollY) * dpr),
     }));
-    const selEdgesY = selRangesY.flatMap(r => [r.start, r.end]);
 
     const isInsideSelY = (y: number): boolean =>
       selRangesY.some(r => y > r.start && y < r.end);
-    const tooCloseToSelEdgeY = (y: number): boolean =>
-      selEdgesY.some(ey => Math.abs(y - ey) < LABEL_PROXIMITY);
 
     const startPage = Math.floor(scrollY / 50) * 50;
     const endPage = Math.ceil((scrollY + cssH) / 50) * 50;
 
     ctx.font = `${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
+
+    // Build axis-aligned bounding boxes (in canvas px) for each selection edge label
+    // in the rotated label's axis (the rotated text reads along the Y axis, so its
+    // "width" in the pre-rotation coordinate is what matters for Y-axis collision).
+    const GAP_V = Math.round(4 * dpr);
+    const HALF_LABEL_V = Math.round(11 * dpr); // approx half of a centred rotated label
+    interface LabelBoundsV {
+      top: number;
+      bottom: number;
+    }
+    const selEdgeLabelBoundsY: LabelBoundsV[] = [];
+    const MIN_OUTSIDE_V = Math.round(20 * dpr);
+    selRangesY.forEach((r, i) => {
+      const src = selectedRects[i];
+      const startW = ctx.measureText(String(Math.round(src.top))).width;
+      const endW = ctx.measureText(String(Math.round(src.bottom))).width;
+      // Start label: outside means above start line (lower canvas Y)
+      if (r.start >= MIN_OUTSIDE_V) {
+        selEdgeLabelBoundsY.push({
+          top: r.start - GAP_V - startW,
+          bottom: r.start - GAP_V,
+        });
+      } else {
+        selEdgeLabelBoundsY.push({
+          top: r.start + GAP_V,
+          bottom: r.start + GAP_V + startW,
+        });
+      }
+      // End label: outside means below end line (higher canvas Y)
+      if (r.end <= ph - MIN_OUTSIDE_V) {
+        selEdgeLabelBoundsY.push({
+          top: r.end + GAP_V,
+          bottom: r.end + GAP_V + endW,
+        });
+      } else {
+        selEdgeLabelBoundsY.push({
+          top: r.end - GAP_V - endW,
+          bottom: r.end - GAP_V,
+        });
+      }
+    });
+
+    // Returns true if a centred rotated major label at canvas position y would overlap any selection edge label
+    const overlapsSelEdgeLabelY = (y: number): boolean =>
+      selEdgeLabelBoundsY.some(
+        b => y + HALF_LABEL_V > b.top && y - HALF_LABEL_V < b.bottom,
+      );
 
     for (let page = startPage; page <= endPage; page += 50) {
       const screen = page - scrollY;
@@ -385,7 +470,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         Math.max(1, Math.round(dpr)),
       );
 
-      if (isMajor && !tooCloseToSelEdgeY(y)) {
+      if (isMajor && !overlapsSelEdgeLabelY(y)) {
         ctx.save();
         ctx.fillStyle = inside ? colors.labelDim : colors.label;
         ctx.textBaseline = 'middle';
