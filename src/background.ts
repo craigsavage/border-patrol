@@ -808,31 +808,31 @@ chrome.runtime.onMessage.addListener(
         sendResponse(tabId);
         return true; // Indicate async handling
       }
-      // Recieve message to get border mode state
+      // Receive message to get border mode state
       else if (request.action === 'GET_BORDER_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.borderMode);
         return true; // Indicate async handling
       }
-      // Recieve message to get inspector mode state
+      // Receive message to get inspector mode state
       else if (request.action === 'GET_INSPECTOR_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.inspectorMode);
         return true; // Indicate async handling
       }
-      // Recieve message to get measurement mode state
+      // Receive message to get measurement mode state
       else if (request.action === 'GET_MEASUREMENT_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.measurementMode);
         return true; // Indicate async handling
       }
-      // Recieve message to get ruler mode state
+      // Receive message to get ruler mode state
       else if (request.action === 'GET_RULER_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.rulerMode);
         return true; // Indicate async handling
       }
-      // Recieve message to ping
+      // Receive message to ping
       else if (request.action === 'PING') {
         // Respond to PING message for injection check
         sendResponse({ status: 'PONG' });
