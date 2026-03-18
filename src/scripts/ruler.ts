@@ -32,7 +32,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     bg: string;
     border: string;
     tick: string;
+    tickDim: string;
     label: string;
+    labelDim: string;
     crosshair: string;
     selectionFill: string;
     selectionEdge: string;
@@ -49,7 +51,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         bg: '#333', // bp-dark-gray
         border: '#555', // mid-gray border
         tick: '#92c7e7', // bp-blue-300
+        tickDim: '#555', // same as border — barely visible inside selection
         label: '#c5e0f2', // bp-blue-200
+        labelDim: 'rgba(197, 224, 242, 0.25)', // bp-blue-200 at 25%
         crosshair: '#aa4465', // bp-blush-600
         selectionFill: 'rgba(146, 199, 231, 0.3)', // bp-blue-300 at 30%
         selectionEdge: '#92c7e7', // bp-blue-300
@@ -59,7 +63,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       bg: '#f2f8fd', // bp-blue-50
       border: '#c5e0f2', // bp-blue-200
       tick: '#57a9d9', // bp-blue-400
+      tickDim: '#c5e0f2', // bp-blue-200 — recedes inside selection
       label: '#1d5a87', // bp-blue-700
+      labelDim: 'rgba(29, 90, 135, 0.25)', // bp-blue-700 at 25%
       crosshair: '#aa4465', // bp-blush-600
       selectionFill: 'rgba(42, 125, 181, 0.5)', // bp-blue-500 at 50%
       selectionEdge: '#2a7db5', // bp-blue-500
@@ -170,6 +176,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
    * Draws the horizontal (top) ruler to hCanvas.
    * Shows page-coordinate ticks: minor every 50 px, medium at 100 px, major at 200 px.
    * Labels are rendered at every 200 px mark. A blush vertical line tracks mouseX.
+   * When an element is selected, ticks and labels inside the selection range are dimmed
+   * and regular labels too close to a selection edge label are suppressed.
    */
   function drawHRuler(): void {
     if (!hCanvas) return;
@@ -193,6 +201,19 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     ctx.fillStyle = colors.border;
     ctx.fillRect(0, ph - Math.max(1, dpr), pw, Math.max(1, dpr));
 
+    // Pre-compute selection edges and ranges in canvas space
+    const LABEL_PROXIMITY = Math.round(25 * dpr);
+    const selRangesX = selectedRects.map(r => ({
+      start: Math.round((r.left - scrollX) * dpr),
+      end: Math.round((r.right - scrollX) * dpr),
+    }));
+    const selEdgesX = selRangesX.flatMap(r => [r.start, r.end]);
+
+    const isInsideSelX = (x: number): boolean =>
+      selRangesX.some(r => x > r.start && x < r.end);
+    const tooCloseToSelEdgeX = (x: number): boolean =>
+      selEdgesX.some(ex => Math.abs(x - ex) < LABEL_PROXIMITY);
+
     // Ticks and labels — iterate page coordinates aligned to 50 px grid
     const startPage = Math.floor(scrollX / 50) * 50;
     const endPage = Math.ceil((scrollX + cssW) / 50) * 50;
@@ -208,6 +229,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
       const isMajor = page % 200 === 0;
       const isMedium = !isMajor && page % 100 === 0;
+      const inside = isInsideSelX(x);
 
       const tickH = isMajor
         ? Math.round(ph * 0.65)
@@ -215,7 +237,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
           ? Math.round(ph * 0.5)
           : Math.round(ph * 0.3);
 
-      ctx.fillStyle = colors.tick;
+      ctx.fillStyle = inside ? colors.tickDim : colors.tick;
       ctx.fillRect(
         x,
         ph - tickH - Math.max(1, dpr),
@@ -223,19 +245,17 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         tickH,
       );
 
-      if (isMajor) {
-        ctx.fillStyle = colors.label;
+      if (isMajor && !tooCloseToSelEdgeX(x)) {
+        ctx.fillStyle = inside ? colors.labelDim : colors.label;
         ctx.fillText(String(page), x, Math.round(2 * dpr));
       }
     }
 
-    // Selection range highlights from Measurement Mode
+    // Selection range highlights
     ctx.font = `bold ${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     for (const rect of selectedRects) {
-      const startScreenX = rect.left - scrollX;
-      const endScreenX = rect.right - scrollX;
-      const startCanvasX = Math.round(startScreenX * dpr);
-      const endCanvasX = Math.round(endScreenX * dpr);
+      const startCanvasX = Math.round((rect.left - scrollX) * dpr);
+      const endCanvasX = Math.round((rect.right - scrollX) * dpr);
       const rangeW = endCanvasX - startCanvasX;
       if (rangeW <= 0 || endCanvasX < 0 || startCanvasX > pw) continue;
 
@@ -301,6 +321,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
    * Draws the vertical (left) ruler to vCanvas.
    * Shows page-coordinate ticks: minor every 50 px, medium at 100 px, major at 200 px.
    * Labels are rotated -90° and rendered at every 200 px mark. A blush horizontal line tracks mouseY.
+   * When an element is selected, ticks and labels inside the selection range are dimmed
+   * and regular labels too close to a selection edge label are suppressed.
    */
   function drawVRuler(): void {
     if (!vCanvas) return;
@@ -323,6 +345,19 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     ctx.fillStyle = colors.border;
     ctx.fillRect(pw - Math.max(1, dpr), 0, Math.max(1, dpr), ph);
 
+    // Pre-compute selection edges and ranges in canvas space
+    const LABEL_PROXIMITY = Math.round(25 * dpr);
+    const selRangesY = selectedRects.map(r => ({
+      start: Math.round((r.top - scrollY) * dpr),
+      end: Math.round((r.bottom - scrollY) * dpr),
+    }));
+    const selEdgesY = selRangesY.flatMap(r => [r.start, r.end]);
+
+    const isInsideSelY = (y: number): boolean =>
+      selRangesY.some(r => y > r.start && y < r.end);
+    const tooCloseToSelEdgeY = (y: number): boolean =>
+      selEdgesY.some(ey => Math.abs(y - ey) < LABEL_PROXIMITY);
+
     const startPage = Math.floor(scrollY / 50) * 50;
     const endPage = Math.ceil((scrollY + cssH) / 50) * 50;
 
@@ -335,6 +370,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
       const isMajor = page % 200 === 0;
       const isMedium = !isMajor && page % 100 === 0;
+      const inside = isInsideSelY(y);
 
       const tickW = isMajor
         ? Math.round(pw * 0.65)
@@ -342,7 +378,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
           ? Math.round(pw * 0.5)
           : Math.round(pw * 0.3);
 
-      ctx.fillStyle = colors.tick;
+      ctx.fillStyle = inside ? colors.tickDim : colors.tick;
       ctx.fillRect(
         pw - tickW - Math.max(1, dpr),
         y,
@@ -350,9 +386,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         Math.max(1, Math.round(dpr)),
       );
 
-      if (isMajor) {
+      if (isMajor && !tooCloseToSelEdgeY(y)) {
         ctx.save();
-        ctx.fillStyle = colors.label;
+        ctx.fillStyle = inside ? colors.labelDim : colors.label;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
         // Translate to the tick position and rotate -90° so number reads top-to-bottom from the ruler
@@ -363,13 +399,11 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       }
     }
 
-    // Selection range highlights from Measurement Mode
+    // Selection range highlights
     ctx.font = `bold ${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     for (const rect of selectedRects) {
-      const startScreenY = rect.top - scrollY;
-      const endScreenY = rect.bottom - scrollY;
-      const startCanvasY = Math.round(startScreenY * dpr);
-      const endCanvasY = Math.round(endScreenY * dpr);
+      const startCanvasY = Math.round((rect.top - scrollY) * dpr);
+      const endCanvasY = Math.round((rect.bottom - scrollY) * dpr);
       const rangeH = endCanvasY - startCanvasY;
       if (rangeH <= 0 || endCanvasY < 0 || startCanvasY > ph) continue;
 
