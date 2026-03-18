@@ -84,7 +84,7 @@ async function setTabState({
 
 /**
  * Updates the extension state (icon and title) based on the active tab's state.
- * The extension is considered enabled if either borderMode or inspectorMode is enabled for the active tab.
+ * The extension is considered enabled if any mode is enabled for the active tab.
  *
  * @param tabId - The ID of the active tab.
  */
