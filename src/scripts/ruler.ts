@@ -255,6 +255,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
     // Build axis-aligned bounding boxes (in canvas px) for each selection edge label
     // so regular major labels that would overlap them can be suppressed.
+    // Measure using the bold font that will actually be used when drawing edge labels.
     const GAP_H = Math.round(4 * dpr);
     const HALF_LABEL_H = Math.round(11 * dpr); // approx half-width of a centred major label
     const MIN_OUTSIDE_H = Math.round(20 * dpr);
@@ -262,6 +263,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       left: number;
       right: number;
     }
+    ctx.font = `bold ${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     const selEdgeLabelBoundsX: LabelBoundsH[] = [];
     selRangesX.forEach((r, i) => {
       const src = selectedRects[i];
@@ -299,6 +301,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         b => x + HALF_LABEL_H > b.left && x - HALF_LABEL_H < b.right,
       );
 
+    // Restore regular font for the major tick labels
+    ctx.font = `${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     for (let page = startPage; page <= endPage; page += 50) {
       const screen = page - scrollX;
       const x = Math.round(screen * dpr);
@@ -433,11 +437,10 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     const startPage = Math.floor(scrollY / 50) * 50;
     const endPage = Math.ceil((scrollY + cssH) / 50) * 50;
 
-    ctx.font = `${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
-
     // Build axis-aligned bounding boxes (in canvas px) for each selection edge label
     // in the rotated label's axis (the rotated text reads along the Y axis, so its
     // "width" in the pre-rotation coordinate is what matters for Y-axis collision).
+    // Measure using the bold font that will actually be used when drawing edge labels.
     const GAP_V = Math.round(4 * dpr);
     const HALF_LABEL_V = Math.round(11 * dpr); // approx half of a centred rotated label
     interface LabelBoundsV {
@@ -446,6 +449,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     }
     const selEdgeLabelBoundsY: LabelBoundsV[] = [];
     const MIN_OUTSIDE_V = Math.round(20 * dpr);
+    ctx.font = `bold ${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     selRangesY.forEach((r, i) => {
       const src = selectedRects[i];
       const startW = ctx.measureText(String(Math.round(src.top))).width;
@@ -482,6 +486,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         b => y + HALF_LABEL_V > b.top && y - HALF_LABEL_V < b.bottom,
       );
 
+    // Restore regular font for the major tick labels
+    ctx.font = `${Math.round(9 * dpr)}px system-ui,-apple-system,sans-serif`;
     for (let page = startPage; page <= endPage; page += 50) {
       const screen = page - scrollY;
       const y = Math.round(screen * dpr);
