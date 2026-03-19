@@ -517,33 +517,33 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       const MIN_OUTSIDE = Math.round(20 * dpr);
       const GAP = Math.round(4 * dpr);
 
-      // Start (top) label — outside means above the start line (negative rotated-x direction)
+      // Start (top) label — outside means above the start line (positive rotated-x → negative canvas Y offset)
       const startLabelText = String(Math.round(rect.top));
       ctx.save();
       ctx.textBaseline = 'middle';
       ctx.translate(Math.round(pw * 0.5), startCanvasY);
       ctx.rotate(-Math.PI / 2);
       if (startCanvasY >= MIN_OUTSIDE) {
-        ctx.textAlign = 'right';
-        ctx.fillText(startLabelText, -GAP, 0);
-      } else {
         ctx.textAlign = 'left';
         ctx.fillText(startLabelText, GAP, 0);
+      } else {
+        ctx.textAlign = 'right';
+        ctx.fillText(startLabelText, -GAP, 0);
       }
       ctx.restore();
 
-      // End (bottom) label — outside means below the end line (positive rotated-x direction)
+      // End (bottom) label — outside means below the end line (negative rotated-x → positive canvas Y offset)
       const endLabelText = String(Math.round(rect.bottom));
       ctx.save();
       ctx.textBaseline = 'middle';
       ctx.translate(Math.round(pw * 0.5), endCanvasY);
       ctx.rotate(-Math.PI / 2);
       if (endCanvasY <= ph - MIN_OUTSIDE) {
-        ctx.textAlign = 'left';
-        ctx.fillText(endLabelText, GAP, 0);
-      } else {
         ctx.textAlign = 'right';
         ctx.fillText(endLabelText, -GAP, 0);
+      } else {
+        ctx.textAlign = 'left';
+        ctx.fillText(endLabelText, GAP, 0);
       }
       ctx.restore();
     }
