@@ -27,6 +27,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   let hCanvas: HTMLCanvasElement | null = null;
   let vCanvas: HTMLCanvasElement | null = null;
   let cornerDiv: HTMLElement | null = null;
+  let selectedElement: HTMLElement | null = null;
+  let selectionHighlight: HTMLElement | null = null;
 
   interface RulerColors {
     bg: string;
@@ -134,6 +136,20 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       cornerDiv.id = 'bp-ruler-corner';
       rulerRoot.appendChild(cornerDiv);
     }
+
+    // Highlight overlay shown over the last clicked element
+    selectionHighlight = rulerRoot.getElementById(
+      'bp-ruler-selection',
+    ) as HTMLElement | null;
+    if (!selectionHighlight) {
+      selectionHighlight = document.createElement('div');
+      selectionHighlight.id = 'bp-ruler-selection';
+      selectionHighlight.style.display = 'none';
+      selectionHighlight.style.pointerEvents = 'none';
+      selectionHighlight.style.boxSizing = 'border-box';
+      selectionHighlight.style.position = 'fixed';
+      rulerRoot.appendChild(selectionHighlight);
+    }
   }
 
   /**
@@ -170,6 +186,25 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     cornerDiv.style.background = colors.bg;
     cornerDiv.style.borderRight = `1px solid ${colors.border}`;
     cornerDiv.style.borderBottom = `1px solid ${colors.border}`;
+  }
+
+  /**
+   * Positions and shows the selection highlight overlay over the given element,
+   * using the ruler's current color palette.
+   *
+   * @param element - The page element to highlight.
+   */
+  function positionSelectionHighlight(element: HTMLElement): void {
+    if (!selectionHighlight) return;
+    const rect = element.getBoundingClientRect();
+    const colors = getColors();
+    selectionHighlight.style.top = `${rect.top}px`;
+    selectionHighlight.style.left = `${rect.left}px`;
+    selectionHighlight.style.width = `${rect.width}px`;
+    selectionHighlight.style.height = `${rect.height}px`;
+    selectionHighlight.style.backgroundColor = colors.selectionFill;
+    selectionHighlight.style.outline = `2px solid ${colors.selectionEdge}`;
+    selectionHighlight.style.display = 'block';
   }
 
   /**
@@ -577,12 +612,14 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   }
 
   function handleScroll(): void {
+    if (selectedElement) positionSelectionHighlight(selectedElement);
     scheduleRedraw();
   }
 
   function handleResize(): void {
     sizeCanvases();
     applyCornerTheme();
+    if (selectedElement) positionSelectionHighlight(selectedElement);
     scheduleRedraw();
   }
 
@@ -600,6 +637,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     if (areaName !== 'local' || !('darkMode' in changes)) return;
     isDarkMode = !!changes.darkMode.newValue;
     applyCornerTheme();
+    if (selectedElement) positionSelectionHighlight(selectedElement);
     scheduleRedraw();
   }
 
@@ -636,6 +674,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         height: r.height,
       },
     ];
+    selectedElement = target;
+    positionSelectionHighlight(target);
     scheduleRedraw();
   }
 
@@ -711,6 +751,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       mouseX = -1;
       mouseY = -1;
       selectedRects = [];
+      selectedElement = null;
     }
   }
 
