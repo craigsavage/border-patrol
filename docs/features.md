@@ -20,7 +20,7 @@ Enables on-page measurements so you can check spacing and alignment without leav
 
 ### Ruler Mode
 
-Toggle a pixel ruler along the top and left edges of the page. Rulers display page coordinates (updated as you scroll), with tick marks every 50 px and labels every 200 px. A blush-colored crosshair line on each ruler tracks your mouse position in real time. Fully theme-aware — responds to the extension's dark mode setting.
+Toggle a pixel ruler along the top and left edges of the page. Rulers display page coordinates (updated as you scroll), with tick marks every 50 px and labels every 200 px. A blush-colored crosshair line on each ruler tracks your mouse position in real time. Click any element on the page to highlight its bounds on both rulers — the selected region is filled with a blue band and labeled with its start and end coordinates. Ticks and labels within the highlighted range are dimmed so the selection stands out, and any regular tick label that would collide with a selection label is automatically hidden. Fully theme-aware — responds to the extension's dark mode setting.
 
 ## Screenshot Tool
 
