@@ -15,6 +15,7 @@ export function useExtensionSettings(): IExtensionSettings {
   const [borderMode, setBorderMode] = useState<boolean>(false);
   const [inspectorMode, setInspectorMode] = useState<boolean>(false);
   const [measurementMode, setMeasurementMode] = useState<boolean>(false);
+  const [rulerMode, setRulerMode] = useState<boolean>(false);
   const [borderSize, setBorderSize] = useState<number>(1);
   const [borderStyle, setBorderStyle] = useState<string>('solid');
   const [tabId, setTabId] = useState<number | null>(null);
@@ -83,6 +84,26 @@ export function useExtensionSettings(): IExtensionSettings {
   };
 
   /**
+   * Toggles ruler mode on or off.
+   * Sends a message to the background script to handle the state toggle.
+   *
+   * @param checked The new state of the ruler mode toggle.
+   * @returns Resolves when the state is toggled.
+   */
+  const handleToggleRulerMode = async (checked: boolean): Promise<void> => {
+    setRulerMode(checked);
+    if (tabId) {
+      chrome.runtime.sendMessage({
+        action: 'TOGGLE_RULER_MODE',
+        isEnabled: checked,
+        tabId: tabId,
+      });
+    } else {
+      Logger.warn('Cannot toggle ruler mode: tabId is null.');
+    }
+  };
+
+  /**
    * Updates the border settings.
    * Sends a message to the background script with the new settings.
    *
@@ -128,6 +149,7 @@ export function useExtensionSettings(): IExtensionSettings {
         setBorderMode(data[tabIdString]?.borderMode ?? false);
         setInspectorMode(data[tabIdString]?.inspectorMode ?? false);
         setMeasurementMode(data[tabIdString]?.measurementMode ?? false);
+        setRulerMode(data[tabIdString]?.rulerMode ?? false);
         setBorderSize(data.borderSize ?? 1);
         setBorderStyle(data.borderStyle ?? 'solid');
 
@@ -168,6 +190,9 @@ export function useExtensionSettings(): IExtensionSettings {
         if (typeof message.measurementMode !== 'undefined') {
           setMeasurementMode(message.measurementMode);
         }
+        if (typeof message.rulerMode !== 'undefined') {
+          setRulerMode(message.rulerMode);
+        }
       }
     };
     chrome.runtime.onMessage.addListener(messageListener);
@@ -183,12 +208,14 @@ export function useExtensionSettings(): IExtensionSettings {
     borderMode,
     inspectorMode,
     measurementMode,
+    rulerMode,
     borderSize,
     borderStyle,
     shortcuts,
     handleToggleBorderMode,
     handleToggleInspectorMode,
     handleToggleMeasurementMode,
+    handleToggleRulerMode,
     handleUpdateBorderSettings,
   };
 }

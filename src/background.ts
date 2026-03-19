@@ -84,7 +84,7 @@ async function setTabState({
 
 /**
  * Updates the extension state (icon and title) based on the active tab's state.
- * The extension is considered enabled if either borderMode or inspectorMode is enabled for the active tab.
+ * The extension is considered enabled if any mode is enabled for the active tab.
  *
  * @param tabId - The ID of the active tab.
  */
@@ -96,7 +96,10 @@ async function updateExtensionState(tabId: number): Promise<void> {
     const isRestricted = isRestrictedUrl(tab.url);
     const tabState = await getTabState(tabId);
     const isActive =
-      tabState.borderMode || tabState.inspectorMode || tabState.measurementMode;
+      tabState.borderMode ||
+      tabState.inspectorMode ||
+      tabState.measurementMode ||
+      tabState.rulerMode;
 
     // Set the extension title
     const title = isRestricted
@@ -196,6 +199,10 @@ async function sendContentScriptUpdates(tabId: number): Promise<void> {
       action: 'UPDATE_MEASUREMENT_MODE',
       isEnabled: tabState.measurementMode,
     });
+    await chrome.tabs.sendMessage(tabId, {
+      action: 'UPDATE_RULER_MODE',
+      isEnabled: tabState.rulerMode,
+    });
     Logger.info(`Sent mode updates to tab ${tabId}:`, tabState);
 
     // Send border settings to the content script
@@ -276,6 +283,199 @@ async function captureAndDownloadScreenshot(windowId: number): Promise<void> {
 }
 
 /**
+ * Ensures that the offscreen document used for canvas stitching exists.
+ * Creates it only if no offscreen context is already open.
+ */
+async function ensureOffscreenDocument(): Promise<void> {
+  const url = chrome.runtime.getURL('offscreen/offscreen.html');
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: [chrome.runtime.ContextType.OFFSCREEN_DOCUMENT],
+    documentUrls: [url],
+  });
+  if (existingContexts.length > 0) return;
+
+  await chrome.offscreen.createDocument({
+    url,
+    reasons: [chrome.offscreen.Reason.DOM_SCRAPING],
+    justification: 'Canvas stitching for full-page screenshot',
+  });
+}
+
+/**
+ * Polls the offscreen document with an OFFSCREEN_PING until it responds or
+ * the maximum number of attempts is exhausted. This guards against the race
+ * where createDocument() resolves before the offscreen page has registered
+ * its onMessage listener.
+ *
+ * @param maxAttempts - Maximum ping attempts before giving up.
+ * @param intervalMs - Delay between attempts in milliseconds.
+ */
+async function waitForOffscreenReady(
+  maxAttempts = 20,
+  intervalMs = 50,
+): Promise<void> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'OFFSCREEN_PING',
+      });
+      if (response?.ready) return;
+    } catch {
+      // Offscreen listener not yet registered; retry after a short delay.
+    }
+    await sleep(intervalMs);
+  }
+  Logger.warn('Offscreen document did not become ready in time');
+}
+
+interface StitchFrame {
+  dataUrl: string;
+  x: number;
+  y: number;
+}
+
+/**
+ * Returns a promise that resolves after the specified number of milliseconds.
+ *
+ * @param ms - Milliseconds to wait.
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Scrolls a tab through its full height and width, captures each viewport,
+ * stitches the frames in an offscreen document, then downloads the result.
+ *
+ * @param tabId - The ID of the tab to capture.
+ * @param windowId - The window ID used by captureVisibleTab.
+ */
+async function captureAndDownloadFullPageScreenshot(
+  tabId: number,
+  windowId: number,
+): Promise<void> {
+  const format = 'png';
+
+  // Chrome's captureVisibleTab is rate-limited to ~2 calls/second.
+  // We enforce a minimum interval between captures to avoid the quota error.
+  const MIN_CAPTURE_INTERVAL_MS = 600;
+
+  // Ensure the fullpage content script is present before sending any messages.
+  // On freshly-installed or never-activated tabs, the listener won't exist yet.
+  await ensureScriptIsInjected(tabId);
+
+  // 1. Get full page dimensions and save the original scroll position.
+  const dims = (await chrome.tabs.sendMessage(tabId, {
+    action: 'GET_PAGE_DIMENSIONS',
+  })) as {
+    scrollHeight: number;
+    scrollWidth: number;
+    viewportHeight: number;
+    viewportWidth: number;
+    scrollX: number;
+    scrollY: number;
+    devicePixelRatio: number;
+  };
+
+  Logger.info('Full-page capture: page dimensions', dims);
+
+  const {
+    scrollHeight,
+    scrollWidth,
+    viewportHeight,
+    viewportWidth,
+    scrollX: origX,
+    scrollY: origY,
+    devicePixelRatio,
+  } = dims;
+
+  const frames: StitchFrame[] = [];
+
+  // Hide fixed/sticky elements so they don't repeat in every captured frame.
+  await chrome.tabs.sendMessage(tabId, { action: 'HIDE_FIXED_ELEMENTS' });
+
+  try {
+    // 2. Loop through rows and columns, capturing each viewport-sized region.
+    let lastCaptureTime = 0;
+
+    for (let y = 0; y < scrollHeight; y += viewportHeight) {
+      for (let x = 0; x < scrollWidth; x += viewportWidth) {
+        // Scroll the page and wait for repaint.
+        const actual = (await chrome.tabs.sendMessage(tabId, {
+          action: 'SCROLL_TO',
+          x,
+          y,
+        })) as { scrollX: number; scrollY: number };
+
+        // Enforce the minimum interval between captureVisibleTab calls.
+        const elapsed = Date.now() - lastCaptureTime;
+        if (elapsed < MIN_CAPTURE_INTERVAL_MS) {
+          await sleep(MIN_CAPTURE_INTERVAL_MS - elapsed);
+        }
+
+        // Capture the visible area after scrolling.
+        const dataUrl = await chrome.tabs.captureVisibleTab(windowId, {
+          format,
+        });
+        lastCaptureTime = Date.now();
+
+        frames.push({ dataUrl, x: actual.scrollX, y: actual.scrollY });
+        Logger.info(
+          `Full-page capture: frame at (${actual.scrollX}, ${actual.scrollY})`,
+        );
+      }
+    }
+  } finally {
+    // 3. Restore fixed/sticky elements and the original scroll position.
+    await chrome.tabs.sendMessage(tabId, { action: 'RESTORE_FIXED_ELEMENTS' });
+    await chrome.tabs.sendMessage(tabId, {
+      action: 'RESTORE_SCROLL',
+      x: origX,
+      y: origY,
+    });
+  }
+
+  // 4. Stitch frames in the offscreen document.
+  await ensureOffscreenDocument();
+  await waitForOffscreenReady();
+
+  const stitchResponse = await new Promise<{
+    dataUrl?: string;
+    error?: string;
+  }>(resolve => {
+    chrome.runtime.sendMessage(
+      {
+        action: 'STITCH_FRAMES',
+        frames,
+        totalWidth: scrollWidth,
+        totalHeight: scrollHeight,
+        viewportWidth,
+        viewportHeight,
+        devicePixelRatio,
+      },
+      response => resolve(response),
+    );
+  });
+
+  if (stitchResponse.error || !stitchResponse.dataUrl) {
+    throw new Error(
+      `Full-page stitch failed: ${stitchResponse.error ?? 'no data URL returned'}`,
+    );
+  }
+
+  // 5. Download the stitched image.
+  const filename = getTimestampedScreenshotFilename(format);
+  await chrome.downloads.download({
+    url: stitchResponse.dataUrl,
+    filename,
+    saveAs: true,
+    conflictAction: 'uniquify',
+  });
+
+  Logger.info('Full-page screenshot downloaded:', filename);
+}
+
+/**
  * Creates the "Border Patrol" context menu with sub-items to toggle each mode.
  * Removes any existing items first to avoid duplicates on reinstall.
  */
@@ -305,6 +505,13 @@ function setupContextMenu(): void {
       id: 'bp-toggle-measurement-mode',
       parentId: 'bp-parent',
       title: chrome.i18n.getMessage('toggleMeasurementModeCommand'),
+      contexts: ['all'],
+    });
+
+    chrome.contextMenus.create({
+      id: 'bp-toggle-ruler-mode',
+      parentId: 'bp-parent',
+      title: chrome.i18n.getMessage('toggleRulerModeCommand'),
       contexts: ['all'],
     });
 
@@ -495,6 +702,16 @@ chrome.runtime.onMessage.addListener(
           });
           return true; // Indicate async handling
         }
+        // Receive message to toggle ruler mode
+        else if (request.action === 'TOGGLE_RULER_MODE') {
+          const currentRulerState = await getTabState(activeTabId);
+          const newRulerState = !currentRulerState.rulerMode;
+          await handleTabStateChange({
+            tabId: activeTabId,
+            states: { rulerMode: newRulerState },
+          });
+          return true; // Indicate async handling
+        }
         // Receive message to update border settings
         else if (request.action === 'UPDATE_BORDER_SETTINGS') {
           // Get new border settings from request
@@ -545,6 +762,34 @@ chrome.runtime.onMessage.addListener(
             Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);
             return false; // Indicate failure
           }
+        }
+        // Handle full-page screenshot request from popup
+        else if (request.action === 'CAPTURE_FULL_SCREENSHOT') {
+          try {
+            const hasDownloadPermission = await hasPermission('downloads');
+
+            if (!hasDownloadPermission) {
+              Logger.warn(
+                'Attempted to take full-page screenshot without download permission',
+              );
+              return false;
+            }
+
+            if (!activeTab || !activeTab.id || !activeTab.windowId) {
+              Logger.error('No active tab available for full-page screenshot');
+              return false;
+            }
+
+            await captureAndDownloadFullPageScreenshot(
+              activeTab.id,
+              activeTab.windowId,
+            );
+            sendResponse(true);
+            return true;
+          } catch (error) {
+            Logger.error('Error in CAPTURE_FULL_SCREENSHOT handler:', error);
+            return false;
+          }
         } else {
           Logger.warn('Received unknown message from popup:', request);
           return false; // No action matched
@@ -563,25 +808,31 @@ chrome.runtime.onMessage.addListener(
         sendResponse(tabId);
         return true; // Indicate async handling
       }
-      // Recieve message to get border mode state
+      // Receive message to get border mode state
       else if (request.action === 'GET_BORDER_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.borderMode);
         return true; // Indicate async handling
       }
-      // Recieve message to get inspector mode state
+      // Receive message to get inspector mode state
       else if (request.action === 'GET_INSPECTOR_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.inspectorMode);
         return true; // Indicate async handling
       }
-      // Recieve message to get measurement mode state
+      // Receive message to get measurement mode state
       else if (request.action === 'GET_MEASUREMENT_MODE') {
         const tabState = await getTabState(tabId);
         sendResponse(tabState.measurementMode);
         return true; // Indicate async handling
       }
-      // Recieve message to ping
+      // Receive message to get ruler mode state
+      else if (request.action === 'GET_RULER_MODE') {
+        const tabState = await getTabState(tabId);
+        sendResponse(tabState.rulerMode);
+        return true; // Indicate async handling
+      }
+      // Receive message to ping
       else if (request.action === 'PING') {
         // Respond to PING message for injection check
         sendResponse({ status: 'PONG' });
@@ -673,6 +924,31 @@ chrome.commands.onCommand.addListener(async (command: string) => {
       Logger.error(`Error toggling measurement mode for tab ${tabId}:`, error);
       return;
     }
+  }
+
+  // Toggle ruler mode for the active tab
+  else if (command === 'toggle_ruler_mode') {
+    let tabId;
+
+    try {
+      const activeTab = await getActiveTab();
+      if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url)) {
+        Logger.warn('Ignoring command on restricted or invalid tab.');
+        return;
+      }
+      tabId = activeTab.id;
+
+      const currentState = await getTabState(tabId);
+      const newState = !currentState.rulerMode;
+
+      await handleTabStateChange({
+        tabId,
+        states: { rulerMode: newState },
+      });
+    } catch (error) {
+      Logger.error(`Error toggling ruler mode for tab ${tabId}:`, error);
+      return;
+    }
   } else {
     Logger.warn('Unknown command received:', command);
   }
@@ -714,6 +990,12 @@ chrome.contextMenus.onClicked.addListener(
         await handleTabStateChange({
           tabId,
           states: { measurementMode: !currentState.measurementMode },
+        });
+      } else if (info.menuItemId === 'bp-toggle-ruler-mode') {
+        const currentState = await getTabState(tabId);
+        await handleTabStateChange({
+          tabId,
+          states: { rulerMode: !currentState.rulerMode },
         });
       }
     } catch (error) {

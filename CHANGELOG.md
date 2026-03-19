@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2026-03-18
+
+#### Added
+
+- Added a new "Full Page" screenshot mode that captures the entire scrollable page, not just the visible viewport. This provides users with more comprehensive capture options for documentation and sharing.
+- Added options to switch between "Full Page" and "Visible" screenshot modes, allowing users to choose the most suitable capture method for their needs. (Default: "Visible")
+- Added "Ruler Mode" that displays horizontal and vertical rulers along the edges of the viewport, showing pixel measurements to help with layout and spacing analysis.
+
+### Changed
+
+- Moved "Border Settings" into a collapsible panel within the popup for a cleaner and more organized UI. The settings are now hidden by default and can be expanded when needed.
+
 ## [1.6.0] - 2026-03-09
 
 ### Added

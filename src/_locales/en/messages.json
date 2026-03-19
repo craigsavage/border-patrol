@@ -103,6 +103,14 @@
     "message": "Take Screenshot",
     "description": "Button text for taking a screenshot."
   },
+  "screenshotModeVisible": {
+    "message": "Visible",
+    "description": "Segmented control option for capturing only the visible area of the page."
+  },
+  "screenshotModeFullPage": {
+    "message": "Full Page",
+    "description": "Segmented control option for capturing the full scrollable page."
+  },
   "downloadPermissionRequired": {
     "message": "Download permission required for screenshots",
     "description": "Indicates that download permission is required to take screenshots."
@@ -154,5 +162,17 @@
   "toggleMeasurementModeCommand": {
     "message": "Toggle Measurement Mode",
     "description": "Command description for toggling Measurement Mode in manifest."
+  },
+  "rulerMode": {
+    "message": "Ruler Mode",
+    "description": "Label for toggling ruler mode."
+  },
+  "enableOrDisableRuler": {
+    "message": "Enable or Disable Ruler Mode",
+    "description": "Instruction to enable or disable ruler mode."
+  },
+  "toggleRulerModeCommand": {
+    "message": "Toggle Ruler Mode",
+    "description": "Command description for toggling Ruler Mode in manifest."
   }
 }

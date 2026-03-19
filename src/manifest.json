@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extensionLongName__",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "__MSG_extensionDescription__",
   "default_locale": "en",
   "permissions": [
@@ -9,7 +9,8 @@
     "storage",
     "activeTab",
     "downloads",
-    "contextMenus"
+    "contextMenus",
+    "offscreen"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -49,6 +50,13 @@
         "mac": "Alt+Shift+M"
       },
       "description": "__MSG_toggleMeasurementModeCommand__"
+    },
+    "toggle_ruler_mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+R",
+        "mac": "Alt+Shift+R"
+      },
+      "description": "__MSG_toggleRulerModeCommand__"
     }
   },
   "web_accessible_resources": [

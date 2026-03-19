@@ -1,4 +1,5 @@
-import { Space, Divider, Layout } from 'antd';
+import { useState } from 'react';
+import { Space, Divider, Layout, Collapse } from 'antd';
 
 // Hooks
 import { useExtensionSettings } from './hooks/useExtensionSettings';
@@ -20,11 +21,13 @@ export default function AppContent(): React.ReactElement {
     borderMode,
     inspectorMode,
     measurementMode,
+    rulerMode,
     borderSize,
     borderStyle,
     handleToggleBorderMode,
     handleToggleInspectorMode,
     handleToggleMeasurementMode,
+    handleToggleRulerMode,
     handleUpdateBorderSettings,
   } = useExtensionSettings();
 
@@ -32,9 +35,12 @@ export default function AppContent(): React.ReactElement {
     hasDownloadPermission,
     requestDownloadPermission,
     handleCaptureScreenshot,
+    handleCaptureFullScreenshot,
   } = useScreenshotCapture(isRestricted);
 
   const { translate } = useTranslation();
+
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   return (
     <Layout style={{ padding: '16px', width: '100%' }}>
@@ -53,6 +59,30 @@ export default function AppContent(): React.ReactElement {
               onChange={handleToggleBorderMode}
               ariaLabel={translate('enableOrDisableBorders')}
             />
+            <Collapse
+              size='small'
+              activeKey={settingsOpen ? ['settings'] : []}
+              onChange={keys =>
+                setSettingsOpen(
+                  Array.isArray(keys)
+                    ? keys.includes('settings')
+                    : keys === 'settings',
+                )
+              }
+              items={[
+                {
+                  key: 'settings',
+                  label: translate('borderSettings'),
+                  children: (
+                    <BorderSettings
+                      borderSize={borderSize}
+                      borderStyle={borderStyle}
+                      onUpdateBorderSettings={handleUpdateBorderSettings}
+                    />
+                  ),
+                },
+              ]}
+            />
             <FeatureToggle
               label={translate('inspectorMode')}
               id='inspector-mode'
@@ -67,15 +97,14 @@ export default function AppContent(): React.ReactElement {
               onChange={handleToggleMeasurementMode}
               ariaLabel={translate('enableOrDisableMeasurement')}
             />
+            <FeatureToggle
+              label={translate('rulerMode')}
+              id='ruler-mode'
+              checked={rulerMode}
+              onChange={handleToggleRulerMode}
+              ariaLabel={translate('enableOrDisableRuler')}
+            />
           </Space>
-
-          <Divider size='small' />
-
-          <BorderSettings
-            borderSize={borderSize}
-            borderStyle={borderStyle}
-            onUpdateBorderSettings={handleUpdateBorderSettings}
-          />
 
           <Divider size='small' />
 
@@ -83,6 +112,7 @@ export default function AppContent(): React.ReactElement {
             hasDownloadPermission={hasDownloadPermission}
             onRequestPermission={requestDownloadPermission}
             onCaptureScreenshot={handleCaptureScreenshot}
+            onCaptureFullScreenshot={handleCaptureFullScreenshot}
           />
         </Space>
       )}

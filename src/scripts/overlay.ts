@@ -608,7 +608,7 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
     }
   }
 
-  // Recieve message to update inspector mode
+  // Receive message to update inspector mode
   chrome.storage.onChanged.addListener(handleStorageChange);
 
   void loadOverlayTheme();
