@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Space, Divider, Layout, Collapse } from 'antd';
 
 // Hooks
@@ -40,11 +40,7 @@ export default function AppContent(): React.ReactElement {
 
   const { translate } = useTranslation();
 
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(borderMode);
-
-  useEffect(() => {
-    setSettingsOpen(borderMode);
-  }, [borderMode]);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   return (
     <Layout style={{ padding: '16px', width: '100%' }}>
