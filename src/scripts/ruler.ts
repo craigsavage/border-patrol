@@ -29,6 +29,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   let cornerDiv: HTMLElement | null = null;
   let selectedElement: Element | null = null;
   let selectionHighlight: HTMLElement | null = null;
+  let hoveredElement: Element | null = null;
+  let hoverHighlight: HTMLElement | null = null;
 
   interface RulerColors {
     bg: string;
@@ -40,6 +42,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     crosshair: string;
     selectionFill: string;
     selectionEdge: string;
+    hoverFill: string;
+    hoverEdge: string;
   }
 
   /**
@@ -59,6 +63,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
         crosshair: '#aa4465', // bp-blush-600
         selectionFill: 'rgba(146, 199, 231, 0.3)', // bp-blue-300 at 30%
         selectionEdge: '#92c7e7', // bp-blue-300
+        hoverFill: 'rgba(146, 199, 231, 0.12)', // bp-blue-300 at 12% — subtle hover tint
+        hoverEdge: 'rgba(146, 199, 231, 0.6)', // bp-blue-300 at 60%
       };
     }
     return {
@@ -71,6 +77,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       crosshair: '#aa4465', // bp-blush-600
       selectionFill: 'rgba(42, 125, 181, 0.5)', // bp-blue-500 at 50%
       selectionEdge: '#2a7db5', // bp-blue-500
+      hoverFill: 'rgba(42, 125, 181, 0.12)', // bp-blue-500 at 12% — subtle hover tint
+      hoverEdge: 'rgba(42, 125, 181, 0.65)', // bp-blue-500 at 65%
     };
   }
 
@@ -150,6 +158,20 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       selectionHighlight.style.position = 'fixed';
       rulerRoot.appendChild(selectionHighlight);
     }
+
+    // Hover highlight shown over the element currently under the cursor
+    hoverHighlight = rulerRoot.getElementById(
+      'bp-ruler-hover',
+    ) as HTMLElement | null;
+    if (!hoverHighlight) {
+      hoverHighlight = document.createElement('div');
+      hoverHighlight.id = 'bp-ruler-hover';
+      hoverHighlight.style.display = 'none';
+      hoverHighlight.style.pointerEvents = 'none';
+      hoverHighlight.style.boxSizing = 'border-box';
+      hoverHighlight.style.position = 'fixed';
+      rulerRoot.appendChild(hoverHighlight);
+    }
   }
 
   /**
@@ -205,6 +227,63 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     selectionHighlight.style.backgroundColor = colors.selectionFill;
     selectionHighlight.style.outline = `2px solid ${colors.selectionEdge}`;
     selectionHighlight.style.display = 'block';
+  }
+
+  /**
+   * Checks if an element belongs to any Border Patrol UI container.
+   *
+   * @param target - The element to check.
+   * @returns True if the element is part of BP UI.
+   */
+  function isRulerBPElement(target: Element): boolean {
+    if (
+      rulerContainer &&
+      (rulerContainer === target || rulerContainer.contains(target))
+    )
+      return true;
+    for (const id of ['bp-measurement-container', 'bp-inspector-container']) {
+      const el = document.getElementById(id);
+      if (el && (el === target || el.contains(target))) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Positions and shows the hover highlight overlay over the given element.
+   *
+   * @param element - The page element to highlight.
+   */
+  function positionHoverHighlight(element: Element): void {
+    if (!hoverHighlight) return;
+    const rect = element.getBoundingClientRect();
+    const colors = getColors();
+    hoverHighlight.style.top = `${rect.top}px`;
+    hoverHighlight.style.left = `${rect.left}px`;
+    hoverHighlight.style.width = `${rect.width}px`;
+    hoverHighlight.style.height = `${rect.height}px`;
+    hoverHighlight.style.backgroundColor = colors.hoverFill;
+    hoverHighlight.style.outline = `2px solid ${colors.hoverEdge}`;
+    hoverHighlight.style.display = 'block';
+  }
+
+  /**
+   * Handles mouseover events to preview the element under the cursor.
+   *
+   * @param event - The mouse event.
+   */
+  function handleMouseOver(event: MouseEvent): void {
+    const target = event.target as Element;
+    if (!target || !(target instanceof Element)) return;
+    if (isRulerBPElement(target)) return;
+    if (target === selectedElement) return;
+    hoveredElement = target;
+    positionHoverHighlight(target);
+  }
+
+  /** Handles mouseout events to hide the hover highlight. */
+  function handleMouseOut(): void {
+    hoveredElement = null;
+    if (hoverHighlight) hoverHighlight.style.display = 'none';
   }
 
   /**
@@ -619,6 +698,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
   function handleScroll(): void {
     if (selectedElement) positionSelectionHighlight(selectedElement);
+    if (hoveredElement) positionHoverHighlight(hoveredElement);
     scheduleRedraw();
   }
 
@@ -626,6 +706,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     sizeCanvases();
     applyCornerTheme();
     if (selectedElement) positionSelectionHighlight(selectedElement);
+    if (hoveredElement) positionHoverHighlight(hoveredElement);
     scheduleRedraw();
   }
 
@@ -644,6 +725,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     isDarkMode = !!changes.darkMode.newValue;
     applyCornerTheme();
     if (selectedElement) positionSelectionHighlight(selectedElement);
+    if (hoveredElement) positionHoverHighlight(hoveredElement);
     scheduleRedraw();
   }
 
@@ -687,11 +769,15 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     ];
     selectedElement = target;
     positionSelectionHighlight(target);
+    if (hoverHighlight) hoverHighlight.style.display = 'none';
+    hoveredElement = null;
     scheduleRedraw();
   }
 
   function addEventListeners(): void {
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseover', handleMouseOver, true);
+    document.addEventListener('mouseout', handleMouseOut, true);
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
     document.addEventListener('click', handleRulerClick, true);
@@ -700,6 +786,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
   function removeEventListeners(): void {
     document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseover', handleMouseOver, true);
+    document.removeEventListener('mouseout', handleMouseOut, true);
     window.removeEventListener('scroll', handleScroll);
     window.removeEventListener('resize', handleResize);
     document.removeEventListener('click', handleRulerClick, true);
@@ -716,6 +804,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
     hCanvas = null;
     vCanvas = null;
     cornerDiv = null;
+    selectionHighlight = null;
+    hoverHighlight = null;
+    hoveredElement = null;
   }
 
   /**
