@@ -10,7 +10,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
 
   const RULER_SIZE = 20; // CSS pixels — thickness of each ruler bar
 
-  // Selection highlight state, fed by bp-measurement-selection events
+  // Selection highlight state, maintained from click-based selection
   interface SelectedPageRect {
     left: number;
     right: number;
@@ -27,7 +27,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   let hCanvas: HTMLCanvasElement | null = null;
   let vCanvas: HTMLCanvasElement | null = null;
   let cornerDiv: HTMLElement | null = null;
-  let selectedElement: HTMLElement | null = null;
+  let selectedElement: Element | null = null;
   let selectionHighlight: HTMLElement | null = null;
 
   interface RulerColors {
@@ -194,7 +194,7 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
    *
    * @param element - The page element to highlight.
    */
-  function positionSelectionHighlight(element: HTMLElement): void {
+  function positionSelectionHighlight(element: Element): void {
     if (!selectionHighlight) return;
     const rect = element.getBoundingClientRect();
     const colors = getColors();
@@ -649,8 +649,8 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
    * @param event - The mouse event.
    */
   function handleRulerClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target || !(target instanceof HTMLElement)) return;
+    const target = event.target as Element;
+    if (!target || !(target instanceof Element)) return;
 
     // Ignore clicks on the ruler itself and other BP UI containers
     if (
@@ -662,6 +662,11 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
       const el = document.getElementById(id);
       if (el && (el === target || el.contains(target))) return;
     }
+
+    // Prevent the click from triggering native element behaviour (navigation,
+    // form submission, button actions, etc.) while ruler mode is active.
+    event.preventDefault();
+    event.stopPropagation();
 
     const r = target.getBoundingClientRect();
     selectedRects = [
