@@ -174,5 +174,9 @@
   "toggleRulerModeCommand": {
     "message": "Toggle Ruler Mode",
     "description": "Command description for toggling Ruler Mode in manifest."
+  },
+  "screenshotCaptureInProgress": {
+    "message": "Capturing screenshot...",
+    "description": "Label shown in the page overlay while a full-page screenshot is being captured."
   }
 }
