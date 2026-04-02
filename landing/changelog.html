@@ -56,6 +56,29 @@
         All notable changes to this project will be documented in this file.
       </p>
       <h2>[Unreleased]</h2>
+      <h3>Added</h3>
+      <ul>
+        <li>
+          Added an in-page progress overlay for full-page screenshots so users
+          can see capture is in progress while the page scrolls.
+        </li>
+        <li>
+          Added a temporary click-blocking overlay during full-page capture to
+          prevent accidental interaction from interrupting the process.
+        </li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+        <li>
+          Fixed full-page screenshot message handling across background and
+          content scripts to prevent intermittent capture failures.
+        </li>
+        <li>
+          Fixed a screenshot flow regression where full-page capture could fail
+          before download due to inconsistent async message responses.
+        </li>
+      </ul>
+      <h2>[1.7.0] - 2026-03-18</h2>
       <h4>Added</h4>
       <ul>
         <li>

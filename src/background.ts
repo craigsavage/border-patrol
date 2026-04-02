@@ -360,6 +360,45 @@ async function captureAndDownloadFullPageScreenshot(
   // We enforce a minimum interval between captures to avoid the quota error.
   const MIN_CAPTURE_INTERVAL_MS = 600;
 
+  /**
+   * Sends a screenshot overlay command to the content script without breaking
+   * the capture flow if the page cannot process the message.
+   *
+   * @param action - The overlay action to send.
+   */
+  const sendScreenshotOverlayCommand = async (
+    action:
+      | 'SHOW_SCREENSHOT_OVERLAY'
+      | 'HIDE_SCREENSHOT_OVERLAY'
+      | 'REMOVE_SCREENSHOT_OVERLAY',
+  ): Promise<void> => {
+    try {
+      await chrome.tabs.sendMessage(tabId, { action });
+    } catch (error) {
+      Logger.warn(`Full-page capture overlay command failed: ${action}`, error);
+    }
+  };
+
+  /**
+   * Best-effort fallback that removes the overlay host directly from the page
+   * if content-script messaging cannot complete cleanup.
+   */
+  const forceRemoveScreenshotOverlay = async (): Promise<void> => {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        func: () => {
+          const container = document.getElementById(
+            'bp-screenshot-overlay-container',
+          );
+          container?.remove();
+        },
+      });
+    } catch (error) {
+      Logger.warn('Full-page capture overlay fallback removal failed', error);
+    }
+  };
+
   // Ensure the fullpage content script is present before sending any messages.
   // On freshly-installed or never-activated tabs, the listener won't exist yet.
   await ensureScriptIsInjected(tabId);
@@ -394,6 +433,10 @@ async function captureAndDownloadFullPageScreenshot(
   // Hide fixed/sticky elements so they don't repeat in every captured frame.
   await chrome.tabs.sendMessage(tabId, { action: 'HIDE_FIXED_ELEMENTS' });
 
+  // Show the progress overlay so the user knows capture is underway and
+  // accidental clicks cannot interrupt the process.
+  await sendScreenshotOverlayCommand('SHOW_SCREENSHOT_OVERLAY');
+
   try {
     // 2. Loop through rows and columns, capturing each viewport-sized region.
     let lastCaptureTime = 0;
@@ -413,6 +456,11 @@ async function captureAndDownloadFullPageScreenshot(
           await sleep(MIN_CAPTURE_INTERVAL_MS - elapsed);
         }
 
+        // Keep the overlay visible while the page scrolls and during the quota
+        // wait, then hide it immediately before capture so it does not appear
+        // in the saved image.
+        await sendScreenshotOverlayCommand('HIDE_SCREENSHOT_OVERLAY');
+
         // Capture the visible area after scrolling.
         const dataUrl = await chrome.tabs.captureVisibleTab(windowId, {
           format,
@@ -423,10 +471,17 @@ async function captureAndDownloadFullPageScreenshot(
         Logger.info(
           `Full-page capture: frame at (${actual.scrollX}, ${actual.scrollY})`,
         );
+
+        // Restore the overlay so the user can see the page scroll to the next
+        // position before the next capture starts.
+        await sendScreenshotOverlayCommand('SHOW_SCREENSHOT_OVERLAY');
       }
     }
   } finally {
-    // 3. Restore fixed/sticky elements and the original scroll position.
+    // 3. Remove the overlay and restore fixed/sticky elements and the
+    //    original scroll position.
+    await sendScreenshotOverlayCommand('REMOVE_SCREENSHOT_OVERLAY');
+    await forceRemoveScreenshotOverlay();
     await chrome.tabs.sendMessage(tabId, { action: 'RESTORE_FIXED_ELEMENTS' });
     await chrome.tabs.sendMessage(tabId, {
       action: 'RESTORE_SCROLL',
@@ -645,9 +700,9 @@ chrome.tabs.onRemoved.addListener(
   },
 );
 
-// Handles recieving messages from popup and content scripts
+// Handles receiving messages from popup and content scripts
 chrome.runtime.onMessage.addListener(
-  async (
+  (
     request: any,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
@@ -659,187 +714,220 @@ chrome.runtime.onMessage.addListener(
 
     // Handle messages from the popup (no sender.tab.id)
     if (!tabId) {
-      try {
-        // Get the active tab to determine which tab the popup is associated with
-        const activeTab = await getActiveTab();
-        if (!activeTab?.id || !activeTab?.url || isRestrictedUrl(activeTab.url))
-          return;
+      void (async () => {
+        try {
+          // Get the active tab to determine which tab the popup is associated with
+          const activeTab = await getActiveTab();
+          if (
+            !activeTab?.id ||
+            !activeTab?.url ||
+            isRestrictedUrl(activeTab.url)
+          ) {
+            sendResponse(false);
+            return;
+          }
 
-        // Use the active tab's ID for processing popup messages
-        const activeTabId = activeTab.id;
-        Logger.info(
-          `Handling popup message for active tab ${activeTabId}:`,
-          activeTab,
-        );
+          // Use the active tab's ID for processing popup messages
+          const activeTabId = activeTab.id;
+          Logger.info(
+            `Handling popup message for active tab ${activeTabId}:`,
+            activeTab,
+          );
 
-        // Receive message to toggle border mode
-        if (request.action === 'TOGGLE_BORDER_MODE') {
-          const currentBorderState = await getTabState(activeTabId);
-          const newBorderState = !currentBorderState.borderMode;
-          await handleTabStateChange({
-            tabId: activeTabId,
-            states: { borderMode: newBorderState },
-          });
-          return true; // Indicate async handling
-        }
-        // Receive message to toggle inspector mode
-        else if (request.action === 'TOGGLE_INSPECTOR_MODE') {
-          const currentInspectorState = await getTabState(activeTabId);
-          const newInspectorState = !currentInspectorState.inspectorMode;
-          await handleTabStateChange({
-            tabId: activeTabId,
-            states: { inspectorMode: newInspectorState },
-          });
-          return true; // Indicate async handling
-        }
-        // Receive message to toggle measurement mode
-        else if (request.action === 'TOGGLE_MEASUREMENT_MODE') {
-          const currentMeasurementState = await getTabState(activeTabId);
-          const newMeasurementState = !currentMeasurementState.measurementMode;
-          await handleTabStateChange({
-            tabId: activeTabId,
-            states: { measurementMode: newMeasurementState },
-          });
-          return true; // Indicate async handling
-        }
-        // Receive message to toggle ruler mode
-        else if (request.action === 'TOGGLE_RULER_MODE') {
-          const currentRulerState = await getTabState(activeTabId);
-          const newRulerState = !currentRulerState.rulerMode;
-          await handleTabStateChange({
-            tabId: activeTabId,
-            states: { rulerMode: newRulerState },
-          });
-          return true; // Indicate async handling
-        }
-        // Receive message to update border settings
-        else if (request.action === 'UPDATE_BORDER_SETTINGS') {
-          // Get new border settings from request
-          const { borderSize, borderStyle } = request;
-          // Update the settings in storage
-          await chrome.storage.local.set({ borderSize, borderStyle });
+          // Receive message to toggle border mode
+          if (request.action === 'TOGGLE_BORDER_MODE') {
+            const currentBorderState = await getTabState(activeTabId);
+            const newBorderState = !currentBorderState.borderMode;
+            await handleTabStateChange({
+              tabId: activeTabId,
+              states: { borderMode: newBorderState },
+            });
+            sendResponse(true);
+            return;
+          }
+          // Receive message to toggle inspector mode
+          else if (request.action === 'TOGGLE_INSPECTOR_MODE') {
+            const currentInspectorState = await getTabState(activeTabId);
+            const newInspectorState = !currentInspectorState.inspectorMode;
+            await handleTabStateChange({
+              tabId: activeTabId,
+              states: { inspectorMode: newInspectorState },
+            });
+            sendResponse(true);
+            return;
+          }
+          // Receive message to toggle measurement mode
+          else if (request.action === 'TOGGLE_MEASUREMENT_MODE') {
+            const currentMeasurementState = await getTabState(activeTabId);
+            const newMeasurementState =
+              !currentMeasurementState.measurementMode;
+            await handleTabStateChange({
+              tabId: activeTabId,
+              states: { measurementMode: newMeasurementState },
+            });
+            sendResponse(true);
+            return;
+          }
+          // Receive message to toggle ruler mode
+          else if (request.action === 'TOGGLE_RULER_MODE') {
+            const currentRulerState = await getTabState(activeTabId);
+            const newRulerState = !currentRulerState.rulerMode;
+            await handleTabStateChange({
+              tabId: activeTabId,
+              states: { rulerMode: newRulerState },
+            });
+            sendResponse(true);
+            return;
+          }
+          // Receive message to update border settings
+          else if (request.action === 'UPDATE_BORDER_SETTINGS') {
+            // Get new border settings from request
+            const { borderSize, borderStyle } = request;
+            // Update the settings in storage
+            await chrome.storage.local.set({ borderSize, borderStyle });
 
-          // Send update to content script immediately if border mode is active
-          const tabState = await getTabState(activeTabId);
-          if (tabState.borderMode) {
+            // Send update to content script immediately if border mode is active
+            const tabState = await getTabState(activeTabId);
+            if (tabState.borderMode) {
+              try {
+                await chrome.tabs.sendMessage(activeTabId, {
+                  action: 'UPDATE_BORDER_SETTINGS',
+                  borderSize: borderSize ?? DEFAULT_BORDER_SIZE,
+                  borderStyle: borderStyle ?? DEFAULT_BORDER_STYLE,
+                });
+              } catch (contentScriptError) {
+                Logger.error(
+                  `Error sending updated border settings to tab ${activeTabId}:`,
+                  contentScriptError,
+                );
+              }
+            }
+            sendResponse(true);
+            return;
+          }
+          // Handle screenshot request from popup
+          else if (request.action === 'CAPTURE_SCREENSHOT') {
             try {
-              await chrome.tabs.sendMessage(activeTabId, {
-                action: 'UPDATE_BORDER_SETTINGS',
-                borderSize: borderSize ?? DEFAULT_BORDER_SIZE,
-                borderStyle: borderStyle ?? DEFAULT_BORDER_STYLE,
-              });
-            } catch (contentScriptError) {
-              Logger.error(
-                `Error sending updated border settings to tab ${activeTabId}:`,
-                contentScriptError,
-              );
+              // Check if we have the downloads permission
+              const hasDownloadPermission = await hasPermission('downloads');
+
+              if (!hasDownloadPermission) {
+                Logger.warn(
+                  'Attempted to take screenshot without download permission',
+                );
+                sendResponse(false);
+                return;
+              }
+
+              // Check if the active tab is a valid target
+              if (!activeTab || !activeTab.windowId) {
+                Logger.error('No active tab available for screenshot');
+                sendResponse(false);
+                return;
+              }
+
+              await captureAndDownloadScreenshot(activeTab.windowId);
+              sendResponse(true);
+              return;
+            } catch (error) {
+              Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);
+              sendResponse(false);
+              return;
             }
           }
-        }
-        // Handle screenshot request from popup
-        else if (request.action === 'CAPTURE_SCREENSHOT') {
-          try {
-            // Check if we have the downloads permission
-            const hasDownloadPermission = await hasPermission('downloads');
+          // Handle full-page screenshot request from popup
+          else if (request.action === 'CAPTURE_FULL_SCREENSHOT') {
+            try {
+              const hasDownloadPermission = await hasPermission('downloads');
 
-            if (!hasDownloadPermission) {
-              Logger.warn(
-                'Attempted to take screenshot without download permission',
+              if (!hasDownloadPermission) {
+                Logger.warn(
+                  'Attempted to take full-page screenshot without download permission',
+                );
+                sendResponse(false);
+                return;
+              }
+
+              if (!activeTab || !activeTab.id || !activeTab.windowId) {
+                Logger.error(
+                  'No active tab available for full-page screenshot',
+                );
+                sendResponse(false);
+                return;
+              }
+
+              await captureAndDownloadFullPageScreenshot(
+                activeTab.id,
+                activeTab.windowId,
               );
-              return false;
+              sendResponse(true);
+              return;
+            } catch (error) {
+              Logger.error('Error in CAPTURE_FULL_SCREENSHOT handler:', error);
+              sendResponse(false);
+              return;
             }
-
-            // Check if the active tab is a valid target
-            if (!activeTab || !activeTab.windowId) {
-              Logger.error('No active tab available for screenshot');
-              return false;
-            }
-
-            await captureAndDownloadScreenshot(activeTab.windowId);
-            sendResponse(true);
-            return true; // Success
-          } catch (error) {
-            Logger.error('Error in CAPTURE_SCREENSHOT handler:', error);
-            return false; // Indicate failure
+          } else {
+            Logger.warn('Received unknown message from popup:', request);
+            sendResponse(false);
+            return;
           }
+        } catch (error) {
+          Logger.error('Error handling popup message:', error);
+          sendResponse(false);
         }
-        // Handle full-page screenshot request from popup
-        else if (request.action === 'CAPTURE_FULL_SCREENSHOT') {
-          try {
-            const hasDownloadPermission = await hasPermission('downloads');
+      })();
 
-            if (!hasDownloadPermission) {
-              Logger.warn(
-                'Attempted to take full-page screenshot without download permission',
-              );
-              return false;
-            }
-
-            if (!activeTab || !activeTab.id || !activeTab.windowId) {
-              Logger.error('No active tab available for full-page screenshot');
-              return false;
-            }
-
-            await captureAndDownloadFullPageScreenshot(
-              activeTab.id,
-              activeTab.windowId,
-            );
-            sendResponse(true);
-            return true;
-          } catch (error) {
-            Logger.error('Error in CAPTURE_FULL_SCREENSHOT handler:', error);
-            return false;
-          }
-        } else {
-          Logger.warn('Received unknown message from popup:', request);
-          return false; // No action matched
-        }
-        return true; // Indicate async handling for popup messages
-      } catch (error) {
-        Logger.error('Error handling popup message:', error);
-        return false; // An error occurred
-      }
+      return true;
     } else {
       // Handle messages from content scripts (have sender.tab.id)
       if (!sender?.tab?.url || isRestrictedUrl(sender?.tab?.url)) return false;
 
-      // Receive message to retrieve tab ID
-      if (request.action === 'GET_TAB_ID') {
-        sendResponse(tabId);
-        return true; // Indicate async handling
-      }
-      // Receive message to get border mode state
-      else if (request.action === 'GET_BORDER_MODE') {
-        const tabState = await getTabState(tabId);
-        sendResponse(tabState.borderMode);
-        return true; // Indicate async handling
-      }
-      // Receive message to get inspector mode state
-      else if (request.action === 'GET_INSPECTOR_MODE') {
-        const tabState = await getTabState(tabId);
-        sendResponse(tabState.inspectorMode);
-        return true; // Indicate async handling
-      }
-      // Receive message to get measurement mode state
-      else if (request.action === 'GET_MEASUREMENT_MODE') {
-        const tabState = await getTabState(tabId);
-        sendResponse(tabState.measurementMode);
-        return true; // Indicate async handling
-      }
-      // Receive message to get ruler mode state
-      else if (request.action === 'GET_RULER_MODE') {
-        const tabState = await getTabState(tabId);
-        sendResponse(tabState.rulerMode);
-        return true; // Indicate async handling
-      }
-      // Receive message to ping
-      else if (request.action === 'PING') {
-        // Respond to PING message for injection check
-        sendResponse({ status: 'PONG' });
-        return true; // Indicate async handling
-      }
-      // No action matched for content script message
-      return false;
+      void (async () => {
+        // Receive message to retrieve tab ID
+        if (request.action === 'GET_TAB_ID') {
+          sendResponse(tabId);
+          return;
+        }
+        // Receive message to get border mode state
+        else if (request.action === 'GET_BORDER_MODE') {
+          const tabState = await getTabState(tabId);
+          sendResponse(tabState.borderMode);
+          return;
+        }
+        // Receive message to get inspector mode state
+        else if (request.action === 'GET_INSPECTOR_MODE') {
+          const tabState = await getTabState(tabId);
+          sendResponse(tabState.inspectorMode);
+          return;
+        }
+        // Receive message to get measurement mode state
+        else if (request.action === 'GET_MEASUREMENT_MODE') {
+          const tabState = await getTabState(tabId);
+          sendResponse(tabState.measurementMode);
+          return;
+        }
+        // Receive message to get ruler mode state
+        else if (request.action === 'GET_RULER_MODE') {
+          const tabState = await getTabState(tabId);
+          sendResponse(tabState.rulerMode);
+          return;
+        }
+        // Receive message to ping
+        else if (request.action === 'PING') {
+          // Respond to PING message for injection check
+          sendResponse({ status: 'PONG' });
+          return;
+        }
+
+        // No action matched for content script message
+        sendResponse(false);
+      })().catch(error => {
+        Logger.error('Error handling content script message:', error);
+        sendResponse(false);
+      });
+
+      return true;
     }
   },
 );
