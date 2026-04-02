@@ -367,7 +367,10 @@ async function captureAndDownloadFullPageScreenshot(
    * @param action - The overlay action to send.
    */
   const sendScreenshotOverlayCommand = async (
-    action: 'SHOW_SCREENSHOT_OVERLAY' | 'HIDE_SCREENSHOT_OVERLAY',
+    action:
+      | 'SHOW_SCREENSHOT_OVERLAY'
+      | 'HIDE_SCREENSHOT_OVERLAY'
+      | 'REMOVE_SCREENSHOT_OVERLAY',
   ): Promise<void> => {
     try {
       await chrome.tabs.sendMessage(tabId, { action });
@@ -455,9 +458,9 @@ async function captureAndDownloadFullPageScreenshot(
       }
     }
   } finally {
-    // 3. Remove the overlay (awaited so it fully clears before restoring the
-    //    page), then restore fixed/sticky elements and the original scroll.
-    await sendScreenshotOverlayCommand('HIDE_SCREENSHOT_OVERLAY');
+    // 3. Remove the overlay and restore fixed/sticky elements and the
+    //    original scroll position.
+    await sendScreenshotOverlayCommand('REMOVE_SCREENSHOT_OVERLAY');
     await chrome.tabs.sendMessage(tabId, { action: 'RESTORE_FIXED_ELEMENTS' });
     await chrome.tabs.sendMessage(tabId, {
       action: 'RESTORE_SCROLL',
@@ -676,7 +679,7 @@ chrome.tabs.onRemoved.addListener(
   },
 );
 
-// Handles recieving messages from popup and content scripts
+// Handles receiving messages from popup and content scripts
 chrome.runtime.onMessage.addListener(
   (
     request: any,

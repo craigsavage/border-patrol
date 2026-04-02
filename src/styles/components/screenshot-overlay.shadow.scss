@@ -18,6 +18,16 @@
   cursor: not-allowed;
 }
 
+.bp-screenshot-overlay.bp-screenshot-capturing {
+  background-color: transparent;
+}
+
+.bp-screenshot-overlay.bp-screenshot-capturing .bp-screenshot-indicator {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .bp-screenshot-indicator {
   display: flex;
   flex-direction: column;

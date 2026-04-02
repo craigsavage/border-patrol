@@ -3,6 +3,22 @@ import SCREENSHOT_OVERLAY_STYLES from '../styles/components/screenshot-overlay.s
 
 (function () {
   let overlayContainer: HTMLElement | null = null;
+  let backdropElement: HTMLElement | null = null;
+
+  const CAPTURE_CLASS = 'bp-screenshot-capturing';
+
+  /**
+   * Resolves after two animation frames so style changes are fully painted.
+   *
+   * @returns A promise that resolves once paint has settled.
+   */
+  function waitForPaint(): Promise<void> {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => resolve());
+      });
+    });
+  }
 
   /**
    * Shows the screenshot capture overlay on the page.
@@ -12,7 +28,11 @@ import SCREENSHOT_OVERLAY_STYLES from '../styles/components/screenshot-overlay.s
    * is in progress and to prevent accidental clicks during capture.
    */
   function showScreenshotOverlay(): void {
-    if (overlayContainer) return;
+    if (overlayContainer && backdropElement) {
+      backdropElement.classList.remove(CAPTURE_CLASS);
+      Logger.info('screenshot-overlay: visual state restored');
+      return;
+    }
 
     overlayContainer = document.createElement('div');
     overlayContainer.id = 'bp-screenshot-overlay-container';
@@ -23,8 +43,8 @@ import SCREENSHOT_OVERLAY_STYLES from '../styles/components/screenshot-overlay.s
     style.textContent = SCREENSHOT_OVERLAY_STYLES;
     shadow.appendChild(style);
 
-    const backdrop = document.createElement('div');
-    backdrop.className = 'bp-screenshot-overlay';
+    backdropElement = document.createElement('div');
+    backdropElement.className = 'bp-screenshot-overlay';
 
     const indicator = document.createElement('div');
     indicator.className = 'bp-screenshot-indicator';
@@ -38,34 +58,38 @@ import SCREENSHOT_OVERLAY_STYLES from '../styles/components/screenshot-overlay.s
 
     indicator.appendChild(spinner);
     indicator.appendChild(label);
-    backdrop.appendChild(indicator);
-    shadow.appendChild(backdrop);
+    backdropElement.appendChild(indicator);
+    shadow.appendChild(backdropElement);
 
     document.body.appendChild(overlayContainer);
     Logger.info('screenshot-overlay: shown');
   }
 
   /**
-   * Removes the screenshot capture overlay from the page.
+   * Hides overlay visuals while keeping click-blocking active.
    *
-   * Waits for two animation frames after removal so that the browser has fully
-   * painted the change before the caller proceeds — this ensures the overlay
-   * does not appear in the next `captureVisibleTab` frame.
+   * Waits for paint so the next capture frame does not contain overlay visuals.
    *
-   * @returns A promise that resolves once the overlay removal is painted.
+   * @returns A promise that resolves once the visual hide is painted.
    */
   function hideScreenshotOverlay(): Promise<void> {
-    return new Promise(resolve => {
-      if (overlayContainer) {
-        overlayContainer.remove();
-        overlayContainer = null;
-        Logger.info('screenshot-overlay: hidden');
-      }
-      // Double rAF: first frame queues the removal, second confirms paint.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => resolve());
-      });
-    });
+    if (backdropElement) {
+      backdropElement.classList.add(CAPTURE_CLASS);
+      Logger.info('screenshot-overlay: capture visual state enabled');
+    }
+    return waitForPaint();
+  }
+
+  /**
+   * Removes the screenshot overlay from the page.
+   */
+  function removeScreenshotOverlay(): void {
+    if (overlayContainer) {
+      overlayContainer.remove();
+      overlayContainer = null;
+      backdropElement = null;
+      Logger.info('screenshot-overlay: removed');
+    }
   }
 
   chrome.runtime.onMessage.addListener(
@@ -83,6 +107,12 @@ import SCREENSHOT_OVERLAY_STYLES from '../styles/components/screenshot-overlay.s
       if (request.action === 'HIDE_SCREENSHOT_OVERLAY') {
         hideScreenshotOverlay().then(() => sendResponse({ hidden: true }));
         return true; // async response
+      }
+
+      if (request.action === 'REMOVE_SCREENSHOT_OVERLAY') {
+        removeScreenshotOverlay();
+        sendResponse({ removed: true });
+        return false;
       }
 
       return false;
