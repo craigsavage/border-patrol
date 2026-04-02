@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.7.1] - 2026-04-02
 
 ### Added
 
@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.7.0] - 2026-03-18
 
-#### Added
+### Added
 
 - Added a new "Full Page" screenshot mode that captures the entire scrollable page, not just the visible viewport. This provides users with more comprehensive capture options for documentation and sharing.
 - Added options to switch between "Full Page" and "Visible" screenshot modes, allowing users to choose the most suitable capture method for their needs. (Default: "Visible")
