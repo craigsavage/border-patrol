@@ -4,11 +4,12 @@ This repository is a Manifest V3 browser extension built with TypeScript, React,
 
 ## Architecture
 
-- Treat `src/background.ts` as the background service worker entry point.
-- Treat `src/scripts/main-content.ts` as the injected content-script entry point. It pulls in `border.ts`, `overlay.ts`, and `main-content.scss`.
-- Treat `src/popup/menu.tsx` as the popup entry point. Popup UI lives under `src/popup/` and uses React function components plus custom hooks.
-- Shared browser-extension helpers live under `src/scripts/` and `src/scripts/utils/`.
-- Shared TypeScript declarations live under `src/types/`.
+- **Background service worker:** `src/background.ts` (entry point; imports messaging handlers and tab state management)
+- **Content script:** `src/scripts/main-content.ts` (injected entry point; imports feature modules: `border.ts`, `overlay.ts`, `measurement.ts`, `ruler.ts`, `fullpage.ts`)
+- **Popup UI:** `src/popup/menu.tsx` (React + Ant Design; hooks in `src/popup/hooks/`, components in `src/popup/components/`)
+- **Offscreen document:** `src/offscreen/offscreen.ts` (handles async operations like full-page screenshots; runs in isolated context)
+- **Shared helpers:** `src/scripts/utils/` and `src/background/utils/` (exported TS declarations in `src/types/`)
+- **Styling:** Main SCSS bundle in `src/styles/main-content.scss`; shadow-DOM component styles compiled from `*.shadow.scss` files as CSS strings
 
 ## Build And Generated Output
 
@@ -34,7 +35,13 @@ This repository is a Manifest V3 browser extension built with TypeScript, React,
 - Tab-specific state is stored in `chrome.storage.local` keyed by tab ID. Global settings like border size and style are also read from storage. Keep that split consistent unless the task requires redesign.
 - Be careful with content-script injection. Avoid duplicate injection logic and keep background-side checks in place.
 - Keep Manifest V3 compatibility. Do not introduce APIs or patterns that require persistent background pages.
-- The three primary feature modes are **Border Mode**, **Inspector Mode**, and **Measurement Mode**. Each has a toggle in the popup, a corresponding `TabState` field, a background message handler (`TOGGLE_*` from popup, `UPDATE_*` to content script), a content script module under `src/scripts/`, and a keyboard shortcut (`Alt+Shift+B/I/M`). Follow this same pattern when adding future modes.
+- The four primary feature modes are **Border Mode**, **Inspector Mode**, **Measurement Mode**, and **Ruler Mode**. Each has:
+  - A toggle in the popup
+  - A corresponding `TabState` field
+  - A background message handler (`TOGGLE_*` from popup; `UPDATE_*` to content script)
+  - A content script module under `src/scripts/`
+  - A keyboard shortcut (`Alt+Shift+B/I/M/R`)
+  - Follow this pattern when adding new modes.
 
 ## UI And Styling
 
@@ -58,7 +65,7 @@ This repository is a Manifest V3 browser extension built with TypeScript, React,
 ## Documentation And Contribution Notes
 
 - If a behavior change affects usage, permissions, shortcuts, or screenshots, update `README.md` and related docs as needed.
-- The repository currently uses `main` as the default branch. If contribution docs mention `dev`, verify the current branch strategy before repeating that guidance.
+- The repository uses `main` as the default branch; verify current working branch in your local environment.
 
 ## Practical Defaults For Copilot
 
