@@ -379,6 +379,26 @@ async function captureAndDownloadFullPageScreenshot(
     }
   };
 
+  /**
+   * Best-effort fallback that removes the overlay host directly from the page
+   * if content-script messaging cannot complete cleanup.
+   */
+  const forceRemoveScreenshotOverlay = async (): Promise<void> => {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        func: () => {
+          const container = document.getElementById(
+            'bp-screenshot-overlay-container',
+          );
+          container?.remove();
+        },
+      });
+    } catch (error) {
+      Logger.warn('Full-page capture overlay fallback removal failed', error);
+    }
+  };
+
   // Ensure the fullpage content script is present before sending any messages.
   // On freshly-installed or never-activated tabs, the listener won't exist yet.
   await ensureScriptIsInjected(tabId);
@@ -461,6 +481,7 @@ async function captureAndDownloadFullPageScreenshot(
     // 3. Remove the overlay and restore fixed/sticky elements and the
     //    original scroll position.
     await sendScreenshotOverlayCommand('REMOVE_SCREENSHOT_OVERLAY');
+    await forceRemoveScreenshotOverlay();
     await chrome.tabs.sendMessage(tabId, { action: 'RESTORE_FIXED_ELEMENTS' });
     await chrome.tabs.sendMessage(tabId, {
       action: 'RESTORE_SCROLL',
@@ -795,14 +816,14 @@ chrome.runtime.onMessage.addListener(
                   'Attempted to take screenshot without download permission',
                 );
                 sendResponse(false);
-                return true;
+                return;
               }
 
               // Check if the active tab is a valid target
               if (!activeTab || !activeTab.windowId) {
                 Logger.error('No active tab available for screenshot');
                 sendResponse(false);
-                return true;
+                return;
               }
 
               await captureAndDownloadScreenshot(activeTab.windowId);
@@ -824,7 +845,7 @@ chrome.runtime.onMessage.addListener(
                   'Attempted to take full-page screenshot without download permission',
                 );
                 sendResponse(false);
-                return true;
+                return;
               }
 
               if (!activeTab || !activeTab.id || !activeTab.windowId) {
@@ -832,7 +853,7 @@ chrome.runtime.onMessage.addListener(
                   'No active tab available for full-page screenshot',
                 );
                 sendResponse(false);
-                return true;
+                return;
               }
 
               await captureAndDownloadFullPageScreenshot(
