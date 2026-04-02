@@ -7,3 +7,4 @@ import './overlay';
 import './measurement';
 import './ruler';
 import './fullpage';
+import './screenshot-overlay';

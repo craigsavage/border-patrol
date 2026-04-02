@@ -2,9 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.1] - 2026-04-02
+
+### Added
+
+- Added an in-page progress overlay for full-page screenshots so users can see capture is in progress while the page scrolls.
+- Added a temporary click-blocking overlay during full-page capture to prevent accidental interaction from interrupting the process.
+
+### Fixed
+
+- Fixed full-page screenshot message handling across background and content scripts to prevent intermittent capture failures.
+- Fixed a screenshot flow regression where full-page capture could fail before download due to inconsistent async message responses.
+
 ## [1.7.0] - 2026-03-18
 
-#### Added
+### Added
 
 - Added a new "Full Page" screenshot mode that captures the entire scrollable page, not just the visible viewport. This provides users with more comprehensive capture options for documentation and sharing.
 - Added options to switch between "Full Page" and "Visible" screenshot modes, allowing users to choose the most suitable capture method for their needs. (Default: "Visible")

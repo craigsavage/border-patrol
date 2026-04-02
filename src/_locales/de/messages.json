@@ -171,6 +171,10 @@
     "message": "Lineal-Modus aktivieren oder deaktivieren",
     "description": "Instruction to enable or disable ruler mode."
   },
+  "screenshotCaptureInProgress": {
+    "message": "Screenshot wird erstellt...",
+    "description": "Label shown in the page overlay while a full-page screenshot is being captured."
+  },
   "toggleRulerModeCommand": {
     "message": "Lineal-Modus umschalten",
     "description": "Command description for toggling Ruler Mode in manifest."

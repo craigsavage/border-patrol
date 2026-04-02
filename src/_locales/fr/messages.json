@@ -171,6 +171,10 @@
     "message": "Activer ou désactiver le mode règle",
     "description": "Instruction to enable or disable ruler mode."
   },
+  "screenshotCaptureInProgress": {
+    "message": "Capture d'écran en cours...",
+    "description": "Label shown in the page overlay while a full-page screenshot is being captured."
+  },
   "toggleRulerModeCommand": {
     "message": "Basculer le mode règle",
     "description": "Command description for toggling Ruler Mode in manifest."

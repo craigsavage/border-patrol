@@ -11,7 +11,7 @@ import { BorderSettings, ElementGroup } from '../types/scripts/border';
 
   // Get the Border Patrol Inspector container
   let bpInspectorContainer: Element | null = document.querySelector(
-    '#bp-inspector-container'
+    '#bp-inspector-container',
   );
 
   let observer: MutationObserver | null = null; // Declare the MutationObserver instance
@@ -64,7 +64,7 @@ import { BorderSettings, ElementGroup } from '../types/scripts/border';
   function applyOutlineToElement(
     element: Element,
     outlineSize: number,
-    outlineStyle: string
+    outlineStyle: string,
   ): void {
     // Ensure the element is a valid DOM element
     if (!(element instanceof Element)) {
@@ -175,10 +175,10 @@ import { BorderSettings, ElementGroup } from '../types/scripts/border';
   async function manageElementOutlines(
     isEnabled: boolean,
     size: number,
-    style: string
+    style: string,
   ): Promise<void> {
     Logger.info(
-      `Managing element outlines: isEnabled=${isEnabled}, size=${size}, style=${style}`
+      `Managing element outlines: isEnabled=${isEnabled}, size=${size}, style=${style}`,
     );
 
     // Remove outline if extension is disabled
@@ -209,41 +209,47 @@ import { BorderSettings, ElementGroup } from '../types/scripts/border';
 
   // Receive message to apply outline to all elements
   chrome.runtime.onMessage.addListener(
-    async (
+    (
       request: any,
       sender: chrome.runtime.MessageSender,
-      sendResponse: (response?: any) => void
+      sendResponse: (response?: any) => void,
     ) => {
       Logger.info('Received message to apply outline:', request);
 
-      // Receive message to update border mode
-      if (request.action === 'UPDATE_BORDER_MODE') {
-        // Get new border mode from request
-        isBorderModeEnabled = request.isEnabled;
-        // Apply/remove outline based on the new mode and current settings
-        await manageElementOutlines(
-          isBorderModeEnabled,
-          currentBorderSettings.size,
-          currentBorderSettings.style
-        );
-      }
-      // Receive message to update border settings
-      if (request.action === 'UPDATE_BORDER_SETTINGS') {
-        // Get new border settings from request
-        currentBorderSettings.size = request.borderSize;
-        currentBorderSettings.style = request.borderStyle;
-        // Apply/remove outline based on the current mode and new settings
-        await manageElementOutlines(
-          isBorderModeEnabled,
-          currentBorderSettings.size,
-          currentBorderSettings.style
-        );
-      }
-      // Respond to PING message if needed (used by background to check injection)
       if (request.action === 'PING') {
         sendResponse({ status: 'PONG' });
-        return true; // Indicate async response
+        return false;
       }
-    }
+
+      void (async () => {
+        // Receive message to update border mode
+        if (request.action === 'UPDATE_BORDER_MODE') {
+          // Get new border mode from request
+          isBorderModeEnabled = request.isEnabled;
+          // Apply/remove outline based on the new mode and current settings
+          await manageElementOutlines(
+            isBorderModeEnabled,
+            currentBorderSettings.size,
+            currentBorderSettings.style,
+          );
+        }
+        // Receive message to update border settings
+        if (request.action === 'UPDATE_BORDER_SETTINGS') {
+          // Get new border settings from request
+          currentBorderSettings.size = request.borderSize;
+          currentBorderSettings.style = request.borderStyle;
+          // Apply/remove outline based on the current mode and new settings
+          await manageElementOutlines(
+            isBorderModeEnabled,
+            currentBorderSettings.size,
+            currentBorderSettings.style,
+          );
+        }
+      })().catch(error => {
+        Logger.error('Error handling border message:', error);
+      });
+
+      return false;
+    },
   );
 })();
