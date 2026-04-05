@@ -20,9 +20,11 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 /**
  * Custom warning handler for Rollup.
+ * Converts unresolved dependencies and missing globals to errors to catch build issues in CI.
  *
  * @param {Object} warning - The warning object from Rollup.
  * @param {Function} warn - The default warning handler.
+ * @throws {Error} For unresolved dependencies and missing globals
  * @returns {void}
  */
 const onwarn = (warning, warn) => {
@@ -33,6 +35,17 @@ const onwarn = (warning, warn) => {
   ) {
     return;
   }
+
+  // Treat unresolved dependencies as errors
+  if (warning.code === 'UNRESOLVED_DEPENDENCY') {
+    throw new Error(`Unresolved dependency: ${warning.message}`);
+  }
+
+  // Treat missing globals as errors
+  if (warning.code === 'MISSING_GLOBAL_NAME') {
+    throw new Error(`Missing global variable: ${warning.message}`);
+  }
+
   warn(warning);
 };
 

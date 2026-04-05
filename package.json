@@ -10,9 +10,10 @@
     "changelog:generate": "node scripts/changelog-md-to-html.js",
     "compress:dist": "node scripts/compress-dist.js",
     "prebuild": "npm run clean && npm run version-sync && npm run changelog:generate",
-    "build": "NODE_ENV=production rollup -c",
+    "update-deps": "npm i baseline-browser-mapping@latest -D && update-browserslist-db --yes",
+    "build": "node scripts/time-command.js \"NODE_ENV=production rollup -c\"",
     "dev": "NODE_ENV=development rollup -c -w",
-    "release": "npm run build && npm run compress:dist",
+    "release": "node scripts/time-command.js \"npm run build && npm run compress:dist\"",
     "test": "jest"
   },
   "repository": {
@@ -52,6 +53,7 @@
     "autoprefixer": "^10.4.21",
     "babel-jest": "^30.2.0",
     "babel-plugin-import": "^1.13.8",
+    "baseline-browser-mapping": "^2.10.15",
     "cssnano": "^7.1.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.2.0",
@@ -65,7 +67,8 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.92.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.0",
+    "update-browserslist-db": "^1.2.3"
   },
   "dependencies": {
     "antd": "^6.3.1",
