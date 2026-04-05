@@ -1,5 +1,6 @@
 import Logger from './utils/logger';
 import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
 (function () {
   let isMeasurementModeEnabled = false;
@@ -673,15 +674,15 @@ import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
   // Listen for messages from the background script
   chrome.runtime.onMessage.addListener(
     (
-      request: any,
+      request: RuntimeMessage,
       sender: chrome.runtime.MessageSender,
       sendResponse: (response?: any) => void,
     ) => {
       try {
-        if (request.action === 'UPDATE_MEASUREMENT_MODE') {
-          handleMeasurementModeUpdate(request.isEnabled);
-        } else if (request.action === 'PING') {
-          sendResponse({ status: 'PONG' });
+        if (request.action === RUNTIME_MESSAGES.UPDATE_MEASUREMENT_MODE) {
+          handleMeasurementModeUpdate(request.payload.isEnabled);
+        } else if (request.action === RUNTIME_MESSAGES.PING) {
+          sendResponse({ status: RUNTIME_MESSAGES.PONG });
           return true;
         }
       } catch (error) {

@@ -1,4 +1,8 @@
 import Logger from '../scripts/utils/logger';
+import {
+  RUNTIME_MESSAGES,
+  type RuntimeMessage,
+} from 'types/runtime-messages';
 
 /**
  * Ensures that the offscreen document used for canvas stitching exists.
@@ -33,8 +37,8 @@ export async function waitForOffscreenReady(
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       const response = await chrome.runtime.sendMessage({
-        action: 'OFFSCREEN_PING',
-      });
+        action: RUNTIME_MESSAGES.OFFSCREEN_PING,
+      } satisfies RuntimeMessage);
       if (response?.ready) return;
     } catch {
       // Offscreen listener not yet registered; retry after a short delay.

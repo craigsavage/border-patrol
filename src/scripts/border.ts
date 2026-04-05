@@ -1,5 +1,6 @@
 import Logger from './utils/logger';
 import { BorderSettings, ElementGroup } from '../types/scripts/border';
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
 (function () {
   // Cache the border mode state and border settings
@@ -210,34 +211,34 @@ import { BorderSettings, ElementGroup } from '../types/scripts/border';
   // Receive message to apply outline to all elements
   chrome.runtime.onMessage.addListener(
     (
-      request: any,
-      sender: chrome.runtime.MessageSender,
-      sendResponse: (response?: any) => void,
+      request: RuntimeMessage,
+      _sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: unknown) => void,
     ) => {
       Logger.info('Received message to apply outline:', request);
 
-      if (request.action === 'PING') {
-        sendResponse({ status: 'PONG' });
+      if (request.action === RUNTIME_MESSAGES.PING) {
+        sendResponse({ status: RUNTIME_MESSAGES.PONG });
         return false;
       }
 
       void (async () => {
         // Receive message to update border mode
-        if (request.action === 'UPDATE_BORDER_MODE') {
+        if (request.action === RUNTIME_MESSAGES.UPDATE_BORDER_MODE) {
           // Get new border mode from request
-          isBorderModeEnabled = request.isEnabled;
+          isBorderModeEnabled = request.payload.isEnabled;
           // Apply/remove outline based on the new mode and current settings
           await manageElementOutlines(
             isBorderModeEnabled,
             currentBorderSettings.size,
             currentBorderSettings.style,
           );
-        }
+        } 
         // Receive message to update border settings
-        if (request.action === 'UPDATE_BORDER_SETTINGS') {
+        if (request.action === RUNTIME_MESSAGES.UPDATE_BORDER_SETTINGS) {
           // Get new border settings from request
-          currentBorderSettings.size = request.borderSize;
-          currentBorderSettings.style = request.borderStyle;
+          currentBorderSettings.size = request.payload.size;
+          currentBorderSettings.style = request.payload.style;
           // Apply/remove outline based on the current mode and new settings
           await manageElementOutlines(
             isBorderModeEnabled,

@@ -1,13 +1,12 @@
+import type { StitchFrame } from '../../offscreen/types';
 import { getTimestampedScreenshotFilename } from '../../scripts/utils/filename';
 import Logger from '../../scripts/utils/logger';
+import {
+  RUNTIME_MESSAGES,
+  type RuntimeMessage,
+} from 'types/runtime-messages';
 import { ensureScriptIsInjected } from '../extension-ui';
 import { ensureOffscreenDocument, waitForOffscreenReady } from '../offscreen';
-
-interface StitchFrame {
-  dataUrl: string;
-  x: number;
-  y: number;
-}
 
 /**
  * Returns a promise that resolves after the specified number of milliseconds.
@@ -76,8 +75,8 @@ export async function captureAndDownloadFullPageScreenshot(
   await ensureScriptIsInjected(tabId);
 
   const dims = (await chrome.tabs.sendMessage(tabId, {
-    action: 'GET_PAGE_DIMENSIONS',
-  })) as {
+    action: RUNTIME_MESSAGES.GET_PAGE_DIMENSIONS,
+  } satisfies RuntimeMessage)) as {
     scrollHeight: number;
     scrollWidth: number;
     viewportHeight: number;
@@ -101,7 +100,9 @@ export async function captureAndDownloadFullPageScreenshot(
 
   const frames: StitchFrame[] = [];
 
-  await chrome.tabs.sendMessage(tabId, { action: 'HIDE_FIXED_ELEMENTS' });
+  await chrome.tabs.sendMessage(tabId, {
+    action: RUNTIME_MESSAGES.HIDE_FIXED_ELEMENTS,
+  } satisfies RuntimeMessage);
   await sendScreenshotOverlayCommand('SHOW_SCREENSHOT_OVERLAY');
 
   try {
@@ -110,10 +111,9 @@ export async function captureAndDownloadFullPageScreenshot(
     for (let y = 0; y < scrollHeight; y += viewportHeight) {
       for (let x = 0; x < scrollWidth; x += viewportWidth) {
         const actual = (await chrome.tabs.sendMessage(tabId, {
-          action: 'SCROLL_TO',
-          x,
-          y,
-        })) as { scrollX: number; scrollY: number };
+          action: RUNTIME_MESSAGES.SCROLL_TO,
+          payload: { x, y },
+        } satisfies RuntimeMessage)) as { scrollX: number; scrollY: number };
 
         const elapsed = Date.now() - lastCaptureTime;
         if (elapsed < MIN_CAPTURE_INTERVAL_MS) {
@@ -138,12 +138,13 @@ export async function captureAndDownloadFullPageScreenshot(
   } finally {
     await sendScreenshotOverlayCommand('REMOVE_SCREENSHOT_OVERLAY');
     await forceRemoveScreenshotOverlay();
-    await chrome.tabs.sendMessage(tabId, { action: 'RESTORE_FIXED_ELEMENTS' });
     await chrome.tabs.sendMessage(tabId, {
-      action: 'RESTORE_SCROLL',
-      x: origX,
-      y: origY,
-    });
+      action: RUNTIME_MESSAGES.RESTORE_FIXED_ELEMENTS,
+    } satisfies RuntimeMessage);
+    await chrome.tabs.sendMessage(tabId, {
+      action: RUNTIME_MESSAGES.RESTORE_SCROLL,
+      payload: { x: origX, y: origY },
+    } satisfies RuntimeMessage);
   }
 
   await ensureOffscreenDocument();
@@ -155,14 +156,16 @@ export async function captureAndDownloadFullPageScreenshot(
   }>(resolve => {
     chrome.runtime.sendMessage(
       {
-        action: 'STITCH_FRAMES',
-        frames,
-        totalWidth: scrollWidth,
-        totalHeight: scrollHeight,
-        viewportWidth,
-        viewportHeight,
-        devicePixelRatio,
-      },
+        action: RUNTIME_MESSAGES.STITCH_FRAMES,
+        payload: {
+          frames,
+          totalWidth: scrollWidth,
+          totalHeight: scrollHeight,
+          viewportWidth,
+          viewportHeight,
+          devicePixelRatio,
+        },
+      } satisfies RuntimeMessage,
       response => resolve(response),
     );
   });

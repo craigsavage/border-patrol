@@ -9,6 +9,7 @@ import {
 } from './utils/overlay-formatters';
 import OVERLAY_STYLES from '../styles/components/overlay.shadow.scss';
 import { CreateAndAppendOptions } from '../types/scripts/overlay';
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
 (function () {
   let isInspectorModeEnabled: boolean = false; // Cache the inspector mode state
@@ -612,10 +613,9 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
   chrome.storage.onChanged.addListener(handleStorageChange);
 
   void loadOverlayTheme();
-
   chrome.runtime.onMessage.addListener(
     (
-      request: any,
+      request: RuntimeMessage,
       sender: chrome.runtime.MessageSender,
       sendResponse: (response?: any) => void,
     ) => {
@@ -623,12 +623,11 @@ import { CreateAndAppendOptions } from '../types/scripts/overlay';
 
       try {
         // Check if the message is to update inspector mode
-        if (request.action === 'UPDATE_INSPECTOR_MODE') {
-          handleInspectorModeUpdate(request.isEnabled);
-        }
+        if (request.action === RUNTIME_MESSAGES.UPDATE_INSPECTOR_MODE) {
+          handleInspectorModeUpdate(request.payload.isEnabled);
+        } else if (request.action === RUNTIME_MESSAGES.PING) {
         // Respond to PING message if needed (used by background to check injection)
-        else if (request.action === 'PING') {
-          sendResponse({ status: 'PONG' });
+          sendResponse({ status: RUNTIME_MESSAGES.PONG });
           return true; // Indicate async response
         } else {
           // Ignore any other messages
