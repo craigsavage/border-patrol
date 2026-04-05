@@ -65,7 +65,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.92.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.0"
   },
   "dependencies": {
     "antd": "^6.3.1",
