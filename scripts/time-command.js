@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Times an npm script execution and displays the duration at the end.
- * Usage: node scripts/time-command.js "npm run build"
+ * Times a command execution and displays the duration at the end.
+ * Usage: node scripts/time-command.js "command to run"
  */
 
 import { spawn } from 'child_process';
@@ -26,6 +26,15 @@ child.on('close', code => {
   const duration = Date.now() - startTime;
   const seconds = (duration / 1000).toFixed(2);
 
-  console.log(`\n✨ Build completed in ${seconds}s`);
-  process.exit(code);
+  const isBuild = /\bbuild\b/.test(command) || /npm run build/.test(command);
+
+  if (code === 0) {
+    const label = isBuild ? 'Build completed' : 'Command completed';
+    console.log(`\n✨ ${label} in ${seconds}s`);
+    process.exit(0);
+  }
+
+  const label = isBuild ? 'Build failed' : 'Command failed';
+  console.error(`\n✖ ${label} after ${seconds}s (exit code: ${code ?? 'unknown'})`);
+  process.exit(code ?? 1);
 });
