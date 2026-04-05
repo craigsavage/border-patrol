@@ -35,6 +35,8 @@ child.on('close', code => {
   }
 
   const label = isBuild ? 'Build failed' : 'Command failed';
-  console.error(`\n✖ ${label} after ${seconds}s (exit code: ${code ?? 'unknown'})`);
+  console.error(
+    `\n✖ ${label} after ${seconds}s (exit code: ${code ?? 'unknown'})`,
+  );
   process.exit(code ?? 1);
 });
