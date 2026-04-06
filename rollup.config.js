@@ -14,9 +14,20 @@ import * as sass from 'sass';
 import postcssScss from 'postcss-scss';
 import autoprefixer from 'autoprefixer';
 import cssnano from 'cssnano';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+
+const tsconfigPath = path.resolve(process.cwd(), 'tsconfig.json');
+const tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf8'));
+const tsconfigBaseUrl = tsconfig.compilerOptions?.baseUrl;
+if (typeof tsconfigBaseUrl !== 'string') {
+  throw new Error(
+    'rollup.config.js: set compilerOptions.baseUrl in tsconfig.json (same root Rollup uses for non-node_modules imports).',
+  );
+}
+
+const tsconfigBaseUrlAbs = path.resolve(path.dirname(tsconfigPath), tsconfigBaseUrl);
 
 /**
  * Custom warning handler for Rollup.
@@ -59,6 +70,35 @@ const postcssPlugin = outputPath => {
 };
 
 /**
+ * Rollup does not read tsconfig; mirror TypeScript resolution for bare specifiers under `baseUrl`
+
+ * We only return a
+ * path when a real file exists under `baseUrl`, same as TypeScript would resolve there before
+ * falling through to `node_modules`.
+ */
+const tsconfigBaseUrlResolvePlugin = () => ({
+  name: 'tsconfig-baseurl-resolve',
+  resolveId(source) {
+    // If the source starts with a null byte, a dot, or is an absolute path, return null
+    if (
+      source.startsWith('\0') ||
+      source.startsWith('.') ||
+      path.isAbsolute(source)
+    ) {
+      return null;
+    }
+    // Join the base URL with the source
+    const candidate = path.join(tsconfigBaseUrlAbs, source);
+    // Check for the existence of the file with the extensions .ts, .tsx, and .d.ts
+    for (const ext of ['.ts', '.tsx', '.d.ts']) {
+      const file = candidate + ext;
+      if (existsSync(file)) return file;
+    }
+    return null;
+  },
+});
+
+/**
  * Compiles SCSS files intended for shadow-root usage into CSS string modules.
  *
  * @returns {import('rollup').Plugin} Rollup plugin.
@@ -99,6 +139,7 @@ console.log(`Building for ${isProduction ? 'production' : 'development'}...`);
 
 // Common plugins for all builds
 const commonPlugins = [
+  tsconfigBaseUrlResolvePlugin(),
   shadowScssPlugin(),
   replace({
     preventAssignment: true,
