@@ -93,3 +93,6 @@ Thumbs.db
 
 # Hide optimization reports
 bundle-report.html
+
+# Build cache (vendor CSS, etc.)
+.build-cache/

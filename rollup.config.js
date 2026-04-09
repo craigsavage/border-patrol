@@ -1,9 +1,8 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import babel from '@rollup/plugin-babel';
+import esbuild from 'rollup-plugin-esbuild';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import replace from '@rollup/plugin-replace';
-import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import { visualizer } from 'rollup-plugin-visualizer';
 import postcssRollup from 'rollup-plugin-postcss';
@@ -159,14 +158,11 @@ const commonPlugins = [
       : JSON.stringify(''),
   }),
   json(),
-  babel({
-    babelHelpers: 'bundled',
-    exclude: 'node_modules/**',
-    presets: [
-      ['@babel/preset-react', { runtime: 'automatic' }],
-      '@babel/preset-typescript',
-    ],
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  esbuild({
+    target: 'chrome100',
+    jsx: 'automatic',
+    exclude: /node_modules/,
+    minify: isProduction,
   }),
   nodeResolve({
     browser: true,
@@ -178,6 +174,10 @@ const commonPlugins = [
     include: /node_modules/,
     ignoreGlobal: false,
   }),
+].filter(Boolean);
+
+// Plugins that should only run once (not safe to run in parallel across multiple bundles)
+const oncePlugins = [
   copy({
     targets: [
       { src: 'src/manifest.json', dest: 'dist' },
@@ -186,28 +186,11 @@ const commonPlugins = [
       { src: 'src/assets/fonts/*.woff2', dest: 'dist/assets/fonts' },
       { src: 'src/_locales/**', dest: 'dist/_locales' },
       { src: 'src/offscreen/offscreen.html', dest: 'dist/offscreen' },
-      // Copy Ant Design styles
-      {
-        src: 'node_modules/antd/dist/reset.css',
-        dest: 'dist/popup',
-        transform: async (contents, filename) => {
-          if (isProduction) {
-            const postcssResult = await postcss([
-              autoprefixer(),
-              cssnano(),
-            ]).process(contents, {
-              from: filename,
-              to: 'reset.css',
-            });
-            return postcssResult.css;
-          }
-          return contents; // Return the original contents in development mode
-        },
-      },
+      // Copy pre-processed Ant Design reset CSS (processed once by scripts/process-vendor-css.js)
+      { src: '.build-cache/vendor-reset.css', dest: 'dist/popup', rename: 'reset.css' },
     ],
     hook: 'writeBundle',
   }),
-  isProduction && terser(),
   isProduction &&
     visualizer({
       filename: 'bundle-report.html',
@@ -232,24 +215,32 @@ const entryPoints = [
     cssFilename: 'main-content.css',
   },
   {
-    input: 'src/popup/menu.tsx',
-    output: 'popup/menu',
-    format: 'iife', // IIFE
-    cssFilename: 'menu.css',
-  },
-  {
     input: 'src/offscreen/offscreen.ts',
     output: 'offscreen/offscreen',
     format: 'iife', // IIFE
     cssFilename: null,
   },
+  // In production, menu.tsx is built by esbuild directly (scripts/build-parallel.js)
+  // for speed. In development/watch mode rollup handles it so `npm run dev` works.
+  ...(!isProduction
+    ? [
+        {
+          input: 'src/popup/menu.tsx',
+          output: 'popup/menu',
+          format: 'iife',
+          cssFilename: 'menu.css',
+        },
+      ]
+    : []),
 ];
 
 // Generate a config for each entry point
-export default entryPoints.map(({ input, output, format, cssFilename }) => {
+export default entryPoints.map(({ input, output, format, cssFilename }, index) => {
   const pluginsForThisEntry = [
     ...commonPlugins,
     cssFilename && postcssPlugin(cssFilename),
+    // copy + visualizer run once, attached to the first entry to avoid parallel race conditions
+    ...(index === 0 ? oncePlugins : []),
   ].filter(Boolean);
 
   const config = {

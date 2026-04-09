@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Reworked the build process for faster builds and better optimization (dropping total build time from ~9s to ~1.1s).
+
 ## [1.7.1] - 2026-04-02
 
 ### Added
