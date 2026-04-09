@@ -220,6 +220,18 @@ const entryPoints = [
     format: 'iife', // IIFE
     cssFilename: null,
   },
+  // In production, menu.tsx is built by esbuild directly (scripts/build-parallel.js)
+  // for speed. In development/watch mode rollup handles it so `npm run dev` works.
+  ...(!isProduction
+    ? [
+        {
+          input: 'src/popup/menu.tsx',
+          output: 'popup/menu',
+          format: 'iife',
+          cssFilename: 'menu.css',
+        },
+      ]
+    : []),
 ];
 
 // Generate a config for each entry point
