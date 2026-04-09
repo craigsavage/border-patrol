@@ -14,7 +14,8 @@
     "build": "node scripts/time-command.js \"NODE_ENV=production rollup -c\"",
     "dev": "NODE_ENV=development rollup -c -w",
     "release": "node scripts/time-command.js \"npm run build && npm run compress:dist\"",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -44,7 +45,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@types/chrome": "^0.1.14",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.2.3",
@@ -67,7 +68,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.92.1",
-    "typescript": "^6.0.0",
+    "typescript": "^6.0.2",
     "update-browserslist-db": "^1.2.3"
   },
   "dependencies": {
