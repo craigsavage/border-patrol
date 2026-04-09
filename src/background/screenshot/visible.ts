@@ -17,7 +17,7 @@ export async function captureAndDownloadScreenshot(
     });
     Logger.info('Screenshot captured successfully:', {
       windowId,
-      screenshotUrl,
+      screenshotUrlLength: screenshotUrl.length,
     });
 
     const filename = getTimestampedScreenshotFilename(format);
