@@ -40,7 +40,7 @@ const chromeMock = {
   },
 };
 
-(global as Record<string, unknown>).chrome = chromeMock;
+(globalThis as Record<string, unknown>).chrome = chromeMock;
 
 // ---------------------------------------------------------------------------
 // Reset storage and mocks before each test.
@@ -121,7 +121,7 @@ describe('cleanupOrphanedTabStates', () => {
     storageData['borderSize'] = 2; // global setting — must NOT be removed
 
     // Only tab 101 is open
-    chromeMock.tabs.query.mockResolvedValueOnce([{ id: 101 }]);
+    chromeMock.tabs.query.mockResolvedValueOnce([{ id: 101 } as chrome.tabs.Tab]);
     await cleanupOrphanedTabStates();
 
     expect(chromeMock.storage.local.remove).toHaveBeenCalledWith(['100']);
@@ -131,7 +131,7 @@ describe('cleanupOrphanedTabStates', () => {
 
   it('does not call remove when there are no orphaned entries', async () => {
     storageData['200'] = { ...DEFAULT_TAB_STATE };
-    chromeMock.tabs.query.mockResolvedValueOnce([{ id: 200 }]);
+    chromeMock.tabs.query.mockResolvedValueOnce([{ id: 200 } as chrome.tabs.Tab]);
 
     await cleanupOrphanedTabStates();
 
