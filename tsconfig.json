@@ -9,6 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./src",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "scripts/*": ["scripts/*"]
     },
