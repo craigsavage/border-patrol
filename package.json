@@ -14,7 +14,8 @@
     "build": "node scripts/time-command.js \"NODE_ENV=production rollup -c\"",
     "dev": "NODE_ENV=development rollup -c -w",
     "release": "node scripts/time-command.js \"npm run build && npm run compress:dist\"",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
