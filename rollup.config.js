@@ -1,9 +1,8 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import babel from '@rollup/plugin-babel';
+import esbuild from 'rollup-plugin-esbuild';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import replace from '@rollup/plugin-replace';
-import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import { visualizer } from 'rollup-plugin-visualizer';
 import postcssRollup from 'rollup-plugin-postcss';
@@ -159,14 +158,11 @@ const commonPlugins = [
       : JSON.stringify(''),
   }),
   json(),
-  babel({
-    babelHelpers: 'bundled',
-    exclude: 'node_modules/**',
-    presets: [
-      ['@babel/preset-react', { runtime: 'automatic' }],
-      '@babel/preset-typescript',
-    ],
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  esbuild({
+    target: 'chrome100',
+    jsx: 'automatic',
+    exclude: /node_modules/,
+    minify: isProduction,
   }),
   nodeResolve({
     browser: true,
@@ -207,7 +203,6 @@ const commonPlugins = [
     ],
     hook: 'writeBundle',
   }),
-  isProduction && terser(),
   isProduction &&
     visualizer({
       filename: 'bundle-report.html',
