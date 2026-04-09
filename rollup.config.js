@@ -20,13 +20,7 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 const tsconfigPath = path.resolve(process.cwd(), 'tsconfig.json');
 const tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf8'));
-const tsconfigBaseUrl = tsconfig.compilerOptions?.baseUrl;
-if (typeof tsconfigBaseUrl !== 'string') {
-  throw new Error(
-    'rollup.config.js: set compilerOptions.baseUrl in tsconfig.json (same root Rollup uses for non-node_modules imports).',
-  );
-}
-
+const tsconfigBaseUrl = tsconfig.compilerOptions?.baseUrl ?? './src';
 const tsconfigBaseUrlAbs = path.resolve(path.dirname(tsconfigPath), tsconfigBaseUrl);
 
 /**
