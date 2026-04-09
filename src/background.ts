@@ -2,7 +2,6 @@ import {
   DEFAULT_BORDER_SIZE,
   DEFAULT_BORDER_STYLE,
   ICON_PATHS,
-  STORAGE_VERSION,
 } from './scripts/constants';
 import { isRestrictedUrl, isChromeTabClosedError } from './scripts/helpers';
 import Logger from './scripts/utils/logger';
@@ -20,8 +19,8 @@ import { setupCommandListener } from './background/commands';
 
 /**
  * Executed when the extension is installed or updated.
- * Initializes default settings, stamps the storage version, and removes any
- * tab state entries left over from a previous session.
+ * Initializes default settings and removes any tab state entries left over
+ * from a previous session.
  */
 chrome.runtime.onInstalled.addListener(
   async (details: chrome.runtime.InstalledDetails) => {
@@ -43,11 +42,7 @@ chrome.runtime.onInstalled.addListener(
       ]);
 
       // Combine existing settings with defaults (existing takes precedence)
-      const settingsToSet = {
-        ...defaultGlobalSettings,
-        ...existingStorage,
-        storageVersion: STORAGE_VERSION,
-      };
+      const settingsToSet = { ...defaultGlobalSettings, ...existingStorage };
       await chrome.storage.local.set(settingsToSet);
 
       // Remove any tab state entries that were left behind by the previous session.
