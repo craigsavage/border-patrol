@@ -1,4 +1,4 @@
-name: Run Tests
+name: CI
 
 on:
   push:
@@ -36,6 +36,9 @@ jobs:
 
       - name: Build extension
         run: npm run build
+
+      - name: TypeScript check
+        run: npm run typecheck
 
       - name: Run tests
         run: npm test
