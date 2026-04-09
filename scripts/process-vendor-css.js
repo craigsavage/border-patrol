@@ -21,8 +21,10 @@ const cacheDir = resolve(rootDir, '.build-cache');
 const cacheFile = resolve(cacheDir, 'vendor-reset.css');
 const versionFile = resolve(cacheDir, 'vendor-reset.version');
 
-const pkg = JSON.parse(readFileSync(resolve(rootDir, 'package.json'), 'utf8'));
-const antdVersion = pkg.dependencies?.antd ?? 'unknown';
+const antdPkg = JSON.parse(
+  readFileSync(resolve(rootDir, 'node_modules/antd/package.json'), 'utf8'),
+);
+const antdVersion = antdPkg.version;
 
 const cacheValid =
   existsSync(cacheFile) &&
@@ -35,7 +37,7 @@ if (cacheValid) {
 }
 
 const resetCssPath = resolve(rootDir, 'node_modules/antd/dist/reset.css');
-const contents = readFileSync(resetCssPath);
+const contents = readFileSync(resetCssPath, 'utf8');
 
 const result = await postcss([autoprefixer(), cssnano()]).process(contents, {
   from: resetCssPath,
