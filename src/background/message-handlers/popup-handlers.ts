@@ -44,9 +44,9 @@ export function handlePopupMessage(
       );
 
       if (request.action === RUNTIME_MESSAGES.TOGGLE_BORDER_MODE) {
-        const { isEnabled, tabId } = request.payload;
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
-          tabId,
+          tabId: activeTabId,
           states: { borderMode: isEnabled },
         });
         sendResponse(true);
@@ -54,9 +54,9 @@ export function handlePopupMessage(
       }
 
       if (request.action === RUNTIME_MESSAGES.TOGGLE_INSPECTOR_MODE) {
-        const { isEnabled, tabId } = request.payload;
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
-          tabId,
+          tabId: activeTabId,
           states: { inspectorMode: isEnabled },
         });
         sendResponse(true);
@@ -64,9 +64,9 @@ export function handlePopupMessage(
       }
 
       if (request.action === RUNTIME_MESSAGES.TOGGLE_MEASUREMENT_MODE) {
-        const { isEnabled, tabId } = request.payload;
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
-          tabId,
+          tabId: activeTabId,
           states: { measurementMode: isEnabled },
         });
         sendResponse(true);
@@ -74,9 +74,9 @@ export function handlePopupMessage(
       }
 
       if (request.action === RUNTIME_MESSAGES.TOGGLE_RULER_MODE) {
-        const { isEnabled, tabId } = request.payload;
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
-          tabId,
+          tabId: activeTabId,
           states: { rulerMode: isEnabled },
         });
         sendResponse(true);

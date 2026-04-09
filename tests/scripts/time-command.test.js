@@ -20,7 +20,7 @@ test('prints Command failed on non-zero exit', () => {
 });
 
 test('prints Build failed for build-like failing command', () => {
-  const res = run('sh -c "echo build; exit 5"');
+  const res = run('node -e "process.argv; process.exit(5)" build');
   expect(res.status).toBe(5);
   expect(res.stderr || '').toMatch(/Build failed/);
 });

@@ -22,6 +22,15 @@ const child = spawn(command, {
   stdio: 'inherit',
 });
 
+child.on('error', err => {
+  const duration = Date.now() - startTime;
+  const seconds = (duration / 1000).toFixed(2);
+  const isBuild = /\bbuild\b/.test(command) || /npm run build/.test(command);
+  const label = isBuild ? 'Build failed' : 'Command failed';
+  console.error(`\n✖ ${label} after ${seconds}s (${err.message})`);
+  process.exit(1);
+});
+
 child.on('close', code => {
   const duration = Date.now() - startTime;
   const seconds = (duration / 1000).toFixed(2);

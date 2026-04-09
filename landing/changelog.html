@@ -63,10 +63,10 @@
           (dropping total build time from ~9s to ~1.1s).
         </li>
         <li>
-          Improved Border Mode performance on large or animation-heavy pages.
-          Outlines now apply in small batches instead of all at once, and DOM
-          change handling is throttled to once per frame so the extension stays
-          snappy under heavy DOM churn.
+          Improved Border Mode performance on large or animation-heavy pages by
+          applying outlines through an injected stylesheet instead of
+          per-element updates, keeping the extension responsive under heavy DOM
+          churn.
         </li>
       </ul>
       <h2>[1.7.1] - 2026-04-02</h2>
