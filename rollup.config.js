@@ -174,6 +174,10 @@ const commonPlugins = [
     include: /node_modules/,
     ignoreGlobal: false,
   }),
+].filter(Boolean);
+
+// Plugins that should only run once (not safe to run in parallel across multiple bundles)
+const oncePlugins = [
   copy({
     targets: [
       { src: 'src/manifest.json', dest: 'dist' },
@@ -241,10 +245,12 @@ const entryPoints = [
 ];
 
 // Generate a config for each entry point
-export default entryPoints.map(({ input, output, format, cssFilename }) => {
+export default entryPoints.map(({ input, output, format, cssFilename }, index) => {
   const pluginsForThisEntry = [
     ...commonPlugins,
     cssFilename && postcssPlugin(cssFilename),
+    // copy + visualizer run once, attached to the first entry to avoid parallel race conditions
+    ...(index === 0 ? oncePlugins : []),
   ].filter(Boolean);
 
   const config = {

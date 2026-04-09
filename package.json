@@ -11,7 +11,7 @@
     "compress:dist": "node scripts/compress-dist.js",
     "prebuild": "npm run clean && npm run version-sync && npm run changelog:generate",
     "update-deps": "npm i baseline-browser-mapping@latest -D && update-browserslist-db --yes",
-    "build": "node scripts/time-command.js \"NODE_ENV=production rollup -c\"",
+    "build": "node scripts/time-command.js \"NODE_ENV=production node scripts/build-parallel.js\"",
     "dev": "NODE_ENV=development rollup -c -w",
     "release": "node scripts/time-command.js \"npm run build && npm run compress:dist\"",
     "test": "jest",
