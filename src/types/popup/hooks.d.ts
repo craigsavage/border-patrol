@@ -1,3 +1,5 @@
+import { RuntimeMessage } from "types/runtime-messages";
+
 export interface IExtensionSettings {
   isRestricted: boolean;
   borderMode: boolean;
@@ -15,13 +17,7 @@ export interface IExtensionSettings {
 }
 
 export type MessageListenerType = (
-  message: {
-    action: string;
-    borderMode?: boolean;
-    inspectorMode?: boolean;
-    measurementMode?: boolean;
-    rulerMode?: boolean;
-  },
+  message: RuntimeMessage,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
 ) => void;

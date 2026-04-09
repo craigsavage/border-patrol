@@ -1,3 +1,4 @@
+import type { RuntimeMessage } from 'types/runtime-messages';
 import { isRestrictedUrl } from '../../scripts/helpers';
 import Logger from '../../scripts/utils/logger';
 import { handleContentMessage } from './content-handlers';
@@ -13,7 +14,7 @@ export function setupMessageListener(): void {
     const tabId = sender?.tab?.id;
 
     if (!tabId) {
-      handlePopupMessage(request, sendResponse);
+      handlePopupMessage(request as RuntimeMessage, sendResponse);
       return true;
     }
 
