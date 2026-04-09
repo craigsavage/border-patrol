@@ -9,8 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "baseUrl": "./src",
-    "ignoreDeprecations": "6.0",
+    "paths": { "*": ["./src/*"] },
     "types": ["chrome", "jest"]
   },
   "include": ["src/**/*", "tests/**/*"],

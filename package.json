@@ -68,7 +68,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.92.1",
-    "typescript": "^6.0.0",
+    "typescript": "^6.0.2",
     "update-browserslist-db": "^1.2.3"
   },
   "dependencies": {
