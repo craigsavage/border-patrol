@@ -186,24 +186,8 @@ const oncePlugins = [
       { src: 'src/assets/fonts/*.woff2', dest: 'dist/assets/fonts' },
       { src: 'src/_locales/**', dest: 'dist/_locales' },
       { src: 'src/offscreen/offscreen.html', dest: 'dist/offscreen' },
-      // Copy Ant Design styles
-      {
-        src: 'node_modules/antd/dist/reset.css',
-        dest: 'dist/popup',
-        transform: async (contents, filename) => {
-          if (isProduction) {
-            const postcssResult = await postcss([
-              autoprefixer(),
-              cssnano(),
-            ]).process(contents, {
-              from: filename,
-              to: 'reset.css',
-            });
-            return postcssResult.css;
-          }
-          return contents; // Return the original contents in development mode
-        },
-      },
+      // Copy pre-processed Ant Design reset CSS (processed once by scripts/process-vendor-css.js)
+      { src: '.build-cache/vendor-reset.css', dest: 'dist/popup', rename: 'reset.css' },
     ],
     hook: 'writeBundle',
   }),
@@ -229,12 +213,6 @@ const entryPoints = [
     output: 'scripts/main-content',
     format: 'iife', // IIFE
     cssFilename: 'main-content.css',
-  },
-  {
-    input: 'src/popup/menu.tsx',
-    output: 'popup/menu',
-    format: 'iife', // IIFE
-    cssFilename: 'menu.css',
   },
   {
     input: 'src/offscreen/offscreen.ts',
