@@ -17,6 +17,10 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
   let observer: MutationObserver | null = null; // Declare the MutationObserver instance
 
+  // Pending mutations and rAF handle for debounced mutation processing
+  let pendingMutations: MutationRecord[] = [];
+  let rafHandle: number | null = null;
+
   // Define element groups with their tags and colors
   const elementGroups: Record<string, ElementGroup> = {
     containers: {
@@ -92,15 +96,43 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   }
 
   /**
-   * Handles mutations in the DOM to apply or update outlines on elements.
+   * Applies outlines to all elements in the provided list in chunks, yielding
+   * between frames via requestAnimationFrame to keep the page responsive.
    *
-   * @param mutationsList - Array of mutations observed in the DOM.
+   * @param elements - The list of elements to process.
+   * @param size - The outline size in pixels.
+   * @param style - The outline style (e.g., 'solid', 'dashed').
+   * @param chunkSize - Number of elements to process per frame (default 200).
    */
-  function handleMutations(mutationsList: MutationRecord[]): void {
-    if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
+  function applyOutlinesToAll(
+    elements: Element[],
+    size: number,
+    style: string,
+    chunkSize = 200,
+  ): void {
+    let index = 0;
+    function processChunk() {
+      const end = Math.min(index + chunkSize, elements.length);
+      for (; index < end; index++) {
+        applyOutlineToElement(elements[index], size, style);
+      }
+      if (index < elements.length) {
+        requestAnimationFrame(processChunk);
+      }
+    }
+    requestAnimationFrame(processChunk);
+  }
+
+  /**
+   * Processes a batch of accumulated MutationRecords to apply outlines to
+   * newly added nodes and their children.
+   *
+   * @param mutations - The mutations to process.
+   */
+  function processMutations(mutations: MutationRecord[]): void {
     const { size: outlineSize, style: outlineStyle } = currentBorderSettings;
 
-    mutationsList.forEach(mutation => {
+    mutations.forEach(mutation => {
       if (mutation.type === 'childList') {
         // Iterate over newly added nodes
         mutation.addedNodes.forEach(node => {
@@ -114,23 +146,31 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
             applyOutlineToElement(child, outlineSize, outlineStyle);
           });
         });
-      } else if (mutation.type === 'attributes') {
-        // Handle attribute changes (e.g., class, style)
-        // Apply outline ONLY to the target element whose attribute changed.
-        // Its children's outlines are independent and should not be re-scanned.
-        const targetElement = mutation.target as Element;
-        if (targetElement.nodeType !== Node.ELEMENT_NODE) return; // Skip non-element nodes
-        if (isInspectorUIElement(targetElement)) return;
-
-        applyOutlineToElement(targetElement, outlineSize, outlineStyle);
       }
     });
   }
 
   /**
+   * Accumulates mutations and flushes them once per animation frame to
+   * coalesce bursts of DOM changes on animation-heavy pages.
+   *
+   * @param mutationsList - Array of mutations observed in the DOM.
+   */
+  function handleMutations(mutationsList: MutationRecord[]): void {
+    if (!isBorderModeEnabled) return; // Skip if border mode is not enabled
+    pendingMutations.push(...mutationsList);
+    if (rafHandle === null) {
+      rafHandle = requestAnimationFrame(() => {
+        processMutations(pendingMutations.splice(0));
+        rafHandle = null;
+      });
+    }
+  }
+
+  /**
    * Starts observing the DOM for changes to apply or remove outlines dynamically.
-   * This function sets up a MutationObserver to watch for changes in the document body.
-   * It listens for child list changes, attribute changes, and subtree modifications.
+   * Watches only for childList changes to avoid re-entrant callbacks from our
+   * own style writes.
    */
   function startObservingDOM(): void {
     if (!observer) {
@@ -141,15 +181,11 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
     Logger.info('Starting DOM observation for border updates.');
 
-    // Define the configuration for the MutationObserver
     const config: MutationObserverInit = {
       childList: true,
       subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style'], // Only watch specific attributes
     };
 
-    // Start observing the document body for childList changes and subtree modifications
     observer.observe(document.body, config);
   }
 
@@ -164,6 +200,13 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     }
 
     observer = null; // Clear the observer reference to prevent memory leaks
+
+    // Cancel any pending rAF flush and discard accumulated mutations
+    if (rafHandle !== null) {
+      cancelAnimationFrame(rafHandle);
+      rafHandle = null;
+    }
+    pendingMutations = [];
   }
 
   /**
@@ -199,13 +242,13 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     // Update the Border Patrol Inspector container reference
     bpInspectorContainer = document.querySelector('#bp-inspector-container');
 
-    // Apply outline to all elements in the document
-    document.querySelectorAll('*').forEach(element => {
-      applyOutlineToElement(element, size, style);
-    });
-
-    // Start observing for new elements only if borders are enabled
+    // Disconnect observer before the bulk write to avoid re-entrant callbacks,
+    // then restart it immediately so new nodes during chunking are also captured.
+    if (observer) observer.disconnect();
     startObservingDOM();
+
+    // Apply outlines in chunks to avoid blocking the main thread
+    applyOutlinesToAll(Array.from(document.querySelectorAll('*')), size, style);
   }
 
   // Receive message to apply outline to all elements
@@ -233,7 +276,7 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
             currentBorderSettings.size,
             currentBorderSettings.style,
           );
-        } 
+        }
         // Receive message to update border settings
         if (request.action === RUNTIME_MESSAGES.UPDATE_BORDER_SETTINGS) {
           // Get new border settings from request
