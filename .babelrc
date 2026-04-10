@@ -1,14 +1,3 @@
 {
-  "presets": ["@babel/preset-react", "@babel/preset-typescript"],
-  "plugins": [
-    [
-      "import",
-      {
-        "libraryName": "antd",
-        "libraryDirectory": "es",
-        "style": false
-      },
-      "antd-tree-shaking"
-    ]
-  ]
+  "presets": ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"]
 }
