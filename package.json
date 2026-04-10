@@ -14,7 +14,7 @@
     "build": "node scripts/time-command.js \"NODE_ENV=production node scripts/build-parallel.js\"",
     "predev": "node scripts/process-vendor-css.js",
     "dev": "NODE_ENV=development rollup -c -w",
-    "release": "node scripts/time-command.js \"npm run build && npm run compress:dist\"",
+    "release": "npm run build && node scripts/time-command.js \"npm run compress:dist\"",
     "test": "jest",
     "typecheck": "tsc --noEmit"
   },
