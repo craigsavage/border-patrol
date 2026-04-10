@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { IScreenshotCapture } from '../../types/popup/hooks';
 import { hasPermission } from '../../scripts/helpers';
 import Logger from '../../scripts/utils/logger';
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
 /**
  * Custom hook to manage screenshot capture permissions and functionality.
@@ -69,8 +70,8 @@ export function useScreenshotCapture(
   const handleCaptureScreenshot = async (): Promise<boolean> => {
     try {
       const success = await chrome.runtime.sendMessage({
-        action: 'CAPTURE_SCREENSHOT',
-      });
+        action: RUNTIME_MESSAGES.CAPTURE_SCREENSHOT,
+      } satisfies RuntimeMessage);
       Logger.info('Screenshot capture response:', success);
       return success;
     } catch (error) {
@@ -87,8 +88,8 @@ export function useScreenshotCapture(
   const handleCaptureFullScreenshot = async (): Promise<boolean> => {
     try {
       const success = await chrome.runtime.sendMessage({
-        action: 'CAPTURE_FULL_SCREENSHOT',
-      });
+        action: RUNTIME_MESSAGES.CAPTURE_FULL_SCREENSHOT,
+      } satisfies RuntimeMessage);
       Logger.info('Full-page screenshot capture response:', success);
       return success;
     } catch (error) {

@@ -5,6 +5,7 @@ import type {
 } from '../../types/popup/hooks';
 import { getActiveTab, isRestrictedUrl } from '../../scripts/helpers';
 import Logger from '../../scripts/utils/logger';
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
 /**
  * Custom hook to manage core extension settings and their interactions with Chrome APIs.
@@ -32,10 +33,12 @@ export function useExtensionSettings(): IExtensionSettings {
     setBorderMode(checked);
     if (tabId) {
       chrome.runtime.sendMessage({
-        action: 'TOGGLE_BORDER_MODE',
-        isEnabled: checked,
-        tabId: tabId,
-      });
+        action: RUNTIME_MESSAGES.TOGGLE_BORDER_MODE,
+        payload: {
+          isEnabled: checked,
+          tabId: tabId,
+        }
+      } satisfies RuntimeMessage);
     } else {
       Logger.warn('Cannot toggle border mode: tabId is null.');
     }
@@ -52,10 +55,12 @@ export function useExtensionSettings(): IExtensionSettings {
     setInspectorMode(checked);
     if (tabId) {
       chrome.runtime.sendMessage({
-        action: 'TOGGLE_INSPECTOR_MODE',
-        isEnabled: checked,
-        tabId: tabId,
-      });
+        action: RUNTIME_MESSAGES.TOGGLE_INSPECTOR_MODE,
+        payload: {
+          isEnabled: checked,
+          tabId: tabId,
+        }
+      } satisfies RuntimeMessage);
     } else {
       Logger.warn('Cannot toggle inspector mode: tabId is null.');
     }
@@ -74,10 +79,12 @@ export function useExtensionSettings(): IExtensionSettings {
     setMeasurementMode(checked);
     if (tabId) {
       chrome.runtime.sendMessage({
-        action: 'TOGGLE_MEASUREMENT_MODE',
-        isEnabled: checked,
-        tabId: tabId,
-      });
+        action: RUNTIME_MESSAGES.TOGGLE_MEASUREMENT_MODE,
+        payload: {
+          isEnabled: checked,
+          tabId: tabId,
+        }
+      } satisfies RuntimeMessage);
     } else {
       Logger.warn('Cannot toggle measurement mode: tabId is null.');
     }
@@ -94,10 +101,12 @@ export function useExtensionSettings(): IExtensionSettings {
     setRulerMode(checked);
     if (tabId) {
       chrome.runtime.sendMessage({
-        action: 'TOGGLE_RULER_MODE',
-        isEnabled: checked,
-        tabId: tabId,
-      });
+        action: RUNTIME_MESSAGES.TOGGLE_RULER_MODE,
+        payload: {
+          isEnabled: checked,
+          tabId: tabId,
+        }
+      } satisfies RuntimeMessage);
     } else {
       Logger.warn('Cannot toggle ruler mode: tabId is null.');
     }
@@ -117,10 +126,12 @@ export function useExtensionSettings(): IExtensionSettings {
     setBorderSize(size);
     setBorderStyle(style);
     chrome.runtime.sendMessage({
-      action: 'UPDATE_BORDER_SETTINGS',
-      borderSize: size,
-      borderStyle: style,
-    });
+      action: RUNTIME_MESSAGES.UPDATE_BORDER_SETTINGS,
+      payload: {
+        size,
+        style
+      }
+    } satisfies RuntimeMessage);
   };
 
   // --- Initial Data Fetching and Message Listener (useEffect) ---
@@ -175,23 +186,21 @@ export function useExtensionSettings(): IExtensionSettings {
     initializeStates();
 
     // Listener for background script updates (e.g., if content script toggles state)
-    const messageListener: MessageListenerType = (
-      message,
-      sender,
-      sendResponse,
-    ) => {
-      if (message.action === 'UPDATE_POPUP_STATE') {
-        if (typeof message.borderMode !== 'undefined') {
-          setBorderMode(message.borderMode);
+    const messageListener: MessageListenerType = (message, sender, sendResponse) => {
+      if (message.action === RUNTIME_MESSAGES.UPDATE_POPUP_STATE) {
+        const { borderMode, inspectorMode, measurementMode, rulerMode } =
+          message.payload;
+        if (typeof borderMode !== 'undefined') {
+          setBorderMode(borderMode);
         }
-        if (typeof message.inspectorMode !== 'undefined') {
-          setInspectorMode(message.inspectorMode);
+        if (typeof inspectorMode !== 'undefined') {
+          setInspectorMode(inspectorMode);
         }
-        if (typeof message.measurementMode !== 'undefined') {
-          setMeasurementMode(message.measurementMode);
+        if (typeof measurementMode !== 'undefined') {
+          setMeasurementMode(measurementMode);
         }
-        if (typeof message.rulerMode !== 'undefined') {
-          setRulerMode(message.rulerMode);
+        if (typeof rulerMode !== 'undefined') {
+          setRulerMode(rulerMode);
         }
       }
     };

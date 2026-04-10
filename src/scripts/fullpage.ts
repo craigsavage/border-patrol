@@ -1,3 +1,4 @@
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 import Logger from './utils/logger';
 
 (function () {
@@ -69,28 +70,28 @@ import Logger from './utils/logger';
 
   chrome.runtime.onMessage.addListener(
     (
-      request: { action: string; x?: number; y?: number },
+      request: RuntimeMessage,
       _sender: chrome.runtime.MessageSender,
       sendResponse: (response?: unknown) => void,
     ) => {
-      if (request.action === 'GET_PAGE_DIMENSIONS') {
+      if (request.action === RUNTIME_MESSAGES.GET_PAGE_DIMENSIONS) {
         sendResponse(getPageDimensions());
         return false;
       }
 
-      if (request.action === 'HIDE_FIXED_ELEMENTS') {
+      if (request.action === RUNTIME_MESSAGES.HIDE_FIXED_ELEMENTS) {
         hideFixedElements().then(count => sendResponse({ count }));
         return true; // async
       }
 
-      if (request.action === 'RESTORE_FIXED_ELEMENTS') {
+      if (request.action === RUNTIME_MESSAGES.RESTORE_FIXED_ELEMENTS) {
         restoreFixedElements();
         sendResponse({ restored: true });
         return false;
       }
 
-      if (request.action === 'SCROLL_TO') {
-        const { x = 0, y = 0 } = request;
+      if (request.action === RUNTIME_MESSAGES.SCROLL_TO) {
+        const { x = 0, y = 0 } = request.payload;
         window.scrollTo(x, y);
         // Wait for the browser to repaint before responding so that
         // captureVisibleTab in the background reflects the new scroll position.
@@ -103,8 +104,8 @@ import Logger from './utils/logger';
         return true; // async
       }
 
-      if (request.action === 'RESTORE_SCROLL') {
-        const { x = 0, y = 0 } = request;
+      if (request.action === RUNTIME_MESSAGES.RESTORE_SCROLL) {
+        const { x = 0, y = 0 } = request.payload;
         window.scrollTo(x, y);
         sendResponse({ scrollX: window.scrollX, scrollY: window.scrollY });
         return false;

@@ -1,24 +1,6 @@
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 import Logger from '../scripts/utils/logger';
-
-interface StitchFrame {
-  dataUrl: string;
-  x: number;
-  y: number;
-}
-
-interface StitchFramesRequest {
-  action: 'STITCH_FRAMES';
-  frames: StitchFrame[];
-  totalWidth: number;
-  totalHeight: number;
-  viewportWidth: number;
-  viewportHeight: number;
-  devicePixelRatio: number;
-}
-
-interface PingRequest {
-  action: 'OFFSCREEN_PING';
-}
+import { StitchFrame } from './types';
 
 /**
  * Loads an image from a data URL.
@@ -99,31 +81,33 @@ async function stitchFrames(
 // Listen for the STITCH_FRAMES message from the background service worker
 chrome.runtime.onMessage.addListener(
   (
-    request: StitchFramesRequest | PingRequest,
+    request: RuntimeMessage,
     _sender: chrome.runtime.MessageSender,
     sendResponse: (response: unknown) => void,
   ) => {
-    if (request.action === 'OFFSCREEN_PING') {
+    if (request.action === RUNTIME_MESSAGES.OFFSCREEN_PING) {
       sendResponse({ ready: true });
       return false;
     }
 
-    if (request.action !== 'STITCH_FRAMES') return false;
+    if (request.action !== RUNTIME_MESSAGES.STITCH_FRAMES) return false;
+
+    const { payload } = request;
 
     Logger.info('Offscreen: received STITCH_FRAMES request', {
-      frames: request.frames.length,
-      totalWidth: request.totalWidth,
-      totalHeight: request.totalHeight,
-      devicePixelRatio: request.devicePixelRatio,
+      frames: payload.frames.length,
+      totalWidth: payload.totalWidth,
+      totalHeight: payload.totalHeight,
+      devicePixelRatio: payload.devicePixelRatio,
     });
 
     stitchFrames(
-      request.frames,
-      request.totalWidth,
-      request.totalHeight,
-      request.viewportWidth,
-      request.viewportHeight,
-      request.devicePixelRatio ?? 1,
+      payload.frames,
+      payload.totalWidth,
+      payload.totalHeight,
+      payload.viewportWidth,
+      payload.viewportHeight,
+      payload.devicePixelRatio ?? 1,
     )
       .then(dataUrl => {
         Logger.info('Offscreen: stitching complete');

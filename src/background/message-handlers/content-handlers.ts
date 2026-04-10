@@ -1,4 +1,5 @@
 import Logger from '../../scripts/utils/logger';
+import { RUNTIME_MESSAGES } from 'types/runtime-messages';
 import { getTabState } from '../tab-state';
 
 /**
@@ -9,42 +10,42 @@ import { getTabState } from '../tab-state';
  * @param sendResponse - Runtime response callback.
  */
 export function handleContentMessage(
-  request: any,
+  request: { action: string },
   tabId: number,
-  sendResponse: (response?: any) => void,
+  sendResponse: (response?: unknown) => void,
 ): void {
   void (async () => {
-    if (request.action === 'GET_TAB_ID') {
+    if (request.action === RUNTIME_MESSAGES.GET_TAB_ID) {
       sendResponse(tabId);
       return;
     }
 
-    if (request.action === 'GET_BORDER_MODE') {
+    if (request.action === RUNTIME_MESSAGES.GET_BORDER_MODE) {
       const tabState = await getTabState(tabId);
       sendResponse(tabState.borderMode);
       return;
     }
 
-    if (request.action === 'GET_INSPECTOR_MODE') {
+    if (request.action === RUNTIME_MESSAGES.GET_INSPECTOR_MODE) {
       const tabState = await getTabState(tabId);
       sendResponse(tabState.inspectorMode);
       return;
     }
 
-    if (request.action === 'GET_MEASUREMENT_MODE') {
+    if (request.action === RUNTIME_MESSAGES.GET_MEASUREMENT_MODE) {
       const tabState = await getTabState(tabId);
       sendResponse(tabState.measurementMode);
       return;
     }
 
-    if (request.action === 'GET_RULER_MODE') {
+    if (request.action === RUNTIME_MESSAGES.GET_RULER_MODE) {
       const tabState = await getTabState(tabId);
       sendResponse(tabState.rulerMode);
       return;
     }
 
-    if (request.action === 'PING') {
-      sendResponse({ status: 'PONG' });
+    if (request.action === RUNTIME_MESSAGES.PING) {
+      sendResponse({ status: RUNTIME_MESSAGES.PONG });
       return;
     }
 

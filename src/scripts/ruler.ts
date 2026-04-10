@@ -1,5 +1,6 @@
 import Logger from './utils/logger';
 import RULER_STYLES from '../styles/components/ruler.shadow.scss';
+import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
 
 (function () {
   let isRulerModeEnabled = false;
@@ -858,9 +859,9 @@ import RULER_STYLES from '../styles/components/ruler.shadow.scss';
   }
 
   chrome.runtime.onMessage.addListener(
-    (request: { action: string; isEnabled: boolean }) => {
-      if (request.action === 'UPDATE_RULER_MODE') {
-        handleRulerModeUpdate(request.isEnabled);
+    (request: RuntimeMessage) => {
+      if (request.action === RUNTIME_MESSAGES.UPDATE_RULER_MODE) {
+        handleRulerModeUpdate(request.payload.isEnabled);
       }
     },
   );

@@ -9,6 +9,10 @@ import {
 } from '../../scripts/helpers';
 import Logger from '../../scripts/utils/logger';
 import {
+  RUNTIME_MESSAGES,
+  type RuntimeMessage,
+} from 'types/runtime-messages';
+import {
   captureAndDownloadFullPageScreenshot,
   captureAndDownloadScreenshot,
 } from '../screenshot';
@@ -22,8 +26,8 @@ import { handleTabStateChange } from '../extension-ui';
  * @param sendResponse - Runtime response callback.
  */
 export function handlePopupMessage(
-  request: any,
-  sendResponse: (response?: any) => void,
+  request: RuntimeMessage,
+  sendResponse: (response?: unknown) => void,
 ): void {
   void (async () => {
     try {
@@ -39,58 +43,60 @@ export function handlePopupMessage(
         activeTab,
       );
 
-      if (request.action === 'TOGGLE_BORDER_MODE') {
-        const currentBorderState = await getTabState(activeTabId);
+      if (request.action === RUNTIME_MESSAGES.TOGGLE_BORDER_MODE) {
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
           tabId: activeTabId,
-          states: { borderMode: !currentBorderState.borderMode },
+          states: { borderMode: isEnabled },
         });
         sendResponse(true);
         return;
       }
 
-      if (request.action === 'TOGGLE_INSPECTOR_MODE') {
-        const currentInspectorState = await getTabState(activeTabId);
+      if (request.action === RUNTIME_MESSAGES.TOGGLE_INSPECTOR_MODE) {
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
           tabId: activeTabId,
-          states: { inspectorMode: !currentInspectorState.inspectorMode },
+          states: { inspectorMode: isEnabled },
         });
         sendResponse(true);
         return;
       }
 
-      if (request.action === 'TOGGLE_MEASUREMENT_MODE') {
-        const currentMeasurementState = await getTabState(activeTabId);
+      if (request.action === RUNTIME_MESSAGES.TOGGLE_MEASUREMENT_MODE) {
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
           tabId: activeTabId,
-          states: { measurementMode: !currentMeasurementState.measurementMode },
+          states: { measurementMode: isEnabled },
         });
         sendResponse(true);
         return;
       }
 
-      if (request.action === 'TOGGLE_RULER_MODE') {
-        const currentRulerState = await getTabState(activeTabId);
+      if (request.action === RUNTIME_MESSAGES.TOGGLE_RULER_MODE) {
+        const { isEnabled } = request.payload;
         await handleTabStateChange({
           tabId: activeTabId,
-          states: { rulerMode: !currentRulerState.rulerMode },
+          states: { rulerMode: isEnabled },
         });
         sendResponse(true);
         return;
       }
 
-      if (request.action === 'UPDATE_BORDER_SETTINGS') {
-        const { borderSize, borderStyle } = request;
+      if (request.action === RUNTIME_MESSAGES.UPDATE_BORDER_SETTINGS) {
+        const { size: borderSize, style: borderStyle } = request.payload;
         await chrome.storage.local.set({ borderSize, borderStyle });
 
         const tabState = await getTabState(activeTabId);
         if (tabState.borderMode) {
           try {
             await chrome.tabs.sendMessage(activeTabId, {
-              action: 'UPDATE_BORDER_SETTINGS',
-              borderSize: borderSize ?? DEFAULT_BORDER_SIZE,
-              borderStyle: borderStyle ?? DEFAULT_BORDER_STYLE,
-            });
+              action: RUNTIME_MESSAGES.UPDATE_BORDER_SETTINGS,
+              payload: {
+                size: borderSize ?? DEFAULT_BORDER_SIZE,
+                style: borderStyle ?? DEFAULT_BORDER_STYLE,
+              },
+            } satisfies RuntimeMessage);
           } catch (contentScriptError) {
             Logger.error(
               `Error sending updated border settings to tab ${activeTabId}:`,
@@ -103,7 +109,7 @@ export function handlePopupMessage(
         return;
       }
 
-      if (request.action === 'CAPTURE_SCREENSHOT') {
+      if (request.action === RUNTIME_MESSAGES.CAPTURE_SCREENSHOT) {
         try {
           const hasDownloadPermission = await hasPermission('downloads');
 
@@ -131,7 +137,7 @@ export function handlePopupMessage(
         }
       }
 
-      if (request.action === 'CAPTURE_FULL_SCREENSHOT') {
+      if (request.action === RUNTIME_MESSAGES.CAPTURE_FULL_SCREENSHOT) {
         try {
           const hasDownloadPermission = await hasPermission('downloads');
 

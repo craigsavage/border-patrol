@@ -6,7 +6,10 @@ import {
 import { isRestrictedUrl, isChromeTabClosedError } from './scripts/helpers';
 import Logger from './scripts/utils/logger';
 import { handleTabStateChange } from './background/extension-ui';
-import { clearTabStateCache } from './background/tab-state';
+import {
+  clearTabStateCache,
+  cleanupOrphanedTabStates,
+} from './background/tab-state';
 import { setupMessageListener } from './background/message-handlers';
 import {
   setupContextMenu,
@@ -16,7 +19,8 @@ import { setupCommandListener } from './background/commands';
 
 /**
  * Executed when the extension is installed or updated.
- * Initializes default settings and potentially clears old per-tab state keys.
+ * Initializes default settings and removes any tab state entries left over
+ * from a previous session.
  */
 chrome.runtime.onInstalled.addListener(
   async (details: chrome.runtime.InstalledDetails) => {
@@ -37,13 +41,12 @@ chrome.runtime.onInstalled.addListener(
         'darkMode',
       ]);
 
-      // Clear all storage data
-      // await chrome.storage.local.clear(); // Commenting this out to preserve settings on update
-
       // Combine existing settings with defaults (existing takes precedence)
       const settingsToSet = { ...defaultGlobalSettings, ...existingStorage };
-      // Set the default settings in storage
       await chrome.storage.local.set(settingsToSet);
+
+      // Remove any tab state entries that were left behind by the previous session.
+      await cleanupOrphanedTabStates();
     } catch (error) {
       Logger.error('Error during onInstalled:', error);
     }
@@ -52,6 +55,16 @@ chrome.runtime.onInstalled.addListener(
     setupContextMenu();
   },
 );
+
+/**
+ * Executed when the browser starts up (after a previous normal shutdown).
+ * Cleans up any tab state entries that were not removed when the browser last
+ * closed (e.g. after a crash where onRemoved events were not fired).
+ */
+chrome.runtime.onStartup.addListener(async () => {
+  Logger.info('onStartup: cleaning up orphaned tab states');
+  await cleanupOrphanedTabStates();
+});
 
 /**
  * Injects the border script when a tab is updated (when a page loads or reloads).

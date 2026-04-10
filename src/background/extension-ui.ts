@@ -5,6 +5,7 @@ import {
 } from '../scripts/constants';
 import { isRestrictedUrl, isChromeTabClosedError } from '../scripts/helpers';
 import Logger from '../scripts/utils/logger';
+import { RUNTIME_MESSAGES, type RuntimeMessage } from 'types/runtime-messages';
 import type { TabStateChangeOptions } from '../types/background';
 import { getTabState, setTabState } from './tab-state';
 
@@ -64,7 +65,9 @@ export async function ensureScriptIsInjected(tabId: number): Promise<void> {
   if (!tab?.url || isRestrictedUrl(tab.url)) return;
 
   try {
-    await chrome.tabs.sendMessage(tabId, { action: 'PING' });
+    await chrome.tabs.sendMessage(tabId, {
+      action: RUNTIME_MESSAGES.PING,
+    } satisfies RuntimeMessage);
     Logger.info(`Scripts already injected in tab ${tabId}.`);
     return;
   } catch {
@@ -102,21 +105,21 @@ export async function sendContentScriptUpdates(tabId: number): Promise<void> {
     const tabState = await getTabState(tabId);
 
     await chrome.tabs.sendMessage(tabId, {
-      action: 'UPDATE_BORDER_MODE',
-      isEnabled: tabState.borderMode,
-    });
+      action: RUNTIME_MESSAGES.UPDATE_BORDER_MODE,
+      payload: { isEnabled: tabState.borderMode },
+    } satisfies RuntimeMessage);
     await chrome.tabs.sendMessage(tabId, {
-      action: 'UPDATE_INSPECTOR_MODE',
-      isEnabled: tabState.inspectorMode,
-    });
+      action: RUNTIME_MESSAGES.UPDATE_INSPECTOR_MODE,
+      payload: { isEnabled: tabState.inspectorMode },
+    } satisfies RuntimeMessage);
     await chrome.tabs.sendMessage(tabId, {
-      action: 'UPDATE_MEASUREMENT_MODE',
-      isEnabled: tabState.measurementMode,
-    });
+      action: RUNTIME_MESSAGES.UPDATE_MEASUREMENT_MODE,
+      payload: { isEnabled: tabState.measurementMode },
+    } satisfies RuntimeMessage);
     await chrome.tabs.sendMessage(tabId, {
-      action: 'UPDATE_RULER_MODE',
-      isEnabled: tabState.rulerMode,
-    });
+      action: RUNTIME_MESSAGES.UPDATE_RULER_MODE,
+      payload: { isEnabled: tabState.rulerMode },
+    } satisfies RuntimeMessage);
     Logger.info(`Sent mode updates to tab ${tabId}:`, tabState);
 
     const settings = await chrome.storage.local.get([
@@ -124,10 +127,12 @@ export async function sendContentScriptUpdates(tabId: number): Promise<void> {
       'borderStyle',
     ]);
     await chrome.tabs.sendMessage(tabId, {
-      action: 'UPDATE_BORDER_SETTINGS',
-      borderSize: settings.borderSize ?? DEFAULT_BORDER_SIZE,
-      borderStyle: settings.borderStyle ?? DEFAULT_BORDER_STYLE,
-    });
+      action: RUNTIME_MESSAGES.UPDATE_BORDER_SETTINGS,
+      payload: {
+        size: settings.borderSize ?? DEFAULT_BORDER_SIZE,
+        style: settings.borderStyle ?? DEFAULT_BORDER_STYLE,
+      },
+    } satisfies RuntimeMessage);
     Logger.info(`Sent border settings update to tab ${tabId}:`, settings);
   } catch (error) {
     Logger.warn(`Error sending content script updates to tab ${tabId}:`, error);

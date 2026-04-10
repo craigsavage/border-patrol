@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.2] - 2026-04-09
+
+### Changed
+
+- Reworked the build process for faster builds and better optimization (dropping total build time from ~9s to ~1.1s).
+- Improved Border Mode performance on large or animation-heavy pages by applying outlines through an injected stylesheet instead of per-element updates, keeping the extension responsive under heavy DOM churn.
+
 ## [1.7.1] - 2026-04-02
 
 ### Added
