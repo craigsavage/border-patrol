@@ -20,7 +20,7 @@ const htmlTemplate = `
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Border Patrol - Visualize CSS Layouts & Debug with Ease</title>
+    <title>Border Patrol - Changelog</title>
     <link rel="stylesheet" href="assets/css/styles.css" />
     <link rel="icon" type="image/svg+xml" href="assets/img/border-patrol-logo.svg" />
     <link
@@ -30,23 +30,20 @@ const htmlTemplate = `
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <link rel="canonical" href="https://border-patrol.seasav.ca/" />
+    <link rel="canonical" href="https://border-patrol.seasav.ca/changelog.html" />
     <meta
       name="description"
-      content="Stop CSS debugging frustration! Border Patrol visually outlines elements, margins, and padding in your browser. Free & open-source."
+      content="View the changelog for Border Patrol - See what's new, what's changed, and what's been fixed in each version."
     />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Border Patrol" />
-    <meta property="og:url" content="https://border-patrol.seasav.ca/" />
-    <meta
-      property="og:title"
-      content="Border Patrol - CSS Outliner & Debugging Tool"
-    />
+    <meta property="og:url" content="https://border-patrol.seasav.ca/changelog.html" />
+    <meta property="og:title" content="Border Patrol - Changelog" />
     <meta
       property="og:description"
-      content="Visually inspect CSS layouts, margins, and padding with the Border Patrol Chrome extension. Boost your debugging efficiency."
+      content="Stay updated with the latest changes to the Border Patrol Chrome extension. View version history and updates."
     />
     <meta
       property="og:image"
@@ -56,10 +53,10 @@ const htmlTemplate = `
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Border Patrol - CSS Outliner & Debugging Tool" />
+    <meta name="twitter:title" content="Border Patrol - Changelog" />
     <meta
       name="twitter:description"
-      content="Visually inspect CSS layouts, margins, and padding with the Border Patrol Chrome extension. Boost your debugging efficiency."
+      content="Stay updated with the latest changes to the Border Patrol Chrome extension. View version history and updates."
     />
     <meta
       name="twitter:image"
