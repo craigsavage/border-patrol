@@ -18,11 +18,11 @@ const htmlTemplate = `
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Border Patrol - Changelog</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="icon" type="image/png" href="assets/icons/bp-icon-32.png">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Border Patrol - Visualize CSS Layouts & Debug with Ease</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="icon" type="image/svg+xml" href="assets/img/border-patrol-logo.svg" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -30,15 +30,42 @@ const htmlTemplate = `
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <link rel="canonical" href="https://border-patrol.seasav.ca/" />
     <meta
       name="description"
-      content="View the changelog for Border Patrol - See what's new, what's changed, and what's been fixed in each version."
+      content="Stop CSS debugging frustration! Border Patrol visually outlines elements, margins, and padding in your browser. Free & open-source."
     />
-    <meta property="og:title" content="Border Patrol - Changelog" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Border Patrol" />
+    <meta property="og:url" content="https://border-patrol.seasav.ca/" />
+    <meta
+      property="og:title"
+      content="Border Patrol - CSS Outliner & Debugging Tool"
+    />
     <meta
       property="og:description"
-      content="Stay updated with the latest changes to the Border Patrol Chrome extension. View version history and updates."
+      content="Visually inspect CSS layouts, margins, and padding with the Border Patrol Chrome extension. Boost your debugging efficiency."
     />
+    <meta
+      property="og:image"
+      content="https://border-patrol.seasav.ca/assets/img/border-patrol-og-image.jpg"
+    />
+    <meta property="og:image:alt" content="Border Patrol CSS debugging extension screenshot" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Border Patrol - CSS Outliner & Debugging Tool" />
+    <meta
+      name="twitter:description"
+      content="Visually inspect CSS layouts, margins, and padding with the Border Patrol Chrome extension. Boost your debugging efficiency."
+    />
+    <meta
+      name="twitter:image"
+      content="https://border-patrol.seasav.ca/assets/img/border-patrol-og-image.jpg"
+    />
+    <meta name="twitter:image:alt" content="Border Patrol CSS debugging extension screenshot" />
   </head>
   <body>
     <nav class="main-nav">
@@ -72,16 +99,8 @@ const htmlTemplate = `
     <footer>
       <div class="container">
         <p>
-          &copy; 2025 Border Patrol. Developed by Craig Savage.
+          &copy; 2026 Border Patrol. Developed by SeaSav Labs Inc.
           <a href="changelog.html">Changelog</a>
-          |
-          <a
-            href="https://github.com/craigsavage/border-patrol"
-            target="_blank"
-            rel="noopener noreferrer"
-            >
-            View on GitHub
-            </a>
         </p>
       </div>
     </footer>
