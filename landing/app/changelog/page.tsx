@@ -1,9 +1,14 @@
 import type { Metadata } from 'next';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { marked } from 'marked';
+import { marked, Renderer } from 'marked';
 import Nav from '../../components/Nav';
 import Footer from '../../components/Footer';
+
+// Strip raw HTML blocks from the markdown output to prevent XSS
+const renderer = new Renderer();
+renderer.html = () => '';
+marked.use({ renderer });
 
 export const metadata: Metadata = {
   title: 'Border Patrol - Changelog',
