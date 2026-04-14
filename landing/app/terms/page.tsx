@@ -69,7 +69,7 @@ export default function TermsPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            MIT License
+            Apache 2.0 License
           </a>
           , but all intellectual property rights — including the source code, the Border Patrol name,
           and all associated branding and assets — remain the exclusive property of SeaSav Labs Inc.
