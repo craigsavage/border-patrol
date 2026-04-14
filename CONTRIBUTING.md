@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to Border Patrol! This project is a free and open-source Chrome extension, and contributions from the community are incredibly valuable and help make it a better tool for everyone.
 
-By contributing, you agree to abide by the [Code of Conduct](CODE_OF_CONDUCT.md) and that your contributions will be licensed under the project's [Apache-2.0 License](https://github.com/craigsavage/border-patrol/blob/main/LICENSE).
+By contributing, you agree to abide by the [Code of Conduct](CODE_OF_CONDUCT.md) and that your contributions will be licensed under the project's [Apache-2.0 License](https://github.com/seasav/border-patrol/blob/main/LICENSE).
 
 Please take a moment to review these guidelines before submitting bug reports, feature requests, or pull requests.
 
@@ -12,7 +12,7 @@ There are several ways you can contribute to the Border Patrol project:
 
 ### 🐛 Reporting Bugs
 
-If you encounter a bug or unexpected behavior, please help us by submitting a clear and concise issue in the [GitHub repository Issues page](https://github.com/craigsavage/border-patrol/issues).
+If you encounter a bug or unexpected behavior, please help us by submitting a clear and concise issue in the [GitHub repository Issues page](https://github.com/seasav/border-patrol/issues).
 
 When reporting a bug, please include as much detail as possible, such as:
 
@@ -29,7 +29,7 @@ When reporting a bug, please include as much detail as possible, such as:
 
 Have an idea for a new feature, an improvement to existing functionality, or a better way to do something? We'd love to hear your suggestions!
 
-Please submit your enhancement suggestion as an issue in the [GitHub repository Issues page](https://github.com/craigsavage/border-patrol/issues).
+Please submit your enhancement suggestion as an issue in the [GitHub repository Issues page](https://github.com/seasav/border-patrol/issues).
 
 When suggesting an enhancement, please include:
 
@@ -42,7 +42,7 @@ When suggesting an enhancement, please include:
 
 Code contributions are very welcome! If you'd like to contribute code, please follow these steps:
 
-1. **Fork the Repository:** Fork the [Border Patrol repository](https://github.com/craigsavage/border-patrol) to your personal GitHub account.
+1. **Fork the Repository:** Fork the [Border Patrol repository](https://github.com/seasav/border-patrol) to your personal GitHub account.
 2. **Clone Your Fork:** Clone your forked repository to your local machine.
 
    ```bash
@@ -55,7 +55,7 @@ Code contributions are very welcome! If you'd like to contribute code, please fo
 3. **Set Up Upstream:** Add the original repository as an upstream remote to keep your fork updated.
 
    ```bash
-   git remote add upstream https://github.com/craigsavage/border-patrol.git
+   git remote add upstream https://github.com/seasav/border-patrol.git
    ```
 
 4. **Sync with Upstream:** Before starting work, sync your local `dev` branch with the latest changes from the main repository's `dev` branch.
@@ -94,7 +94,7 @@ Code contributions are very welcome! If you'd like to contribute code, please fo
     git push origin your-contribution-branch-name
     ```
 
-11. **Open a Pull Request (PR):** Go to the original [Border Patrol repository](https://github.com/craigsavage/border-patrol) on GitHub. You should see a prompt to compare & create a pull request from your new branch.
+11. **Open a Pull Request (PR):** Go to the original [Border Patrol repository](https://github.com/seasav/border-patrol) on GitHub. You should see a prompt to compare & create a pull request from your new branch.
 
 - **Ensure the pull request is targeting the `dev` branch** of the main repository.
 - Provide a clear title and description for your pull request, explaining the changes you've made. Reference any related issues by number (e.g., `Closes #42`, `Fixes #123`).
@@ -111,7 +111,7 @@ This project is committed to providing a welcoming and inclusive environment for
 
 ## 📄 Licensing
 
-By contributing to Border Patrol, you agree that your contributions will be licensed under the project's [Apache-2.0 License](https://github.com/craigsavage/border-patrol/blob/main/LICENSE).
+By contributing to Border Patrol, you agree that your contributions will be licensed under the project's [Apache-2.0 License](https://github.com/seasav/border-patrol/blob/main/LICENSE).
 
 ---
 

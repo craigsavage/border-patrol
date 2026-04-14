@@ -44,7 +44,7 @@ export default function Footer(): React.ReactElement {
       />
 
       <Link
-        href='https://craigsavage.github.io/border-patrol/'
+        href='https://border-patrol.seasav.ca/'
         target='_blank'
         className='version'
         aria-label={translate('currentVersion', { version })}
