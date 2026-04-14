@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/craigsavage/border-patrol.git"
+    "url": "git+https://github.com/seasav/border-patrol.git"
   },
   "keywords": [
     "border",
@@ -32,9 +32,9 @@
   "author": "Craig Savage",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/craigsavage/border-patrol/issues"
+    "url": "https://github.com/seasav/border-patrol/issues"
   },
-  "homepage": "https://github.com/craigsavage/border-patrol#readme",
+  "homepage": "https://github.com/seasav/border-patrol#readme",
   "devDependencies": {
     "@babel/core": "^7.28.4",
     "@babel/preset-env": "^7.28.3",

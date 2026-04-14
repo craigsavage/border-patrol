@@ -127,7 +127,9 @@ body {
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .problem-card:hover,
@@ -425,7 +427,9 @@ ul {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -546,7 +550,9 @@ header {
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  transition: background-color 0.3s ease, color 0.3s ease,
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
     border-color 0.3s ease;
   font-size: 1em;
   border: none;
@@ -691,22 +697,106 @@ header {
 /* Footer */
 footer {
   background-color: var(--background-dark);
-  color: #fff;
-  text-align: center;
-  padding: 30px 0;
-  font-size: 0.9em;
+  color: var(--bp-blue-300);
 }
 
-footer a {
-  color: var(--bp-blue-300);
+.footer-top {
+  padding: 3rem 0 2.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   text-decoration: none;
 }
 
-footer a:hover {
-  text-decoration: underline;
+.footer-brand-link:hover {
+  text-decoration: none;
 }
 
-/* Changelog Styles */
+.footer-brand-name {
+  font-family: 'Grandstander', 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.footer-tagline {
+  font-size: 0.9rem;
+  color: var(--bp-blue-400);
+  margin: 0;
+  font-style: italic;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: right;
+}
+
+.footer-links a {
+  color: var(--bp-blue-300);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+
+.footer-bottom {
+  padding: 1.25rem 0;
+}
+
+.footer-bottom p {
+  font-size: 0.85rem;
+  color: var(--bp-blue-600);
+  margin: 0;
+  text-align: center;
+}
+
+.footer-bottom a {
+  color: var(--bp-blue-500);
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  color: var(--bp-blue-300);
+}
+
+/* Content page styles (changelog, privacy, terms) */
+main h2 {
+  text-align: left;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--bp-blue-800);
+}
+
+main h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--bp-blue-700);
+}
+
 main ul {
   list-style-type: disc;
   margin-left: 2rem;
@@ -718,16 +808,45 @@ main ul li {
   line-height: 1.6;
 }
 
-main h2 {
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  color: var(--bp-blue-800);
+/* Changelog-specific content styles */
+.changelog-content > h1,
+.changelog-content > p {
+  display: none; /* title and intro line are in the page header banner */
 }
 
-main h3 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  color: var(--bp-blue-700);
+.changelog-content h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--bp-blue-900);
+  background: var(--bp-blue-50);
+  border: 1px solid var(--bp-blue-200);
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.changelog-content h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--bp-blue-500);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.changelog-content ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.changelog-content ul li {
+  margin-bottom: 0.4rem;
+  line-height: 1.65;
+  color: var(--medium-text-color);
 }
 
 /* Responsive Design */

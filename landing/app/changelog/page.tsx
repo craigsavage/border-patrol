@@ -37,9 +37,48 @@ export default function ChangelogPage() {
   return (
     <>
       <Nav />
-      <main className="container" style={{ paddingTop: '2rem' }}>
-        <div dangerouslySetInnerHTML={{ __html: changelogHtml }} />
+
+      <div
+        style={{
+          borderBottom: '1px solid var(--border-color)',
+          background: 'var(--card-background)',
+        }}
+      >
+        <div
+          className='container'
+          style={{ paddingTop: '3rem', paddingBottom: '3rem' }}
+        >
+          <p
+            style={{
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              color: 'var(--bp-blue-500)',
+              marginBottom: '0.75rem',
+            }}
+          >
+            Release History
+          </p>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+            Changelog
+          </h1>
+          <p style={{ color: 'var(--light-text-color)', marginBottom: 0 }}>
+            All notable changes to Border Patrol, most recent first.
+          </p>
+        </div>
+      </div>
+
+      <main
+        className='container'
+        style={{ paddingTop: '2.5rem', paddingBottom: '5rem' }}
+      >
+        <div
+          className='changelog-content'
+          dangerouslySetInnerHTML={{ __html: changelogHtml }}
+        />
       </main>
+
       <Footer />
     </>
   );

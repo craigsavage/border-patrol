@@ -67,8 +67,8 @@ Please see the [CONTRIBUTING](CONTRIBUTING.md) file for more detailed guidelines
 
 ### Feedback and Support 💬
 
-For bug reports, feature requests, or general feedback, please open an issue on the [Border Patrol GitHub Issues page](https://github.com/craigsavage/border-patrol/issues).
+For bug reports, feature requests, or general feedback, please open an issue on the [Border Patrol GitHub Issues page](https://github.com/seasav/border-patrol/issues).
 
 ### License
 
-Border Patrol is released under the [Apache-2.0 License](https://github.com/craigsavage/border-patrol/blob/main/LICENSE) 📄.
+Border Patrol is released under the [Apache-2.0 License](https://github.com/seasav/border-patrol/blob/main/LICENSE) 📄.
