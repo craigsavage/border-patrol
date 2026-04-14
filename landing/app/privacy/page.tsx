@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import Nav from '../../components/Nav';
 import Footer from '../../components/Footer';
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
-const sectionHeading: React.CSSProperties = {
+const sectionHeading: CSSProperties = {
   textAlign: 'left',
   fontSize: '1.2rem',
   fontWeight: 700,
