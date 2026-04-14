@@ -127,7 +127,9 @@ body {
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .problem-card:hover,
@@ -425,7 +427,9 @@ ul {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -546,7 +550,9 @@ header {
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  transition: background-color 0.3s ease, color 0.3s ease,
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
     border-color 0.3s ease;
   font-size: 1em;
   border: none;
@@ -725,7 +731,7 @@ footer {
 
 .footer-brand-name {
   font-family: 'Grandstander', 'Inter', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
 }
@@ -756,11 +762,6 @@ footer {
   text-decoration: none;
 }
 
-.footer-company-link {
-  color: var(--bp-blue-400) !important;
-  font-weight: 500;
-  margin-top: 0.5rem;
-}
 
 .footer-bottom {
   padding: 1.25rem 0;
@@ -771,6 +772,15 @@ footer {
   color: var(--bp-blue-600);
   margin: 0;
   text-align: center;
+}
+
+.footer-bottom a {
+  color: var(--bp-blue-500);
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  color: var(--bp-blue-300);
 }
 
 /* Content page styles (changelog, privacy, terms) */
@@ -799,8 +809,9 @@ main ul li {
 }
 
 /* Changelog-specific content styles */
-.changelog-content > h1 {
-  display: none; /* title is in the page header banner */
+.changelog-content > h1,
+.changelog-content > p {
+  display: none; /* title and intro line are in the page header banner */
 }
 
 .changelog-content h2 {
