@@ -13,6 +13,8 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   let hoveredElement: HTMLElement | null = null;
   let firstSelected: HTMLElement | null = null;
   let secondSelected: HTMLElement | null = null;
+  let lastPreviewTarget: HTMLElement | null = null;
+  let previewRafId: number | null = null;
 
   // Shadow DOM elements for selection highlights and connector
   let hoverHighlight: HTMLElement | null = null;
@@ -33,6 +35,9 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   const SELECTED_OUTLINE = 'rgba(16, 185, 129, 0.8)';
   const CONNECTOR_COLOR = '#ef4444';
   const GUIDELINE_COLOR = 'rgba(148, 163, 184, 0.3)';
+  /** Minimum pixel difference before an edge misalignment is shown. */
+  const EDGE_EPSILON = 1;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
 
   /**
    * Checks if an element belongs to the measurement UI itself.
@@ -354,6 +359,214 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     };
   }
 
+  // ---------------------------------------------------------------------------
+  // SVG primitive helpers — append directly to connectorLine
+  // ---------------------------------------------------------------------------
+
+  /** Appends a dashed connector line between two points to the SVG overlay. */
+  function appendConnectorLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): void {
+    if (!connectorLine) return;
+    const el = document.createElementNS(SVG_NS, 'line');
+    el.setAttribute('x1', String(x1));
+    el.setAttribute('y1', String(y1));
+    el.setAttribute('x2', String(x2));
+    el.setAttribute('y2', String(y2));
+    el.setAttribute('stroke', CONNECTOR_COLOR);
+    el.setAttribute('stroke-width', '2');
+    el.setAttribute('stroke-dasharray', '6 4');
+    connectorLine.appendChild(el);
+  }
+
+  /** Appends a filled circle to the SVG overlay. */
+  function appendConnectorDot(
+    cx: number,
+    cy: number,
+    r = 4,
+    opacity?: string,
+  ): void {
+    if (!connectorLine) return;
+    const el = document.createElementNS(SVG_NS, 'circle');
+    el.setAttribute('cx', String(cx));
+    el.setAttribute('cy', String(cy));
+    el.setAttribute('r', String(r));
+    el.setAttribute('fill', CONNECTOR_COLOR);
+    if (opacity !== undefined) el.setAttribute('opacity', opacity);
+    connectorLine.appendChild(el);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Connector branch functions — each handles one measurement layout
+  // ---------------------------------------------------------------------------
+
+  /** L-shaped connector for elements offset on both axes. */
+  function drawLShaped(
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    xGap: number,
+    yGap: number,
+  ): void {
+    const corner = { x: b.x, y: a.y };
+    appendConnectorLine(a.x, a.y, corner.x, corner.y);
+    appendConnectorLine(corner.x, corner.y, b.x, b.y);
+    appendConnectorDot(a.x, a.y);
+    appendConnectorDot(b.x, b.y);
+    appendConnectorDot(corner.x, corner.y, 3, '0.5');
+
+    xDistanceLabel!.textContent = `${Math.round(xGap)}px`;
+    xDistanceLabel!.style.position = 'fixed';
+    xDistanceLabel!.style.left = `${(a.x + corner.x) / 2}px`;
+    xDistanceLabel!.style.top = `${a.y}px`;
+    xDistanceLabel!.style.display = 'block';
+
+    yDistanceLabel!.textContent = `${Math.round(yGap)}px`;
+    yDistanceLabel!.style.position = 'fixed';
+    yDistanceLabel!.style.left = `${corner.x}px`;
+    yDistanceLabel!.style.top = `${(corner.y + b.y) / 2}px`;
+    yDistanceLabel!.style.display = 'block';
+  }
+
+  /**
+   * Horizontal edge-misalignment layout: elements are vertically separated with
+   * horizontal overlap but misaligned left/right edges. Shows the y-gap plus
+   * left and/or right edge differences.
+   */
+  function drawHEdgeMisalign(
+    rectA: DOMRect,
+    rectB: DOMRect,
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    yGap: number,
+  ): void {
+    const leftEdgeDiff = Math.abs(rectA.left - rectB.left);
+    const rightEdgeDiff = Math.abs(rectA.right - rectB.right);
+    const yBetween = (a.y + b.y) / 2;
+    const rectACenterY = rectA.top + rectA.height / 2;
+    const rectBCenterY = rectB.top + rectB.height / 2;
+    const leftGapY = rectA.left > rectB.left ? rectACenterY : rectBCenterY;
+    const rightGapY = rectA.right < rectB.right ? rectACenterY : rectBCenterY;
+
+    appendConnectorLine(a.x, a.y, a.x, b.y);
+    appendConnectorDot(a.x, a.y);
+    appendConnectorDot(a.x, b.y);
+
+    yDistanceLabel!.textContent = `${Math.round(yGap)}px`;
+    yDistanceLabel!.style.position = 'fixed';
+    yDistanceLabel!.style.left = `${a.x}px`;
+    yDistanceLabel!.style.top = `${yBetween}px`;
+    yDistanceLabel!.style.display = 'block';
+
+    if (leftEdgeDiff > EDGE_EPSILON) {
+      const leftFrom = Math.min(rectA.left, rectB.left);
+      const leftTo = Math.max(rectA.left, rectB.left);
+      appendConnectorLine(leftFrom, leftGapY, leftTo, leftGapY);
+      appendConnectorDot(leftFrom, leftGapY);
+      appendConnectorDot(leftTo, leftGapY);
+      xDistanceLabel!.textContent = `${Math.round(leftEdgeDiff)}px`;
+      xDistanceLabel!.style.position = 'fixed';
+      xDistanceLabel!.style.left = `${(leftFrom + leftTo) / 2}px`;
+      xDistanceLabel!.style.top = `${leftGapY}px`;
+      xDistanceLabel!.style.display = 'block';
+    }
+
+    if (rightEdgeDiff > EDGE_EPSILON) {
+      const rightFrom = Math.min(rectA.right, rectB.right);
+      const rightTo = Math.max(rectA.right, rectB.right);
+      appendConnectorLine(rightFrom, rightGapY, rightTo, rightGapY);
+      appendConnectorDot(rightFrom, rightGapY);
+      appendConnectorDot(rightTo, rightGapY);
+      distanceLabel!.textContent = `${Math.round(rightEdgeDiff)}px`;
+      distanceLabel!.style.position = 'fixed';
+      distanceLabel!.style.left = `${(rightFrom + rightTo) / 2}px`;
+      distanceLabel!.style.top = `${rightGapY}px`;
+      distanceLabel!.style.display = 'block';
+    }
+  }
+
+  /**
+   * Vertical edge-misalignment layout: elements are horizontally separated with
+   * vertical overlap but misaligned top/bottom edges. Shows the x-gap plus
+   * top and/or bottom edge differences.
+   */
+  function drawVEdgeMisalign(
+    rectA: DOMRect,
+    rectB: DOMRect,
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    xGap: number,
+  ): void {
+    const topEdgeDiff = Math.abs(rectA.top - rectB.top);
+    const bottomEdgeDiff = Math.abs(rectA.bottom - rectB.bottom);
+    const xBetween = (a.x + b.x) / 2;
+    const rectACenterX = rectA.left + rectA.width / 2;
+    const rectBCenterX = rectB.left + rectB.width / 2;
+    const topGapX = rectA.top > rectB.top ? rectACenterX : rectBCenterX;
+    const bottomGapX =
+      rectA.bottom < rectB.bottom ? rectACenterX : rectBCenterX;
+
+    appendConnectorLine(a.x, a.y, b.x, b.y);
+    appendConnectorDot(a.x, a.y);
+    appendConnectorDot(b.x, b.y);
+
+    distanceLabel!.textContent = `${Math.round(xGap)}px`;
+    distanceLabel!.style.position = 'fixed';
+    distanceLabel!.style.left = `${xBetween}px`;
+    distanceLabel!.style.top = `${a.y}px`;
+    distanceLabel!.style.display = 'block';
+
+    if (topEdgeDiff > EDGE_EPSILON) {
+      const topFrom = Math.min(rectA.top, rectB.top);
+      const topTo = Math.max(rectA.top, rectB.top);
+      appendConnectorLine(topGapX, topFrom, topGapX, topTo);
+      appendConnectorDot(topGapX, topFrom);
+      appendConnectorDot(topGapX, topTo);
+      xDistanceLabel!.textContent = `${Math.round(topEdgeDiff)}px`;
+      xDistanceLabel!.style.position = 'fixed';
+      xDistanceLabel!.style.left = `${topGapX}px`;
+      xDistanceLabel!.style.top = `${(topFrom + topTo) / 2}px`;
+      xDistanceLabel!.style.display = 'block';
+    }
+
+    if (bottomEdgeDiff > EDGE_EPSILON) {
+      const bottomFrom = Math.min(rectA.bottom, rectB.bottom);
+      const bottomTo = Math.max(rectA.bottom, rectB.bottom);
+      appendConnectorLine(bottomGapX, bottomFrom, bottomGapX, bottomTo);
+      appendConnectorDot(bottomGapX, bottomFrom);
+      appendConnectorDot(bottomGapX, bottomTo);
+      yDistanceLabel!.textContent = `${Math.round(bottomEdgeDiff)}px`;
+      yDistanceLabel!.style.position = 'fixed';
+      yDistanceLabel!.style.left = `${bottomGapX}px`;
+      yDistanceLabel!.style.top = `${(bottomFrom + bottomTo) / 2}px`;
+      yDistanceLabel!.style.display = 'block';
+    }
+  }
+
+  /** Single dashed line with one distance label for pure x or y separation. */
+  function drawSingleAxis(
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    xGap: number,
+    yGap: number,
+  ): void {
+    appendConnectorLine(a.x, a.y, b.x, b.y);
+    appendConnectorDot(a.x, a.y);
+    appendConnectorDot(b.x, b.y);
+    const dist = xGap > 0 ? Math.round(xGap) : Math.round(yGap);
+    distanceLabel!.textContent = `${dist}px`;
+    distanceLabel!.style.position = 'fixed';
+    distanceLabel!.style.left = `${(a.x + b.x) / 2}px`;
+    distanceLabel!.style.top = `${(a.y + b.y) / 2}px`;
+    distanceLabel!.style.display = 'block';
+  }
+
+  // ---------------------------------------------------------------------------
+  // Main connector dispatcher
+  // ---------------------------------------------------------------------------
+
   /** Draws the SVG connector and distance label(s) between the two selected elements. */
   function drawConnector(overrideSecond?: HTMLElement): void {
     const second = overrideSecond ?? secondSelected;
@@ -370,11 +583,8 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     const rectA = firstSelected.getBoundingClientRect();
     const rectB = second.getBoundingClientRect();
     const { pointA: a, pointB: b, xGap, yGap } = getEdgeData(rectA, rectB);
-
-    const svgNS = 'http://www.w3.org/2000/svg';
     const svgEl = connectorLine as unknown as HTMLElement;
 
-    // Reset all labels
     distanceLabel.style.display = 'none';
     xDistanceLabel.style.display = 'none';
     yDistanceLabel.style.display = 'none';
@@ -392,7 +602,6 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       return;
     }
 
-    // Size the SVG to cover the viewport
     svgEl.style.position = 'fixed';
     svgEl.style.top = '0';
     svgEl.style.left = '0';
@@ -404,299 +613,59 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       `0 0 ${window.innerWidth} ${window.innerHeight}`,
     );
 
-    // Clear previous SVG content
     while (connectorLine.firstChild) {
       connectorLine.removeChild(connectorLine.firstChild);
     }
 
-    // Draw corner guidelines for both elements (behind connector lines)
     drawGuidelines(rectA);
     drawGuidelines(rectB);
 
     if (xGap > 0 && yGap > 0) {
-      // L-shaped connector: horizontal segment then vertical segment
-      // Corner sits at (b.x, a.y) — horizontal from A, then vertical to B
-      const corner = { x: b.x, y: a.y };
-
-      const drawSegment = (
-        x1: number,
-        y1: number,
-        x2: number,
-        y2: number,
-      ): void => {
-        const seg = document.createElementNS(svgNS, 'line');
-        seg.setAttribute('x1', String(x1));
-        seg.setAttribute('y1', String(y1));
-        seg.setAttribute('x2', String(x2));
-        seg.setAttribute('y2', String(y2));
-        seg.setAttribute('stroke', CONNECTOR_COLOR);
-        seg.setAttribute('stroke-width', '2');
-        seg.setAttribute('stroke-dasharray', '6 4');
-        connectorLine!.appendChild(seg);
-      };
-
-      // Horizontal: A edge → corner
-      drawSegment(a.x, a.y, corner.x, corner.y);
-      // Vertical: corner → B edge
-      drawSegment(corner.x, corner.y, b.x, b.y);
-
-      // Endpoint circles at A and B
-      [a, b].forEach(point => {
-        const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', String(point.x));
-        circle.setAttribute('cy', String(point.y));
-        circle.setAttribute('r', '4');
-        circle.setAttribute('fill', CONNECTOR_COLOR);
-        connectorLine!.appendChild(circle);
-      });
-
-      // Small dot at the corner
-      const cornerDot = document.createElementNS(svgNS, 'circle');
-      cornerDot.setAttribute('cx', String(corner.x));
-      cornerDot.setAttribute('cy', String(corner.y));
-      cornerDot.setAttribute('r', '3');
-      cornerDot.setAttribute('fill', CONNECTOR_COLOR);
-      cornerDot.setAttribute('opacity', '0.5');
-      connectorLine.appendChild(cornerDot);
-
-      // X label centred on the horizontal segment
-      xDistanceLabel.textContent = `${Math.round(xGap)}px`;
-      xDistanceLabel.style.position = 'fixed';
-      xDistanceLabel.style.left = `${(a.x + corner.x) / 2}px`;
-      xDistanceLabel.style.top = `${a.y}px`;
-      xDistanceLabel.style.display = 'block';
-
-      // Y label centred on the vertical segment
-      yDistanceLabel.textContent = `${Math.round(yGap)}px`;
-      yDistanceLabel.style.position = 'fixed';
-      yDistanceLabel.style.left = `${corner.x}px`;
-      yDistanceLabel.style.top = `${(corner.y + b.y) / 2}px`;
-      yDistanceLabel.style.display = 'block';
+      drawLShaped(a, b, xGap, yGap);
     } else if (
       xGap === 0 &&
       yGap > 0 &&
-      (Math.abs(rectA.left - rectB.left) > 1 ||
-        Math.abs(rectA.right - rectB.right) > 1)
+      (Math.abs(rectA.left - rectB.left) > EDGE_EPSILON ||
+        Math.abs(rectA.right - rectB.right) > EDGE_EPSILON)
     ) {
-      // Both-edges case: elements overlap on x-axis but have misaligned edges.
-      // Show left/right edge gaps and the y-gap separately.
-      const leftEdgeDiff = Math.abs(rectA.left - rectB.left);
-      const rightEdgeDiff = Math.abs(rectA.right - rectB.right);
-      const yBetween = (a.y + b.y) / 2;
-      const rectACenterY = rectA.top + rectA.height / 2;
-      const rectBCenterY = rectB.top + rectB.height / 2;
-      // For each side, anchor the gap line to the centre of whichever element
-      // is inset (the "smaller" side) so the line runs through that element.
-      const leftGapY = rectA.left > rectB.left ? rectACenterY : rectBCenterY;
-      const rightGapY = rectA.right < rectB.right ? rectACenterY : rectBCenterY;
-
-      const drawEdgeSeg = (
-        x1: number,
-        y1: number,
-        x2: number,
-        y2: number,
-      ): void => {
-        const seg = document.createElementNS(svgNS, 'line');
-        seg.setAttribute('x1', String(x1));
-        seg.setAttribute('y1', String(y1));
-        seg.setAttribute('x2', String(x2));
-        seg.setAttribute('y2', String(y2));
-        seg.setAttribute('stroke', CONNECTOR_COLOR);
-        seg.setAttribute('stroke-width', '2');
-        seg.setAttribute('stroke-dasharray', '6 4');
-        connectorLine!.appendChild(seg);
-      };
-
-      const drawEdgeCircle = (cx: number, cy: number): void => {
-        const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', String(cx));
-        circle.setAttribute('cy', String(cy));
-        circle.setAttribute('r', '4');
-        circle.setAttribute('fill', CONNECTOR_COLOR);
-        connectorLine!.appendChild(circle);
-      };
-
-      // Vertical y-gap line at the horizontal midpoint of the overlap
-      drawEdgeSeg(a.x, a.y, a.x, b.y);
-      drawEdgeCircle(a.x, a.y);
-      drawEdgeCircle(a.x, b.y);
-
-      yDistanceLabel.textContent = `${Math.round(yGap)}px`;
-      yDistanceLabel.style.position = 'fixed';
-      yDistanceLabel.style.left = `${a.x}px`;
-      yDistanceLabel.style.top = `${yBetween}px`;
-      yDistanceLabel.style.display = 'block';
-
-      // Left edge gap — anchored to the centre of the inset element
-      if (leftEdgeDiff > 1) {
-        const leftFrom = Math.min(rectA.left, rectB.left);
-        const leftTo = Math.max(rectA.left, rectB.left);
-        drawEdgeSeg(leftFrom, leftGapY, leftTo, leftGapY);
-        drawEdgeCircle(leftFrom, leftGapY);
-        drawEdgeCircle(leftTo, leftGapY);
-        xDistanceLabel.textContent = `${Math.round(leftEdgeDiff)}px`;
-        xDistanceLabel.style.position = 'fixed';
-        xDistanceLabel.style.left = `${(leftFrom + leftTo) / 2}px`;
-        xDistanceLabel.style.top = `${leftGapY}px`;
-        xDistanceLabel.style.display = 'block';
-      }
-
-      // Right edge gap — anchored to the centre of the inset element
-      if (rightEdgeDiff > 1) {
-        const rightFrom = Math.min(rectA.right, rectB.right);
-        const rightTo = Math.max(rectA.right, rectB.right);
-        drawEdgeSeg(rightFrom, rightGapY, rightTo, rightGapY);
-        drawEdgeCircle(rightFrom, rightGapY);
-        drawEdgeCircle(rightTo, rightGapY);
-        distanceLabel.textContent = `${Math.round(rightEdgeDiff)}px`;
-        distanceLabel.style.position = 'fixed';
-        distanceLabel.style.left = `${(rightFrom + rightTo) / 2}px`;
-        distanceLabel.style.top = `${rightGapY}px`;
-        distanceLabel.style.display = 'block';
-      }
+      drawHEdgeMisalign(rectA, rectB, a, b, yGap);
     } else if (
       yGap === 0 &&
       xGap > 0 &&
-      (Math.abs(rectA.top - rectB.top) > 1 ||
-        Math.abs(rectA.bottom - rectB.bottom) > 1)
+      (Math.abs(rectA.top - rectB.top) > EDGE_EPSILON ||
+        Math.abs(rectA.bottom - rectB.bottom) > EDGE_EPSILON)
     ) {
-      // Vertical both-edges case: elements overlap on y-axis but have misaligned
-      // top/bottom edges. Show top/bottom edge gaps alongside the x-gap.
-      const topEdgeDiff = Math.abs(rectA.top - rectB.top);
-      const bottomEdgeDiff = Math.abs(rectA.bottom - rectB.bottom);
-      const xBetween = (a.x + b.x) / 2;
-      const rectACenterX = rectA.left + rectA.width / 2;
-      const rectBCenterX = rectB.left + rectB.width / 2;
-      // Anchor each edge gap line to the x-centre of the inset element
-      const topGapX = rectA.top > rectB.top ? rectACenterX : rectBCenterX;
-      const bottomGapX =
-        rectA.bottom < rectB.bottom ? rectACenterX : rectBCenterX;
-
-      const drawVSeg = (
-        x1: number,
-        y1: number,
-        x2: number,
-        y2: number,
-      ): void => {
-        const seg = document.createElementNS(svgNS, 'line');
-        seg.setAttribute('x1', String(x1));
-        seg.setAttribute('y1', String(y1));
-        seg.setAttribute('x2', String(x2));
-        seg.setAttribute('y2', String(y2));
-        seg.setAttribute('stroke', CONNECTOR_COLOR);
-        seg.setAttribute('stroke-width', '2');
-        seg.setAttribute('stroke-dasharray', '6 4');
-        connectorLine!.appendChild(seg);
-      };
-
-      const drawVCircle = (cx: number, cy: number): void => {
-        const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', String(cx));
-        circle.setAttribute('cy', String(cy));
-        circle.setAttribute('r', '4');
-        circle.setAttribute('fill', CONNECTOR_COLOR);
-        connectorLine!.appendChild(circle);
-      };
-
-      // Horizontal x-gap line at the vertical midpoint of the overlap
-      drawVSeg(a.x, a.y, b.x, b.y);
-      drawVCircle(a.x, a.y);
-      drawVCircle(b.x, b.y);
-
-      distanceLabel.textContent = `${Math.round(xGap)}px`;
-      distanceLabel.style.position = 'fixed';
-      distanceLabel.style.left = `${xBetween}px`;
-      distanceLabel.style.top = `${a.y}px`;
-      distanceLabel.style.display = 'block';
-
-      // Top edge gap — anchored to the x-centre of the inset element
-      if (topEdgeDiff > 1) {
-        const topFrom = Math.min(rectA.top, rectB.top);
-        const topTo = Math.max(rectA.top, rectB.top);
-        drawVSeg(topGapX, topFrom, topGapX, topTo);
-        drawVCircle(topGapX, topFrom);
-        drawVCircle(topGapX, topTo);
-        xDistanceLabel.textContent = `${Math.round(topEdgeDiff)}px`;
-        xDistanceLabel.style.position = 'fixed';
-        xDistanceLabel.style.left = `${topGapX}px`;
-        xDistanceLabel.style.top = `${(topFrom + topTo) / 2}px`;
-        xDistanceLabel.style.display = 'block';
-      }
-
-      // Bottom edge gap — anchored to the x-centre of the inset element
-      if (bottomEdgeDiff > 1) {
-        const bottomFrom = Math.min(rectA.bottom, rectB.bottom);
-        const bottomTo = Math.max(rectA.bottom, rectB.bottom);
-        drawVSeg(bottomGapX, bottomFrom, bottomGapX, bottomTo);
-        drawVCircle(bottomGapX, bottomFrom);
-        drawVCircle(bottomGapX, bottomTo);
-        yDistanceLabel.textContent = `${Math.round(bottomEdgeDiff)}px`;
-        yDistanceLabel.style.position = 'fixed';
-        yDistanceLabel.style.left = `${bottomGapX}px`;
-        yDistanceLabel.style.top = `${(bottomFrom + bottomTo) / 2}px`;
-        yDistanceLabel.style.display = 'block';
-      }
+      drawVEdgeMisalign(rectA, rectB, a, b, xGap);
     } else {
-      // Single-axis: one straight line with one label
-      const line = document.createElementNS(svgNS, 'line');
-      line.setAttribute('x1', String(a.x));
-      line.setAttribute('y1', String(a.y));
-      line.setAttribute('x2', String(b.x));
-      line.setAttribute('y2', String(b.y));
-      line.setAttribute('stroke', CONNECTOR_COLOR);
-      line.setAttribute('stroke-width', '2');
-      line.setAttribute('stroke-dasharray', '6 4');
-      connectorLine.appendChild(line);
-
-      [a, b].forEach(point => {
-        const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', String(point.x));
-        circle.setAttribute('cy', String(point.y));
-        circle.setAttribute('r', '4');
-        circle.setAttribute('fill', CONNECTOR_COLOR);
-        connectorLine!.appendChild(circle);
-      });
-
-      const dist = xGap > 0 ? Math.round(xGap) : Math.round(yGap);
-      distanceLabel.textContent = `${dist}px`;
-      distanceLabel.style.position = 'fixed';
-      distanceLabel.style.left = `${(a.x + b.x) / 2}px`;
-      distanceLabel.style.top = `${(a.y + b.y) / 2}px`;
-      distanceLabel.style.display = 'block';
+      drawSingleAxis(a, b, xGap, yGap);
     }
   }
 
   /**
-   * Draws thin guideline extensions from each corner of the given rect to the
-   * viewport edges. Called as part of drawConnector so guidelines appear behind
-   * the connector lines in the SVG paint order.
+   * Draws thin dashed guideline extensions from each corner of the given rect
+   * to the viewport edges. Called for both elements so connector lines always
+   * originate from a visible guideline.
    *
-   * @param rect - The bounding rect of the second (hovered or locked) element.
+   * @param rect - The bounding rect of an element to draw guidelines for.
    */
   function drawGuidelines(rect: DOMRect): void {
     if (!connectorLine) return;
-    const svgNS = 'http://www.w3.org/2000/svg';
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    // 8 segments: from each of the 4 corners, one horizontal + one vertical
     const segments: [number, number, number, number][] = [
-      // Top-left corner
-      [0, rect.top, rect.left, rect.top], // left to viewport left edge
-      [rect.left, 0, rect.left, rect.top], // up to viewport top edge
-      // Top-right corner
-      [rect.right, rect.top, vw, rect.top], // right to viewport right edge
-      [rect.right, 0, rect.right, rect.top], // up to viewport top edge
-      // Bottom-left corner
-      [0, rect.bottom, rect.left, rect.bottom], // left to viewport left edge
-      [rect.left, rect.bottom, rect.left, vh], // down to viewport bottom edge
-      // Bottom-right corner
-      [rect.right, rect.bottom, vw, rect.bottom], // right to viewport right edge
-      [rect.right, rect.bottom, rect.right, vh], // down to viewport bottom edge
+      [0, rect.top, rect.left, rect.top],
+      [rect.left, 0, rect.left, rect.top],
+      [rect.right, rect.top, vw, rect.top],
+      [rect.right, 0, rect.right, rect.top],
+      [0, rect.bottom, rect.left, rect.bottom],
+      [rect.left, rect.bottom, rect.left, vh],
+      [rect.right, rect.bottom, vw, rect.bottom],
+      [rect.right, rect.bottom, rect.right, vh],
     ];
 
     segments.forEach(([x1, y1, x2, y2]) => {
-      const line = document.createElementNS(svgNS, 'line');
+      const line = document.createElementNS(SVG_NS, 'line');
       line.setAttribute('x1', String(x1));
       line.setAttribute('y1', String(y1));
       line.setAttribute('x2', String(x2));
