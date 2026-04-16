@@ -482,6 +482,12 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       const leftEdgeDiff = Math.abs(rectA.left - rectB.left);
       const rightEdgeDiff = Math.abs(rectA.right - rectB.right);
       const yBetween = (a.y + b.y) / 2;
+      const rectACenterY = rectA.top + rectA.height / 2;
+      const rectBCenterY = rectB.top + rectB.height / 2;
+      // For each side, anchor the gap line to the centre of whichever element
+      // is inset (the "smaller" side) so the line runs through that element.
+      const leftGapY = rectA.left > rectB.left ? rectACenterY : rectBCenterY;
+      const rightGapY = rectA.right < rectB.right ? rectACenterY : rectBCenterY;
 
       const drawEdgeSeg = (
         x1: number,
@@ -520,31 +526,31 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       yDistanceLabel.style.top = `${yBetween}px`;
       yDistanceLabel.style.display = 'block';
 
-      // Left edge gap
+      // Left edge gap — anchored to the centre of the inset element
       if (leftEdgeDiff > 1) {
         const leftFrom = Math.min(rectA.left, rectB.left);
         const leftTo = Math.max(rectA.left, rectB.left);
-        drawEdgeSeg(leftFrom, yBetween, leftTo, yBetween);
-        drawEdgeCircle(leftFrom, yBetween);
-        drawEdgeCircle(leftTo, yBetween);
+        drawEdgeSeg(leftFrom, leftGapY, leftTo, leftGapY);
+        drawEdgeCircle(leftFrom, leftGapY);
+        drawEdgeCircle(leftTo, leftGapY);
         xDistanceLabel.textContent = `${Math.round(leftEdgeDiff)}px`;
         xDistanceLabel.style.position = 'fixed';
         xDistanceLabel.style.left = `${(leftFrom + leftTo) / 2}px`;
-        xDistanceLabel.style.top = `${yBetween}px`;
+        xDistanceLabel.style.top = `${leftGapY}px`;
         xDistanceLabel.style.display = 'block';
       }
 
-      // Right edge gap
+      // Right edge gap — anchored to the centre of the inset element
       if (rightEdgeDiff > 1) {
         const rightFrom = Math.min(rectA.right, rectB.right);
         const rightTo = Math.max(rectA.right, rectB.right);
-        drawEdgeSeg(rightFrom, yBetween, rightTo, yBetween);
-        drawEdgeCircle(rightFrom, yBetween);
-        drawEdgeCircle(rightTo, yBetween);
+        drawEdgeSeg(rightFrom, rightGapY, rightTo, rightGapY);
+        drawEdgeCircle(rightFrom, rightGapY);
+        drawEdgeCircle(rightTo, rightGapY);
         distanceLabel.textContent = `${Math.round(rightEdgeDiff)}px`;
         distanceLabel.style.position = 'fixed';
         distanceLabel.style.left = `${(rightFrom + rightTo) / 2}px`;
-        distanceLabel.style.top = `${yBetween}px`;
+        distanceLabel.style.top = `${rightGapY}px`;
         distanceLabel.style.display = 'block';
       }
     } else {
@@ -614,6 +620,7 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       line.setAttribute('y2', String(y2));
       line.setAttribute('stroke', GUIDELINE_COLOR);
       line.setAttribute('stroke-width', '1');
+      line.setAttribute('stroke-dasharray', '4 4');
       connectorLine!.appendChild(line);
     });
   }
