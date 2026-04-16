@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Measurement mode now shows a live distance preview as you move the mouse after selecting the first element, so you can quickly gauge distances without a second click. Clicking a second element locks the measurement in place as before.
+
 ## [1.7.2] - 2026-04-09
 
 ### Changed
