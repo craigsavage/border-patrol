@@ -32,6 +32,7 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   const SELECTED_COLOR = 'rgba(16, 185, 129, 0.15)';
   const SELECTED_OUTLINE = 'rgba(16, 185, 129, 0.8)';
   const CONNECTOR_COLOR = '#ef4444';
+  const GUIDELINE_COLOR = 'rgba(148, 163, 184, 0.3)';
 
   /**
    * Checks if an element belongs to the measurement UI itself.
@@ -408,6 +409,9 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       connectorLine.removeChild(connectorLine.firstChild);
     }
 
+    // Draw corner guidelines for the second element (behind connector lines)
+    drawGuidelines(rectB);
+
     if (xGap > 0 && yGap > 0) {
       // L-shaped connector: horizontal segment then vertical segment
       // Corner sits at (b.x, a.y) — horizontal from A, then vertical to B
@@ -467,6 +471,82 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       yDistanceLabel.style.left = `${corner.x}px`;
       yDistanceLabel.style.top = `${(corner.y + b.y) / 2}px`;
       yDistanceLabel.style.display = 'block';
+    } else if (
+      xGap === 0 &&
+      yGap > 0 &&
+      (Math.abs(rectA.left - rectB.left) > 1 ||
+        Math.abs(rectA.right - rectB.right) > 1)
+    ) {
+      // Both-edges case: elements overlap on x-axis but have misaligned edges.
+      // Show left/right edge gaps and the y-gap separately.
+      const leftEdgeDiff = Math.abs(rectA.left - rectB.left);
+      const rightEdgeDiff = Math.abs(rectA.right - rectB.right);
+      const yBetween = (a.y + b.y) / 2;
+
+      const drawEdgeSeg = (
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+      ): void => {
+        const seg = document.createElementNS(svgNS, 'line');
+        seg.setAttribute('x1', String(x1));
+        seg.setAttribute('y1', String(y1));
+        seg.setAttribute('x2', String(x2));
+        seg.setAttribute('y2', String(y2));
+        seg.setAttribute('stroke', CONNECTOR_COLOR);
+        seg.setAttribute('stroke-width', '2');
+        seg.setAttribute('stroke-dasharray', '6 4');
+        connectorLine!.appendChild(seg);
+      };
+
+      const drawEdgeCircle = (cx: number, cy: number): void => {
+        const circle = document.createElementNS(svgNS, 'circle');
+        circle.setAttribute('cx', String(cx));
+        circle.setAttribute('cy', String(cy));
+        circle.setAttribute('r', '4');
+        circle.setAttribute('fill', CONNECTOR_COLOR);
+        connectorLine!.appendChild(circle);
+      };
+
+      // Vertical y-gap line at the horizontal midpoint of the overlap
+      drawEdgeSeg(a.x, a.y, a.x, b.y);
+      drawEdgeCircle(a.x, a.y);
+      drawEdgeCircle(a.x, b.y);
+
+      yDistanceLabel.textContent = `${Math.round(yGap)}px`;
+      yDistanceLabel.style.position = 'fixed';
+      yDistanceLabel.style.left = `${a.x}px`;
+      yDistanceLabel.style.top = `${yBetween}px`;
+      yDistanceLabel.style.display = 'block';
+
+      // Left edge gap
+      if (leftEdgeDiff > 1) {
+        const leftFrom = Math.min(rectA.left, rectB.left);
+        const leftTo = Math.max(rectA.left, rectB.left);
+        drawEdgeSeg(leftFrom, yBetween, leftTo, yBetween);
+        drawEdgeCircle(leftFrom, yBetween);
+        drawEdgeCircle(leftTo, yBetween);
+        xDistanceLabel.textContent = `${Math.round(leftEdgeDiff)}px`;
+        xDistanceLabel.style.position = 'fixed';
+        xDistanceLabel.style.left = `${(leftFrom + leftTo) / 2}px`;
+        xDistanceLabel.style.top = `${yBetween}px`;
+        xDistanceLabel.style.display = 'block';
+      }
+
+      // Right edge gap
+      if (rightEdgeDiff > 1) {
+        const rightFrom = Math.min(rectA.right, rectB.right);
+        const rightTo = Math.max(rectA.right, rectB.right);
+        drawEdgeSeg(rightFrom, yBetween, rightTo, yBetween);
+        drawEdgeCircle(rightFrom, yBetween);
+        drawEdgeCircle(rightTo, yBetween);
+        distanceLabel.textContent = `${Math.round(rightEdgeDiff)}px`;
+        distanceLabel.style.position = 'fixed';
+        distanceLabel.style.left = `${(rightFrom + rightTo) / 2}px`;
+        distanceLabel.style.top = `${yBetween}px`;
+        distanceLabel.style.display = 'block';
+      }
     } else {
       // Single-axis: one straight line with one label
       const line = document.createElementNS(svgNS, 'line');
@@ -495,6 +575,47 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       distanceLabel.style.top = `${(a.y + b.y) / 2}px`;
       distanceLabel.style.display = 'block';
     }
+  }
+
+  /**
+   * Draws thin guideline extensions from each corner of the given rect to the
+   * viewport edges. Called as part of drawConnector so guidelines appear behind
+   * the connector lines in the SVG paint order.
+   *
+   * @param rect - The bounding rect of the second (hovered or locked) element.
+   */
+  function drawGuidelines(rect: DOMRect): void {
+    if (!connectorLine) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // 8 segments: from each of the 4 corners, one horizontal + one vertical
+    const segments: [number, number, number, number][] = [
+      // Top-left corner
+      [0, rect.top, rect.left, rect.top], // left to viewport left edge
+      [rect.left, 0, rect.left, rect.top], // up to viewport top edge
+      // Top-right corner
+      [rect.right, rect.top, vw, rect.top], // right to viewport right edge
+      [rect.right, 0, rect.right, rect.top], // up to viewport top edge
+      // Bottom-left corner
+      [0, rect.bottom, rect.left, rect.bottom], // left to viewport left edge
+      [rect.left, rect.bottom, rect.left, vh], // down to viewport bottom edge
+      // Bottom-right corner
+      [rect.right, rect.bottom, vw, rect.bottom], // right to viewport right edge
+      [rect.right, rect.bottom, rect.right, vh], // down to viewport bottom edge
+    ];
+
+    segments.forEach(([x1, y1, x2, y2]) => {
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', String(x1));
+      line.setAttribute('y1', String(y1));
+      line.setAttribute('x2', String(x2));
+      line.setAttribute('y2', String(y2));
+      line.setAttribute('stroke', GUIDELINE_COLOR);
+      line.setAttribute('stroke-width', '1');
+      connectorLine!.appendChild(line);
+    });
   }
 
   /**
