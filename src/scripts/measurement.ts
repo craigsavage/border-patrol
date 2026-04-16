@@ -1,6 +1,15 @@
 import Logger from './utils/logger';
 import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
 import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
+import { MeasurementLabelRefs } from 'types/scripts/measurement';
+import { getEdgeData, EDGE_EPSILON } from './utils/measurement-geometry';
+import {
+  drawGuidelines,
+  drawLShaped,
+  drawHEdgeMisalign,
+  drawVEdgeMisalign,
+  drawSingleAxis,
+} from './utils/measurement-svg';
 
 (function () {
   let isMeasurementModeEnabled = false;
@@ -33,11 +42,6 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   const OUTLINE_COLOR = 'rgba(59, 130, 246, 0.8)';
   const SELECTED_COLOR = 'rgba(16, 185, 129, 0.15)';
   const SELECTED_OUTLINE = 'rgba(16, 185, 129, 0.8)';
-  const CONNECTOR_COLOR = '#ef4444';
-  const GUIDELINE_COLOR = 'rgba(148, 163, 184, 0.3)';
-  /** Minimum pixel difference before an edge misalignment is shown. */
-  const EDGE_EPSILON = 1;
-  const SVG_NS = 'http://www.w3.org/2000/svg';
 
   /**
    * Checks if an element belongs to the measurement UI itself.
@@ -300,273 +304,6 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     label.style.display = 'block';
   }
 
-  /**
-   * Returns the nearest edge anchor points between two DOMRects along with
-   * the individual horizontal and vertical gap distances between them.
-   *
-   * @param a - The first element's bounding rect.
-   * @param b - The second element's bounding rect.
-   * @returns Edge anchor points on each rect and the x/y gap values.
-   */
-  function getEdgeData(
-    a: DOMRect,
-    b: DOMRect,
-  ): {
-    pointA: { x: number; y: number };
-    pointB: { x: number; y: number };
-    xGap: number;
-    yGap: number;
-  } {
-    // Horizontal component
-    let ax: number, bx: number, xGap: number;
-    if (a.right <= b.left) {
-      ax = a.right;
-      bx = b.left;
-      xGap = b.left - a.right;
-    } else if (b.right <= a.left) {
-      ax = a.left;
-      bx = b.right;
-      xGap = a.left - b.right;
-    } else {
-      const xMid = (Math.max(a.left, b.left) + Math.min(a.right, b.right)) / 2;
-      ax = xMid;
-      bx = xMid;
-      xGap = 0;
-    }
-
-    // Vertical component
-    let ay: number, by: number, yGap: number;
-    if (a.bottom <= b.top) {
-      ay = a.bottom;
-      by = b.top;
-      yGap = b.top - a.bottom;
-    } else if (b.bottom <= a.top) {
-      ay = a.top;
-      by = b.bottom;
-      yGap = a.top - b.bottom;
-    } else {
-      const yMid = (Math.max(a.top, b.top) + Math.min(a.bottom, b.bottom)) / 2;
-      ay = yMid;
-      by = yMid;
-      yGap = 0;
-    }
-
-    return {
-      pointA: { x: ax, y: ay },
-      pointB: { x: bx, y: by },
-      xGap,
-      yGap,
-    };
-  }
-
-  // ---------------------------------------------------------------------------
-  // SVG primitive helpers — append directly to connectorLine
-  // ---------------------------------------------------------------------------
-
-  /** Appends a dashed connector line between two points to the SVG overlay. */
-  function appendConnectorLine(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-  ): void {
-    if (!connectorLine) return;
-    const el = document.createElementNS(SVG_NS, 'line');
-    el.setAttribute('x1', String(x1));
-    el.setAttribute('y1', String(y1));
-    el.setAttribute('x2', String(x2));
-    el.setAttribute('y2', String(y2));
-    el.setAttribute('stroke', CONNECTOR_COLOR);
-    el.setAttribute('stroke-width', '2');
-    el.setAttribute('stroke-dasharray', '6 4');
-    connectorLine.appendChild(el);
-  }
-
-  /** Appends a filled circle to the SVG overlay. */
-  function appendConnectorDot(
-    cx: number,
-    cy: number,
-    r = 4,
-    opacity?: string,
-  ): void {
-    if (!connectorLine) return;
-    const el = document.createElementNS(SVG_NS, 'circle');
-    el.setAttribute('cx', String(cx));
-    el.setAttribute('cy', String(cy));
-    el.setAttribute('r', String(r));
-    el.setAttribute('fill', CONNECTOR_COLOR);
-    if (opacity !== undefined) el.setAttribute('opacity', opacity);
-    connectorLine.appendChild(el);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Connector branch functions — each handles one measurement layout
-  // ---------------------------------------------------------------------------
-
-  /** L-shaped connector for elements offset on both axes. */
-  function drawLShaped(
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-    xGap: number,
-    yGap: number,
-  ): void {
-    const corner = { x: b.x, y: a.y };
-    appendConnectorLine(a.x, a.y, corner.x, corner.y);
-    appendConnectorLine(corner.x, corner.y, b.x, b.y);
-    appendConnectorDot(a.x, a.y);
-    appendConnectorDot(b.x, b.y);
-    appendConnectorDot(corner.x, corner.y, 3, '0.5');
-
-    xDistanceLabel!.textContent = `${Math.round(xGap)}px`;
-    xDistanceLabel!.style.position = 'fixed';
-    xDistanceLabel!.style.left = `${(a.x + corner.x) / 2}px`;
-    xDistanceLabel!.style.top = `${a.y}px`;
-    xDistanceLabel!.style.display = 'block';
-
-    yDistanceLabel!.textContent = `${Math.round(yGap)}px`;
-    yDistanceLabel!.style.position = 'fixed';
-    yDistanceLabel!.style.left = `${corner.x}px`;
-    yDistanceLabel!.style.top = `${(corner.y + b.y) / 2}px`;
-    yDistanceLabel!.style.display = 'block';
-  }
-
-  /**
-   * Horizontal edge-misalignment layout: elements are vertically separated with
-   * horizontal overlap but misaligned left/right edges. Shows the y-gap plus
-   * left and/or right edge differences.
-   */
-  function drawHEdgeMisalign(
-    rectA: DOMRect,
-    rectB: DOMRect,
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-    yGap: number,
-  ): void {
-    const leftEdgeDiff = Math.abs(rectA.left - rectB.left);
-    const rightEdgeDiff = Math.abs(rectA.right - rectB.right);
-    const yBetween = (a.y + b.y) / 2;
-    const rectACenterY = rectA.top + rectA.height / 2;
-    const rectBCenterY = rectB.top + rectB.height / 2;
-    const leftGapY = rectA.left > rectB.left ? rectACenterY : rectBCenterY;
-    const rightGapY = rectA.right < rectB.right ? rectACenterY : rectBCenterY;
-
-    appendConnectorLine(a.x, a.y, a.x, b.y);
-    appendConnectorDot(a.x, a.y);
-    appendConnectorDot(a.x, b.y);
-
-    yDistanceLabel!.textContent = `${Math.round(yGap)}px`;
-    yDistanceLabel!.style.position = 'fixed';
-    yDistanceLabel!.style.left = `${a.x}px`;
-    yDistanceLabel!.style.top = `${yBetween}px`;
-    yDistanceLabel!.style.display = 'block';
-
-    if (leftEdgeDiff > EDGE_EPSILON) {
-      const leftFrom = Math.min(rectA.left, rectB.left);
-      const leftTo = Math.max(rectA.left, rectB.left);
-      appendConnectorLine(leftFrom, leftGapY, leftTo, leftGapY);
-      appendConnectorDot(leftFrom, leftGapY);
-      appendConnectorDot(leftTo, leftGapY);
-      xDistanceLabel!.textContent = `${Math.round(leftEdgeDiff)}px`;
-      xDistanceLabel!.style.position = 'fixed';
-      xDistanceLabel!.style.left = `${(leftFrom + leftTo) / 2}px`;
-      xDistanceLabel!.style.top = `${leftGapY}px`;
-      xDistanceLabel!.style.display = 'block';
-    }
-
-    if (rightEdgeDiff > EDGE_EPSILON) {
-      const rightFrom = Math.min(rectA.right, rectB.right);
-      const rightTo = Math.max(rectA.right, rectB.right);
-      appendConnectorLine(rightFrom, rightGapY, rightTo, rightGapY);
-      appendConnectorDot(rightFrom, rightGapY);
-      appendConnectorDot(rightTo, rightGapY);
-      distanceLabel!.textContent = `${Math.round(rightEdgeDiff)}px`;
-      distanceLabel!.style.position = 'fixed';
-      distanceLabel!.style.left = `${(rightFrom + rightTo) / 2}px`;
-      distanceLabel!.style.top = `${rightGapY}px`;
-      distanceLabel!.style.display = 'block';
-    }
-  }
-
-  /**
-   * Vertical edge-misalignment layout: elements are horizontally separated with
-   * vertical overlap but misaligned top/bottom edges. Shows the x-gap plus
-   * top and/or bottom edge differences.
-   */
-  function drawVEdgeMisalign(
-    rectA: DOMRect,
-    rectB: DOMRect,
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-    xGap: number,
-  ): void {
-    const topEdgeDiff = Math.abs(rectA.top - rectB.top);
-    const bottomEdgeDiff = Math.abs(rectA.bottom - rectB.bottom);
-    const xBetween = (a.x + b.x) / 2;
-    const rectACenterX = rectA.left + rectA.width / 2;
-    const rectBCenterX = rectB.left + rectB.width / 2;
-    const topGapX = rectA.top > rectB.top ? rectACenterX : rectBCenterX;
-    const bottomGapX =
-      rectA.bottom < rectB.bottom ? rectACenterX : rectBCenterX;
-
-    appendConnectorLine(a.x, a.y, b.x, b.y);
-    appendConnectorDot(a.x, a.y);
-    appendConnectorDot(b.x, b.y);
-
-    distanceLabel!.textContent = `${Math.round(xGap)}px`;
-    distanceLabel!.style.position = 'fixed';
-    distanceLabel!.style.left = `${xBetween}px`;
-    distanceLabel!.style.top = `${a.y}px`;
-    distanceLabel!.style.display = 'block';
-
-    if (topEdgeDiff > EDGE_EPSILON) {
-      const topFrom = Math.min(rectA.top, rectB.top);
-      const topTo = Math.max(rectA.top, rectB.top);
-      appendConnectorLine(topGapX, topFrom, topGapX, topTo);
-      appendConnectorDot(topGapX, topFrom);
-      appendConnectorDot(topGapX, topTo);
-      xDistanceLabel!.textContent = `${Math.round(topEdgeDiff)}px`;
-      xDistanceLabel!.style.position = 'fixed';
-      xDistanceLabel!.style.left = `${topGapX}px`;
-      xDistanceLabel!.style.top = `${(topFrom + topTo) / 2}px`;
-      xDistanceLabel!.style.display = 'block';
-    }
-
-    if (bottomEdgeDiff > EDGE_EPSILON) {
-      const bottomFrom = Math.min(rectA.bottom, rectB.bottom);
-      const bottomTo = Math.max(rectA.bottom, rectB.bottom);
-      appendConnectorLine(bottomGapX, bottomFrom, bottomGapX, bottomTo);
-      appendConnectorDot(bottomGapX, bottomFrom);
-      appendConnectorDot(bottomGapX, bottomTo);
-      yDistanceLabel!.textContent = `${Math.round(bottomEdgeDiff)}px`;
-      yDistanceLabel!.style.position = 'fixed';
-      yDistanceLabel!.style.left = `${bottomGapX}px`;
-      yDistanceLabel!.style.top = `${(bottomFrom + bottomTo) / 2}px`;
-      yDistanceLabel!.style.display = 'block';
-    }
-  }
-
-  /** Single dashed line with one distance label for pure x or y separation. */
-  function drawSingleAxis(
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-    xGap: number,
-    yGap: number,
-  ): void {
-    appendConnectorLine(a.x, a.y, b.x, b.y);
-    appendConnectorDot(a.x, a.y);
-    appendConnectorDot(b.x, b.y);
-    const dist = xGap > 0 ? Math.round(xGap) : Math.round(yGap);
-    distanceLabel!.textContent = `${dist}px`;
-    distanceLabel!.style.position = 'fixed';
-    distanceLabel!.style.left = `${(a.x + b.x) / 2}px`;
-    distanceLabel!.style.top = `${(a.y + b.y) / 2}px`;
-    distanceLabel!.style.display = 'block';
-  }
-
-  // ---------------------------------------------------------------------------
-  // Main connector dispatcher
-  // ---------------------------------------------------------------------------
-
   /** Draws the SVG connector and distance label(s) between the two selected elements. */
   function drawConnector(overrideSecond?: HTMLElement): void {
     const second = overrideSecond ?? secondSelected;
@@ -584,6 +321,11 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     const rectB = second.getBoundingClientRect();
     const { pointA: a, pointB: b, xGap, yGap } = getEdgeData(rectA, rectB);
     const svgEl = connectorLine as unknown as HTMLElement;
+    const labels: MeasurementLabelRefs = {
+      distanceLabel,
+      xDistanceLabel,
+      yDistanceLabel,
+    };
 
     distanceLabel.style.display = 'none';
     xDistanceLabel.style.display = 'none';
@@ -617,64 +359,28 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       connectorLine.removeChild(connectorLine.firstChild);
     }
 
-    drawGuidelines(rectA);
-    drawGuidelines(rectB);
+    drawGuidelines(connectorLine, rectA);
+    drawGuidelines(connectorLine, rectB);
 
     if (xGap > 0 && yGap > 0) {
-      drawLShaped(a, b, xGap, yGap);
+      drawLShaped(connectorLine, labels, a, b, xGap, yGap);
     } else if (
       xGap === 0 &&
       yGap > 0 &&
       (Math.abs(rectA.left - rectB.left) > EDGE_EPSILON ||
         Math.abs(rectA.right - rectB.right) > EDGE_EPSILON)
     ) {
-      drawHEdgeMisalign(rectA, rectB, a, b, yGap);
+      drawHEdgeMisalign(connectorLine, labels, rectA, rectB, a, b, yGap);
     } else if (
       yGap === 0 &&
       xGap > 0 &&
       (Math.abs(rectA.top - rectB.top) > EDGE_EPSILON ||
         Math.abs(rectA.bottom - rectB.bottom) > EDGE_EPSILON)
     ) {
-      drawVEdgeMisalign(rectA, rectB, a, b, xGap);
+      drawVEdgeMisalign(connectorLine, labels, rectA, rectB, a, b, xGap);
     } else {
-      drawSingleAxis(a, b, xGap, yGap);
+      drawSingleAxis(connectorLine, labels, a, b, xGap, yGap);
     }
-  }
-
-  /**
-   * Draws thin dashed guideline extensions from each corner of the given rect
-   * to the viewport edges. Called for both elements so connector lines always
-   * originate from a visible guideline.
-   *
-   * @param rect - The bounding rect of an element to draw guidelines for.
-   */
-  function drawGuidelines(rect: DOMRect): void {
-    if (!connectorLine) return;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    const segments: [number, number, number, number][] = [
-      [0, rect.top, rect.left, rect.top],
-      [rect.left, 0, rect.left, rect.top],
-      [rect.right, rect.top, vw, rect.top],
-      [rect.right, 0, rect.right, rect.top],
-      [0, rect.bottom, rect.left, rect.bottom],
-      [rect.left, rect.bottom, rect.left, vh],
-      [rect.right, rect.bottom, vw, rect.bottom],
-      [rect.right, rect.bottom, rect.right, vh],
-    ];
-
-    segments.forEach(([x1, y1, x2, y2]) => {
-      const line = document.createElementNS(SVG_NS, 'line');
-      line.setAttribute('x1', String(x1));
-      line.setAttribute('y1', String(y1));
-      line.setAttribute('x2', String(x2));
-      line.setAttribute('y2', String(y2));
-      line.setAttribute('stroke', GUIDELINE_COLOR);
-      line.setAttribute('stroke-width', '1');
-      line.setAttribute('stroke-dasharray', '4 4');
-      connectorLine!.appendChild(line);
-    });
   }
 
   /**
