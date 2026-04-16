@@ -354,10 +354,11 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   }
 
   /** Draws the SVG connector and distance label(s) between the two selected elements. */
-  function drawConnector(): void {
+  function drawConnector(overrideSecond?: HTMLElement): void {
+    const second = overrideSecond ?? secondSelected;
     if (
       !firstSelected ||
-      !secondSelected ||
+      !second ||
       !connectorLine ||
       !distanceLabel ||
       !xDistanceLabel ||
@@ -366,7 +367,7 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       return;
 
     const rectA = firstSelected.getBoundingClientRect();
-    const rectB = secondSelected.getBoundingClientRect();
+    const rectB = second.getBoundingClientRect();
     const { pointA: a, pointB: b, xGap, yGap } = getEdgeData(rectA, rectB);
 
     const svgNS = 'http://www.w3.org/2000/svg';
@@ -554,6 +555,16 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     if (target === firstSelected || target === secondSelected) return;
 
     hoveredElement = target;
+
+    // After first selection, show a live preview of the measurement
+    if (firstSelected && !secondSelected && target !== firstSelected) {
+      if (secondHighlight) positionHighlight(secondHighlight, target, false);
+      if (secondBadge) positionBadge(secondBadge, target);
+      if (secondSizeLabel) positionSizeLabel(secondSizeLabel, target);
+      drawConnector(target);
+      return;
+    }
+
     if (hoverHighlight) {
       positionHighlight(hoverHighlight, target, false);
     }
@@ -563,6 +574,18 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   function mouseOutHandler(): void {
     hoveredElement = null;
     if (hoverHighlight) hoverHighlight.style.display = 'none';
+
+    // Hide preview elements when mousing out without a confirmed second selection
+    if (firstSelected && !secondSelected) {
+      if (secondHighlight) secondHighlight.style.display = 'none';
+      if (secondBadge) secondBadge.style.display = 'none';
+      if (secondSizeLabel) secondSizeLabel.style.display = 'none';
+      if (connectorLine)
+        (connectorLine as unknown as HTMLElement).style.display = 'none';
+      if (distanceLabel) distanceLabel.style.display = 'none';
+      if (xDistanceLabel) xDistanceLabel.style.display = 'none';
+      if (yDistanceLabel) yDistanceLabel.style.display = 'none';
+    }
   }
 
   /**
