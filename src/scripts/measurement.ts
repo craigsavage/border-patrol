@@ -409,7 +409,8 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       connectorLine.removeChild(connectorLine.firstChild);
     }
 
-    // Draw corner guidelines for the second element (behind connector lines)
+    // Draw corner guidelines for both elements (behind connector lines)
+    drawGuidelines(rectA);
     drawGuidelines(rectB);
 
     if (xGap > 0 && yGap > 0) {
@@ -553,6 +554,88 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
         distanceLabel.style.top = `${rightGapY}px`;
         distanceLabel.style.display = 'block';
       }
+    } else if (
+      yGap === 0 &&
+      xGap > 0 &&
+      (Math.abs(rectA.top - rectB.top) > 1 ||
+        Math.abs(rectA.bottom - rectB.bottom) > 1)
+    ) {
+      // Vertical both-edges case: elements overlap on y-axis but have misaligned
+      // top/bottom edges. Show top/bottom edge gaps alongside the x-gap.
+      const topEdgeDiff = Math.abs(rectA.top - rectB.top);
+      const bottomEdgeDiff = Math.abs(rectA.bottom - rectB.bottom);
+      const xBetween = (a.x + b.x) / 2;
+      const rectACenterX = rectA.left + rectA.width / 2;
+      const rectBCenterX = rectB.left + rectB.width / 2;
+      // Anchor each edge gap line to the x-centre of the inset element
+      const topGapX = rectA.top > rectB.top ? rectACenterX : rectBCenterX;
+      const bottomGapX =
+        rectA.bottom < rectB.bottom ? rectACenterX : rectBCenterX;
+
+      const drawVSeg = (
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+      ): void => {
+        const seg = document.createElementNS(svgNS, 'line');
+        seg.setAttribute('x1', String(x1));
+        seg.setAttribute('y1', String(y1));
+        seg.setAttribute('x2', String(x2));
+        seg.setAttribute('y2', String(y2));
+        seg.setAttribute('stroke', CONNECTOR_COLOR);
+        seg.setAttribute('stroke-width', '2');
+        seg.setAttribute('stroke-dasharray', '6 4');
+        connectorLine!.appendChild(seg);
+      };
+
+      const drawVCircle = (cx: number, cy: number): void => {
+        const circle = document.createElementNS(svgNS, 'circle');
+        circle.setAttribute('cx', String(cx));
+        circle.setAttribute('cy', String(cy));
+        circle.setAttribute('r', '4');
+        circle.setAttribute('fill', CONNECTOR_COLOR);
+        connectorLine!.appendChild(circle);
+      };
+
+      // Horizontal x-gap line at the vertical midpoint of the overlap
+      drawVSeg(a.x, a.y, b.x, b.y);
+      drawVCircle(a.x, a.y);
+      drawVCircle(b.x, b.y);
+
+      distanceLabel.textContent = `${Math.round(xGap)}px`;
+      distanceLabel.style.position = 'fixed';
+      distanceLabel.style.left = `${xBetween}px`;
+      distanceLabel.style.top = `${a.y}px`;
+      distanceLabel.style.display = 'block';
+
+      // Top edge gap — anchored to the x-centre of the inset element
+      if (topEdgeDiff > 1) {
+        const topFrom = Math.min(rectA.top, rectB.top);
+        const topTo = Math.max(rectA.top, rectB.top);
+        drawVSeg(topGapX, topFrom, topGapX, topTo);
+        drawVCircle(topGapX, topFrom);
+        drawVCircle(topGapX, topTo);
+        xDistanceLabel.textContent = `${Math.round(topEdgeDiff)}px`;
+        xDistanceLabel.style.position = 'fixed';
+        xDistanceLabel.style.left = `${topGapX}px`;
+        xDistanceLabel.style.top = `${(topFrom + topTo) / 2}px`;
+        xDistanceLabel.style.display = 'block';
+      }
+
+      // Bottom edge gap — anchored to the x-centre of the inset element
+      if (bottomEdgeDiff > 1) {
+        const bottomFrom = Math.min(rectA.bottom, rectB.bottom);
+        const bottomTo = Math.max(rectA.bottom, rectB.bottom);
+        drawVSeg(bottomGapX, bottomFrom, bottomGapX, bottomTo);
+        drawVCircle(bottomGapX, bottomFrom);
+        drawVCircle(bottomGapX, bottomTo);
+        yDistanceLabel.textContent = `${Math.round(bottomEdgeDiff)}px`;
+        yDistanceLabel.style.position = 'fixed';
+        yDistanceLabel.style.left = `${bottomGapX}px`;
+        yDistanceLabel.style.top = `${(bottomFrom + bottomTo) / 2}px`;
+        yDistanceLabel.style.display = 'block';
+      }
     } else {
       // Single-axis: one straight line with one label
       const line = document.createElementNS(svgNS, 'line');
@@ -651,6 +734,12 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     }
     if (firstSelected && secondSelected) {
       drawConnector();
+    } else if (firstSelected && !secondSelected && hoveredElement) {
+      if (secondHighlight)
+        positionHighlight(secondHighlight, hoveredElement, false);
+      if (secondBadge) positionBadge(secondBadge, hoveredElement);
+      if (secondSizeLabel) positionSizeLabel(secondSizeLabel, hoveredElement);
+      drawConnector(hoveredElement);
     }
   }
 
