@@ -19,6 +19,7 @@ const localeOptions = [
   { value: 'es', label: 'ES' },
   { value: 'fr', label: 'FR' },
   { value: 'de', label: 'DE' },
+  { value: 'ja', label: 'JA' },
 ];
 
 // Placeholder for version, will be replaced during build

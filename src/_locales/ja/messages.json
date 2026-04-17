@@ -1,0 +1,182 @@
+{
+  "extensionName": {
+    "message": "Border Patrol",
+    "description": "The brand name of the extension."
+  },
+  "extensionLongName": {
+    "message": "Border Patrol – CSSデバッガー & 要素アウトライナー",
+    "description": "The long brand name of the extension."
+  },
+  "extensionDescription": {
+    "message": "CSSボックスモデルデバッガー & 要素アウトライナー — UIの素早い検証、レイアウトの可視化、フロントエンド開発の効率化に。",
+    "description": "Extension description for manifest.json and Web Store SEO."
+  },
+  "toggleBorderModeCommand": {
+    "message": "ボーダーモードを切り替える",
+    "description": "Command description for toggling Border Mode in manifest."
+  },
+  "toggleInspectorModeCommand": {
+    "message": "インスペクターモードを切り替える",
+    "description": "Command description for toggling Inspector Mode in manifest."
+  },
+  "borderSettings": {
+    "message": "ボーダー設定",
+    "description": "Title for the border settings section."
+  },
+  "borderMode": {
+    "message": "ボーダーモード",
+    "description": "Label for selecting the border mode."
+  },
+  "inspectorMode": {
+    "message": "インスペクターモード",
+    "description": "Label for toggling inspector mode."
+  },
+  "borderSize": {
+    "message": "ボーダーサイズ",
+    "description": "Label for selecting the size of the border."
+  },
+  "borderStyle": {
+    "message": "ボーダースタイル",
+    "description": "Label for selecting the style of the border."
+  },
+  "size": {
+    "message": "サイズ",
+    "description": "Generic label for size."
+  },
+  "style": {
+    "message": "スタイル",
+    "description": "Generic label for style."
+  },
+  "solid": {
+    "message": "実線",
+    "description": "A solid border style."
+  },
+  "dashed": {
+    "message": "破線",
+    "description": "A dashed border style."
+  },
+  "dotted": {
+    "message": "点線",
+    "description": "A dotted border style."
+  },
+  "double": {
+    "message": "二重線",
+    "description": "A double border style."
+  },
+  "enabled": {
+    "message": "オン",
+    "description": "Indicates that a feature or option is turned on."
+  },
+  "disabled": {
+    "message": "オフ",
+    "description": "Indicates that a feature or option is turned off."
+  },
+  "enableOrDisableBorders": {
+    "message": "ボーダーの表示を切り替える",
+    "description": "Instruction to enable or disable borders."
+  },
+  "enableOrDisableInspectors": {
+    "message": "インスペクターモードを切り替える",
+    "description": "Instruction to enable or disable inspectors."
+  },
+  "error": {
+    "message": "エラー",
+    "description": "Indicates that an error has occurred."
+  },
+  "restricted": {
+    "message": "制限済み",
+    "description": "Indicates that access is restricted."
+  },
+  "restrictedDescription": {
+    "message": "このページは制限されています。",
+    "description": "Description shown when the extension is restricted from running on a page."
+  },
+  "grantPermission": {
+    "message": "許可を付与",
+    "description": "Button text for granting permission to the extension."
+  },
+  "capturing": {
+    "message": "キャプチャ中",
+    "description": "Indicates that the extension is currently capturing data."
+  },
+  "takeScreenshot": {
+    "message": "スクリーンショットを撮る",
+    "description": "Button text for taking a screenshot."
+  },
+  "screenshotModeVisible": {
+    "message": "表示範囲",
+    "description": "Segmented control option for capturing only the visible area of the page."
+  },
+  "screenshotModeFullPage": {
+    "message": "全ページ",
+    "description": "Segmented control option for capturing the full scrollable page."
+  },
+  "downloadPermissionRequired": {
+    "message": "スクリーンショットにはダウンロード許可が必要です",
+    "description": "Indicates that download permission is required to take screenshots."
+  },
+  "downloadPermissionDenied": {
+    "message": "ダウンロード許可が拒否されました",
+    "description": "Indicates that download permission has been denied."
+  },
+  "keyboardShortcuts": {
+    "message": "キーボードショートカット",
+    "description": "Title for the keyboard shortcuts section."
+  },
+  "switchToDarkMode": {
+    "message": "ダークモードに切り替える",
+    "description": "Button text for switching to dark mode."
+  },
+  "switchToLightMode": {
+    "message": "ライトモードに切り替える",
+    "description": "Button text for switching to light mode."
+  },
+  "currentVersion": {
+    "message": "現在のバージョン: {version}",
+    "description": "Label for displaying the current version of the extension."
+  },
+  "selectLanguage": {
+    "message": "拡張機能の言語を選択します。",
+    "description": "Select for changing the language of the extension."
+  },
+  "none": {
+    "message": "なし",
+    "description": "Indicates that no option is selected."
+  },
+  "measurementMode": {
+    "message": "計測モード",
+    "description": "Label for toggling measurement mode."
+  },
+  "enableOrDisableMeasurement": {
+    "message": "計測モードを切り替える",
+    "description": "Instruction to enable or disable measurement mode."
+  },
+  "measurementFirst": {
+    "message": "1番目",
+    "description": "Badge label for the first selected element in measurement mode."
+  },
+  "measurementSecond": {
+    "message": "2番目",
+    "description": "Badge label for the second selected element in measurement mode."
+  },
+  "toggleMeasurementModeCommand": {
+    "message": "計測モードを切り替える",
+    "description": "Command description for toggling Measurement Mode in manifest."
+  },
+  "rulerMode": {
+    "message": "ルーラーモード",
+    "description": "Label for toggling ruler mode."
+  },
+  "enableOrDisableRuler": {
+    "message": "ルーラーモードを切り替える",
+    "description": "Instruction to enable or disable ruler mode."
+  },
+  "screenshotCaptureInProgress": {
+    "message": "スクリーンショットをキャプチャ中...",
+    "description": "Label shown in the page overlay while a full-page screenshot is being captured."
+  },
+  "toggleRulerModeCommand": {
+    "message": "ルーラーモードを切り替える",
+    "description": "Command description for toggling Ruler Mode in manifest."
+  }
+}
