@@ -64,11 +64,11 @@
     "description": "A double border style."
   },
   "enabled": {
-    "message": "Activé",
+    "message": "On",
     "description": "Indicates that a feature or option is turned on."
   },
   "disabled": {
-    "message": "Désactivé",
+    "message": "Off",
     "description": "Indicates that a feature or option is turned off."
   },
   "enableOrDisableBorders": {
