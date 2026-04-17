@@ -5,12 +5,13 @@ import {
   ILocaleContext,
   ILocaleProviderProps,
 } from '../../types/translations';
+import { localeMap } from '../locales';
 
 /** Key used to store the user's preferred locale in Chrome storage. */
 export const LOCALE_STORAGE_KEY = 'bp_user_locale';
 
-/** List of supported locales for the extension. */
-export const SUPPORTED_LOCALES: LocaleCode[] = ['en', 'es', 'fr', 'de'];
+/** List of supported locales, derived from the locale map. */
+export const SUPPORTED_LOCALES = Object.keys(localeMap) as LocaleCode[];
 
 // Create the context for locale management
 const LocaleContext = createContext<ILocaleContext>({

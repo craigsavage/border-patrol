@@ -1,6 +1,6 @@
 import { Layout, Select, Typography } from 'antd';
 import DarkModeToggle from './DarkModeToggle';
-import { useLocaleContext } from '../context/LocaleContext';
+import { useLocaleContext, SUPPORTED_LOCALES } from '../context/LocaleContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { LocaleCode } from '../../types/translations';
 
@@ -14,12 +14,10 @@ const footerStyle: React.CSSProperties = {
   width: '100%',
 };
 
-const localeOptions = [
-  { value: 'en', label: 'EN' },
-  { value: 'es', label: 'ES' },
-  { value: 'fr', label: 'FR' },
-  { value: 'de', label: 'DE' },
-];
+const localeOptions = SUPPORTED_LOCALES.map(code => ({
+  value: code,
+  label: code.toUpperCase(),
+}));
 
 // Placeholder for version, will be replaced during build
 const version = __BP_APP_VERSION__;
