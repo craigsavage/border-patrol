@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Shortened toggle switch labels to On/Off (localised: Ein/Aus in German, Activado/Desactivado in Spanish, Activé/Désactivé in French) for a more compact UI.
 - Measurement mode now shows a live distance preview as you move the mouse after selecting the first element, so you can quickly gauge distances without a second click. Clicking a second element locks the measurement in place as before.
 - Hovering over the second element now shows dashed corner guidelines extending to the viewport edges for alignment context. When the second element is wider than the first, left and right edge gap measurements are shown in addition to the vertical distance.
 
