@@ -1,6 +1,15 @@
 import Logger from './utils/logger';
 import MEASUREMENT_STYLES from '../styles/components/measurement.shadow.scss';
 import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
+import { MeasurementLabelRefs } from 'types/scripts/measurement';
+import { getEdgeData, EDGE_EPSILON } from './utils/measurement-geometry';
+import {
+  drawGuidelines,
+  drawLShaped,
+  drawHEdgeMisalign,
+  drawVEdgeMisalign,
+  drawSingleAxis,
+} from './utils/measurement-svg';
 
 (function () {
   let isMeasurementModeEnabled = false;
@@ -13,6 +22,8 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   let hoveredElement: HTMLElement | null = null;
   let firstSelected: HTMLElement | null = null;
   let secondSelected: HTMLElement | null = null;
+  let lastPreviewTarget: HTMLElement | null = null;
+  let previewRafId: number | null = null;
 
   // Shadow DOM elements for selection highlights and connector
   let hoverHighlight: HTMLElement | null = null;
@@ -31,7 +42,6 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   const OUTLINE_COLOR = 'rgba(59, 130, 246, 0.8)';
   const SELECTED_COLOR = 'rgba(16, 185, 129, 0.15)';
   const SELECTED_OUTLINE = 'rgba(16, 185, 129, 0.8)';
-  const CONNECTOR_COLOR = '#ef4444';
 
   /**
    * Checks if an element belongs to the measurement UI itself.
@@ -294,70 +304,12 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     label.style.display = 'block';
   }
 
-  /**
-   * Returns the nearest edge anchor points between two DOMRects along with
-   * the individual horizontal and vertical gap distances between them.
-   *
-   * @param a - The first element's bounding rect.
-   * @param b - The second element's bounding rect.
-   * @returns Edge anchor points on each rect and the x/y gap values.
-   */
-  function getEdgeData(
-    a: DOMRect,
-    b: DOMRect,
-  ): {
-    pointA: { x: number; y: number };
-    pointB: { x: number; y: number };
-    xGap: number;
-    yGap: number;
-  } {
-    // Horizontal component
-    let ax: number, bx: number, xGap: number;
-    if (a.right <= b.left) {
-      ax = a.right;
-      bx = b.left;
-      xGap = b.left - a.right;
-    } else if (b.right <= a.left) {
-      ax = a.left;
-      bx = b.right;
-      xGap = a.left - b.right;
-    } else {
-      const xMid = (Math.max(a.left, b.left) + Math.min(a.right, b.right)) / 2;
-      ax = xMid;
-      bx = xMid;
-      xGap = 0;
-    }
-
-    // Vertical component
-    let ay: number, by: number, yGap: number;
-    if (a.bottom <= b.top) {
-      ay = a.bottom;
-      by = b.top;
-      yGap = b.top - a.bottom;
-    } else if (b.bottom <= a.top) {
-      ay = a.top;
-      by = b.bottom;
-      yGap = a.top - b.bottom;
-    } else {
-      const yMid = (Math.max(a.top, b.top) + Math.min(a.bottom, b.bottom)) / 2;
-      ay = yMid;
-      by = yMid;
-      yGap = 0;
-    }
-
-    return {
-      pointA: { x: ax, y: ay },
-      pointB: { x: bx, y: by },
-      xGap,
-      yGap,
-    };
-  }
-
   /** Draws the SVG connector and distance label(s) between the two selected elements. */
-  function drawConnector(): void {
+  function drawConnector(overrideSecond?: HTMLElement): void {
+    const second = overrideSecond ?? secondSelected;
     if (
       !firstSelected ||
-      !secondSelected ||
+      !second ||
       !connectorLine ||
       !distanceLabel ||
       !xDistanceLabel ||
@@ -366,13 +318,15 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       return;
 
     const rectA = firstSelected.getBoundingClientRect();
-    const rectB = secondSelected.getBoundingClientRect();
+    const rectB = second.getBoundingClientRect();
     const { pointA: a, pointB: b, xGap, yGap } = getEdgeData(rectA, rectB);
-
-    const svgNS = 'http://www.w3.org/2000/svg';
     const svgEl = connectorLine as unknown as HTMLElement;
+    const labels: MeasurementLabelRefs = {
+      distanceLabel,
+      xDistanceLabel,
+      yDistanceLabel,
+    };
 
-    // Reset all labels
     distanceLabel.style.display = 'none';
     xDistanceLabel.style.display = 'none';
     yDistanceLabel.style.display = 'none';
@@ -390,7 +344,6 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       return;
     }
 
-    // Size the SVG to cover the viewport
     svgEl.style.position = 'fixed';
     svgEl.style.top = '0';
     svgEl.style.left = '0';
@@ -402,97 +355,31 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
       `0 0 ${window.innerWidth} ${window.innerHeight}`,
     );
 
-    // Clear previous SVG content
     while (connectorLine.firstChild) {
       connectorLine.removeChild(connectorLine.firstChild);
     }
 
+    drawGuidelines(connectorLine, rectA);
+    drawGuidelines(connectorLine, rectB);
+
     if (xGap > 0 && yGap > 0) {
-      // L-shaped connector: horizontal segment then vertical segment
-      // Corner sits at (b.x, a.y) — horizontal from A, then vertical to B
-      const corner = { x: b.x, y: a.y };
-
-      const drawSegment = (
-        x1: number,
-        y1: number,
-        x2: number,
-        y2: number,
-      ): void => {
-        const seg = document.createElementNS(svgNS, 'line');
-        seg.setAttribute('x1', String(x1));
-        seg.setAttribute('y1', String(y1));
-        seg.setAttribute('x2', String(x2));
-        seg.setAttribute('y2', String(y2));
-        seg.setAttribute('stroke', CONNECTOR_COLOR);
-        seg.setAttribute('stroke-width', '2');
-        seg.setAttribute('stroke-dasharray', '6 4');
-        connectorLine!.appendChild(seg);
-      };
-
-      // Horizontal: A edge → corner
-      drawSegment(a.x, a.y, corner.x, corner.y);
-      // Vertical: corner → B edge
-      drawSegment(corner.x, corner.y, b.x, b.y);
-
-      // Endpoint circles at A and B
-      [a, b].forEach(point => {
-        const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', String(point.x));
-        circle.setAttribute('cy', String(point.y));
-        circle.setAttribute('r', '4');
-        circle.setAttribute('fill', CONNECTOR_COLOR);
-        connectorLine!.appendChild(circle);
-      });
-
-      // Small dot at the corner
-      const cornerDot = document.createElementNS(svgNS, 'circle');
-      cornerDot.setAttribute('cx', String(corner.x));
-      cornerDot.setAttribute('cy', String(corner.y));
-      cornerDot.setAttribute('r', '3');
-      cornerDot.setAttribute('fill', CONNECTOR_COLOR);
-      cornerDot.setAttribute('opacity', '0.5');
-      connectorLine.appendChild(cornerDot);
-
-      // X label centred on the horizontal segment
-      xDistanceLabel.textContent = `${Math.round(xGap)}px`;
-      xDistanceLabel.style.position = 'fixed';
-      xDistanceLabel.style.left = `${(a.x + corner.x) / 2}px`;
-      xDistanceLabel.style.top = `${a.y}px`;
-      xDistanceLabel.style.display = 'block';
-
-      // Y label centred on the vertical segment
-      yDistanceLabel.textContent = `${Math.round(yGap)}px`;
-      yDistanceLabel.style.position = 'fixed';
-      yDistanceLabel.style.left = `${corner.x}px`;
-      yDistanceLabel.style.top = `${(corner.y + b.y) / 2}px`;
-      yDistanceLabel.style.display = 'block';
+      drawLShaped(connectorLine, labels, a, b, xGap, yGap);
+    } else if (
+      xGap === 0 &&
+      yGap > 0 &&
+      (Math.abs(rectA.left - rectB.left) > EDGE_EPSILON ||
+        Math.abs(rectA.right - rectB.right) > EDGE_EPSILON)
+    ) {
+      drawHEdgeMisalign(connectorLine, labels, rectA, rectB, a, b, yGap);
+    } else if (
+      yGap === 0 &&
+      xGap > 0 &&
+      (Math.abs(rectA.top - rectB.top) > EDGE_EPSILON ||
+        Math.abs(rectA.bottom - rectB.bottom) > EDGE_EPSILON)
+    ) {
+      drawVEdgeMisalign(connectorLine, labels, rectA, rectB, a, b, xGap);
     } else {
-      // Single-axis: one straight line with one label
-      const line = document.createElementNS(svgNS, 'line');
-      line.setAttribute('x1', String(a.x));
-      line.setAttribute('y1', String(a.y));
-      line.setAttribute('x2', String(b.x));
-      line.setAttribute('y2', String(b.y));
-      line.setAttribute('stroke', CONNECTOR_COLOR);
-      line.setAttribute('stroke-width', '2');
-      line.setAttribute('stroke-dasharray', '6 4');
-      connectorLine.appendChild(line);
-
-      [a, b].forEach(point => {
-        const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', String(point.x));
-        circle.setAttribute('cy', String(point.y));
-        circle.setAttribute('r', '4');
-        circle.setAttribute('fill', CONNECTOR_COLOR);
-        connectorLine!.appendChild(circle);
-      });
-
-      const dist = xGap > 0 ? Math.round(xGap) : Math.round(yGap);
-      distanceLabel.textContent = `${dist}px`;
-      distanceLabel.style.position = 'fixed';
-      distanceLabel.style.left = `${(a.x + b.x) / 2}px`;
-      distanceLabel.style.top = `${(a.y + b.y) / 2}px`;
-      distanceLabel.style.display = 'block';
+      drawSingleAxis(connectorLine, labels, a, b, xGap, yGap);
     }
   }
 
@@ -522,6 +409,12 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     }
     if (firstSelected && secondSelected) {
       drawConnector();
+    } else if (firstSelected && !secondSelected && hoveredElement) {
+      if (secondHighlight)
+        positionHighlight(secondHighlight, hoveredElement, false);
+      if (secondBadge) positionBadge(secondBadge, hoveredElement);
+      if (secondSizeLabel) positionSizeLabel(secondSizeLabel, hoveredElement);
+      drawConnector(hoveredElement);
     }
   }
 
@@ -554,6 +447,16 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
     if (target === firstSelected || target === secondSelected) return;
 
     hoveredElement = target;
+
+    // After first selection, show a live preview of the measurement
+    if (firstSelected && !secondSelected && target !== firstSelected) {
+      if (secondHighlight) positionHighlight(secondHighlight, target, false);
+      if (secondBadge) positionBadge(secondBadge, target);
+      if (secondSizeLabel) positionSizeLabel(secondSizeLabel, target);
+      drawConnector(target);
+      return;
+    }
+
     if (hoverHighlight) {
       positionHighlight(hoverHighlight, target, false);
     }
@@ -563,6 +466,18 @@ import { RUNTIME_MESSAGES, RuntimeMessage } from 'types/runtime-messages';
   function mouseOutHandler(): void {
     hoveredElement = null;
     if (hoverHighlight) hoverHighlight.style.display = 'none';
+
+    // Hide preview elements when mousing out without a confirmed second selection
+    if (firstSelected && !secondSelected) {
+      if (secondHighlight) secondHighlight.style.display = 'none';
+      if (secondBadge) secondBadge.style.display = 'none';
+      if (secondSizeLabel) secondSizeLabel.style.display = 'none';
+      if (connectorLine)
+        (connectorLine as unknown as HTMLElement).style.display = 'none';
+      if (distanceLabel) distanceLabel.style.display = 'none';
+      if (xDistanceLabel) xDistanceLabel.style.display = 'none';
+      if (yDistanceLabel) yDistanceLabel.style.display = 'none';
+    }
   }
 
   /**
