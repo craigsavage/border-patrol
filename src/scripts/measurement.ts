@@ -22,9 +22,6 @@ import {
   let hoveredElement: HTMLElement | null = null;
   let firstSelected: HTMLElement | null = null;
   let secondSelected: HTMLElement | null = null;
-  let lastPreviewTarget: HTMLElement | null = null;
-  let previewRafId: number | null = null;
-
   // Shadow DOM elements for selection highlights and connector
   let hoverHighlight: HTMLElement | null = null;
   let firstHighlight: HTMLElement | null = null;

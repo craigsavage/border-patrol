@@ -1,4 +1,4 @@
-import { LocaleCode } from 'types/translations';
+import type { LocaleCode } from 'types/translations';
 
 jest.mock('popup/context/LocaleContext', () => ({
   useLocaleContext: jest.fn(),
