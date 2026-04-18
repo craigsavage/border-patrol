@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.3] - 2026-04-17
+
+### Added
+
+- Added support for Japanese (JA) localisation, expanding accessibility for Japanese-speaking users.
+- Added a live distance preview in Measurement Mode, allowing users to see real-time measurements as they move the mouse after selecting the first element, enhancing usability and efficiency.
+- Added dashed corner guidelines in Measurement Mode when hovering over the second element, providing better alignment context. When the second element is wider than the first, left and right edge gap measurements are also displayed for improved spatial understanding.
+
+### Changed
+
+- Shortened toggle switch labels to On/Off for a more compact UI.
+
 ## [1.7.2] - 2026-04-09
 
 ### Changed

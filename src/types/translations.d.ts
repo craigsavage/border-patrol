@@ -1,5 +1,5 @@
 /** Locale codes supported by the extension. */
-export type LocaleCode = 'en' | 'es' | 'fr' | 'de';
+export type LocaleCode = 'en' | 'es' | 'fr' | 'de' | 'ja';
 
 /** Type definition for translation messages. */
 export type MessagesType = {
